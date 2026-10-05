@@ -14,6 +14,7 @@ jobs:
   sonarqube-analysis:
     name: Static Code Analysis
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: src/backend
@@ -22,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required by SonarQube for accurate history analysis
+          fetch-depth: 0
 
       - name: Setup Java 17 (Required for SonarScanner)
         uses: actions/setup-java@v4
@@ -44,14 +45,20 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          # 1. Start the analysis specifying the expected coverage report format
-          dotnet sonarscanner begin /k:"Resolum_MineSenseSafety_Backend" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-          
-          # 2. Build
+          dotnet sonarscanner begin \
+            /k:"Resolum_MineSenseSafety_Backend" \
+            /o:"resolum-minesense-safety" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+
           dotnet build MineSenseSafety.sln --configuration Release
-          
-          # 3. Run tests and collect code coverage (XPlat Code Coverage)
-          dotnet test MineSenseSafety.sln --configuration Release --no-build --collect:"XPlat Code Coverage" --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-          
-          # 4. Finalize and submit the report
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+          dotnet test MineSenseSafety.sln \
+            --configuration Release \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
+            --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+          dotnet sonarscanner end \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
