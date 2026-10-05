@@ -1,0 +1,6 @@
+@IncidentManagementService_HostAddress = http://localhost:5070
+
+GET {{IncidentManagementService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

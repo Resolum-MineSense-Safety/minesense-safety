@@ -1,0 +1,66 @@
+# --- .NET / C# ---
+bin/
+obj/
+.vs/
+*.user
+*.userosscache
+*.suo
+
+# --- Python / Edge ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.log
+
+# --- Node.js / React Frontend ---
+node_modules/
+dist/
+build/
+.npm/
+*.log.json
+
+# --- Terraform / Infraestructura ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# --- Entorno Local y Sistema Operativo ---
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# --- Python / Edge (adicional) ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+*.egg-info/
+htmlcov/
+
+# --- Node.js / React Frontend (adicional) ---
+.npm/
+dist-ssr/
+*.local
+*.tsbuildinfo
+.next/
+.vite/
+
+# --- Terraform / Infraestructura ---
+!*.example.tfvars
+
+# --- Bases de datos locales ---
+*.db
+*.sqlite
+*.sqlite3

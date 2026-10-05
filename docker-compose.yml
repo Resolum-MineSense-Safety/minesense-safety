@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: minesense_postgres
+    environment:
+      POSTGRES_DB: minesense_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: SecretPassword123!
+    ports:
+      - "5432:5432"
+
+  mongodb:
+    image: mongo:7.0
+    container_name: minesense_mongodb
+    ports:
+      - "27017:27017"
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: minesense_mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
