@@ -1,0 +1,62 @@
+name: SonarQube Analysis
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'src/backend/**'
+      - '.github/workflows/sonarqube-analysis.yml'
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'src/backend/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonarqube-analysis:
+    name: Static Code Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required by SonarQube for accurate history analysis
+
+      - name: Setup Java 17 (Required for SonarScanner)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Build and Analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          # 1. Start the analysis specifying the expected coverage report format
+          dotnet sonarscanner begin /k:"Resolum_MineSenseSafety_Backend" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          
+          # 2. Build
+          dotnet build MineSenseSafety.sln --configuration Release
+          
+          # 3. Run tests and collect code coverage (XPlat Code Coverage)
+          dotnet test MineSenseSafety.sln --configuration Release --no-build --collect:"XPlat Code Coverage" --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          
+          # 4. Finalize and submit the report
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

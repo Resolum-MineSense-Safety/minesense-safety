@@ -1,0 +1,44 @@
+name: Frontend CI (React Vite)
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'src/frontend/**'
+      - '.github/workflows/react-vite-build.yml'
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'src/frontend/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  react-vite-build:
+    name: Build and Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Linter
+        run: npm run lint
+
+      - name: Build Frontend
+        run: npm run build

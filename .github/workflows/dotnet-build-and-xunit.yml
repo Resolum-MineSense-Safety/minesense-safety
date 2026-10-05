@@ -1,0 +1,42 @@
+name: Backend CI (C# .NET 8)
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'src/backend/**'
+      - '.github/workflows/dotnet-build-and-xunit.yml'
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'src/backend/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore MineSenseSafety.sln
+
+      - name: Build solution
+        run: dotnet build MineSenseSafety.sln --configuration Release --no-restore
+
+      - name: Run xUnit tests
+        run: dotnet test MineSenseSafety.sln --configuration Release --no-build --verbosity normal --logger trx --results-directory "TestResults"
