@@ -3,9 +3,6 @@ name: Backend CI (C# .NET 8)
 on:
   pull_request:
     branches: [ "main", "develop" ]
-    paths:
-      - 'src/backend/**'
-      - '.github/workflows/dotnet-build-and-xunit.yml'
   push:
     branches: [ "develop" ]
     paths:

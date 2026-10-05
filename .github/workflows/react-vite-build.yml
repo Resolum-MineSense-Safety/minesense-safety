@@ -3,9 +3,6 @@ name: Frontend CI (React Vite)
 on:
   pull_request:
     branches: [ "main", "develop" ]
-    paths:
-      - 'src/frontend/**'
-      - '.github/workflows/react-vite-build.yml'
   push:
     branches: [ "develop" ]
     paths:
