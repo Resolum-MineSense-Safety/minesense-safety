@@ -5,8 +5,6 @@ on:
     branches: [ "main", "develop" ]
   push:
     branches: [ "develop" ]
-    paths:
-      - 'src/backend/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
