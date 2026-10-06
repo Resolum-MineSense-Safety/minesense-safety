@@ -1,6 +1,47 @@
 @IdentityAccessService_HostAddress = http://localhost:5150
+@userId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-GET {{IdentityAccessService_HostAddress}}/weatherforecast/
+POST {{IdentityAccessService_HostAddress}}/api/v1/authentication/sign-up
+Content-Type: application/json
+
+{
+  "username": "jperez",
+  "fullName": "Juan Perez",
+  "password": "S3cure-pass",
+  "role": "Supervisor"
+}
+
+###
+
+POST {{IdentityAccessService_HostAddress}}/api/v1/authentication/sign-in
+Content-Type: application/json
+
+{
+  "username": "jperez",
+  "password": "S3cure-pass"
+}
+
+###
+
+GET {{IdentityAccessService_HostAddress}}/api/v1/users?role=Supervisor
 Accept: application/json
+
+###
+
+GET {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}
+Accept: application/json
+
+###
+
+PUT {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/role
+Content-Type: application/json
+
+{
+  "role": "SafetyManager"
+}
+
+###
+
+POST {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/deactivation
 
 ###
