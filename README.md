@@ -13,7 +13,7 @@ Integrated microservices and IoT system for the preventive detection and mitigat
 - `src/edge/`: Local cabin processing and inference agent developed in Python.
 - `src/frontend/`: Web-based monitoring dashboard built with React, Vite, and Tailwind CSS.
 - `infrastructure/`: Provisioning code using Terraform and Kubernetes/Helm manifests.
-- `docs/`: DDD context map, C4 architecture documentation and Architecture Decision Records (ADRs).
+- `docs/`: DDD context map, C4 architecture documentation and Architecture Decision Records (ADRs). Start at [docs/README.md](docs/README.md).
 - `docker-compose.yml`: Local orchestration environment.
 
 ## Bounded Contexts
