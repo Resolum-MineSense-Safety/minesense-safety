@@ -79,6 +79,18 @@ cd src/edge && python main.py
 
 Each service exposes Swagger at `/swagger` in the Development environment and ships a `.http` file with sample requests.
 
+## Control Center Dashboard
+
+Start the backend services, then run the dashboard:
+
+```bash
+cd src/frontend
+npm ci
+npm run dev
+```
+
+The Vite dev server proxies `/iam`, `/fatigue`, `/alerts`, `/fleet` and `/incidents` to the local service ports. See [`src/frontend/README.md`](src/frontend/README.md) for details.
+
 ## Contributing
 
 GitFlow, Conventional Commits with scope and the Pull Request rules are described in [CONTRIBUTING.md](CONTRIBUTING.md).

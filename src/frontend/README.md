@@ -1,16 +1,43 @@
-# React + Vite
+# MineSense Safety - Control Center Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite + Tailwind CSS dashboard used by mine supervisors to monitor operator fatigue. The UI is in Spanish (Peru); the code is in English.
 
-Currently, two official plugins are available:
+## Sections
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Estado de flota**: fleet status table with combined filters (shift, fleet, location, risk level), Normal/Warning/Critical badges and a form to register monitored operators.
+- **Alertas**: alerts by operator id, with acknowledge, escalate and open-incident actions.
+- **Incidentes**: incidents by status; open, assign, register corrective action, escalate and close.
+- **Simulador de fatiga**: sends PERCLOS, blink rate and HRV to the fatigue detection service and shows the resulting risk level.
+- **Acceso**: sign-in / sign-up against the identity service.
 
-## React Compiler
+## Backend services
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Proxy prefix | Service                   | Local port |
+| ------------ | ------------------------- | ---------- |
+| `/iam`       | IdentityAccessService     | 5150       |
+| `/fatigue`   | FatigueDetectionService   | 5158       |
+| `/alerts`    | AlertService              | 5233       |
+| `/fleet`     | FleetMonitoringService    | 5255       |
+| `/incidents` | IncidentManagementService | 5070       |
 
-## Expanding the ESLint configuration
+In development, `vite.config.js` proxies each prefix to its service and strips the prefix, so the backend needs no CORS configuration. Base URLs can be overridden with `VITE_*` variables (see `.env.example`). Business-rule errors (HTTP 422 `{ message }`) are shown to the user as returned by the backend.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Scripts
+
+```bash
+npm ci          # install dependencies
+npm run dev     # start the dev server with the API proxy
+npm run lint    # ESLint (run in CI)
+npm run build   # production build (run in CI)
+```
+
+## Structure
+
+```
+src/
+  services/    one API module per bounded context + fetch wrapper (http.js)
+  views/       one component per dashboard section
+  components/  shared UI primitives (buttons, fields, badges, states)
+  hooks/       useAsyncAction and GUID helpers
+  i18n/        Spanish labels for backend enum values and date formatting
+```
