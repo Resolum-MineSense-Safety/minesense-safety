@@ -1,50 +1,55 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Button,
+  Disclosure,
   EmptyState,
   ErrorMessage,
   Guid,
-  IncidentStatusBadge,
+  IncidentStatusTag,
   LoadingState,
-  Panel,
+  Section,
   SelectField,
   SuccessMessage,
   TextArea,
   TextField,
 } from '../components/ui.jsx'
 import { isGuid, useAsyncAction } from '../hooks/useAsyncAction.js'
-import { formatDateTime, incidentStatusLabels } from '../i18n/labels.js'
+import { formatDateTime } from '../i18n/labels.js'
 import {
   assignIncident,
   closeIncident,
   escalateIncident,
   getIncidentsByStatus,
-  INCIDENT_STATUSES,
   openIncident,
   registerIncidentAction,
 } from '../services/incidentManagementService.js'
 
-const statusOptions = [
-  { value: '', label: 'Todos los estados' },
-  ...INCIDENT_STATUSES.map((value) => ({ value, label: incidentStatusLabels[value] })),
+const views = [
+  { id: 'open', label: 'Abiertos', match: (i) => i.status !== 'Closed' },
+  { id: 'closed', label: 'Cerrados', match: (i) => i.status === 'Closed' },
+  { id: 'all', label: 'Todos', match: () => true },
 ]
 
-export default function IncidentsView({ currentUser }) {
-  const [status, setStatus] = useState('')
+const code = (id) => `INC-${String(id).slice(0, 6).toUpperCase()}`
+
+export default function IncidentsView({ fleet, currentUser }) {
+  const { byOperatorId, operators } = fleet
   const [incidents, setIncidents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [view, setView] = useState('open')
 
-  const load = (activeStatus) => {
+  const load = async () => {
     setLoading(true)
     setError(null)
-    return getIncidentsByStatus(activeStatus)
-      .then((data) => setIncidents(sortIncidents(data)))
-      .catch((err) => {
-        setIncidents([])
-        setError(err.message)
-      })
-      .finally(() => setLoading(false))
+    try {
+      const data = await getIncidentsByStatus('')
+      setIncidents(sortIncidents(data))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -58,33 +63,53 @@ export default function IncidentsView({ currentUser }) {
     }
   }, [])
 
-  const handleStatusChange = (event) => {
-    setStatus(event.target.value)
-    load(event.target.value)
-  }
-
   const replaceIncident = (updated) =>
-    setIncidents((prev) =>
-      status && updated.status !== status
-        ? prev.filter((incident) => incident.id !== updated.id)
-        : prev.map((incident) => (incident.id === updated.id ? updated : incident)),
-    )
+    setIncidents((prev) => prev.map((incident) => (incident.id === updated.id ? updated : incident)))
+
+  const open = incidents.filter((i) => i.status !== 'Closed')
+  const escalated = open.filter((i) => i.status === 'Escalated').length
+  const shown = useMemo(() => incidents.filter(views.find((v) => v.id === view).match), [incidents, view])
+
+  const title = loading
+    ? 'Cargando incidentes…'
+    : open.length === 0
+      ? 'Sin incidentes abiertos'
+      : `${open.length} ${open.length === 1 ? 'incidente abierto' : 'incidentes abiertos'}`
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
-      <Panel
-        title="Incidentes"
-        description="Seguimiento de incidentes de fatiga hasta su cierre."
+    <div className="flex flex-col gap-9">
+      <header className="flex flex-col gap-3">
+        <h1 className={`stretch-expanded text-3xl font-bold md:text-4xl ${escalated > 0 ? 'text-signal' : 'text-ink'}`}>
+          {title}
+        </h1>
+        <p className="max-w-prose text-rock">
+          Cada incidente se asigna a un supervisor, registra las acciones tomadas en cabina y se cierra con una
+          resolución.
+          {escalated > 0 && ` ${escalated} ${escalated === 1 ? 'está escalado' : 'están escalados'} y necesita${escalated === 1 ? '' : 'n'} un responsable.`}
+        </p>
+      </header>
+
+      <Section
+        title="Seguimiento"
         actions={
-          <div className="flex items-end gap-2">
-            <SelectField
-              label="Estado"
-              value={status}
-              onChange={handleStatusChange}
-              options={statusOptions}
-              className="w-48"
-            />
-            <Button variant="secondary" onClick={() => load(status)} pending={loading}>
+          <div className="flex items-center gap-3">
+            <div role="radiogroup" aria-label="Mostrar incidentes" className="flex rounded border border-rule bg-sheet p-0.5">
+              {views.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={view === option.id}
+                  onClick={() => setView(option.id)}
+                  className={`rounded-sm px-3 py-1.5 text-sm font-medium ${
+                    view === option.id ? 'bg-ink text-sheet' : 'text-rock hover:text-ink'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <Button variant="secondary" onClick={load} pending={loading}>
               Actualizar
             </Button>
           </div>
@@ -93,27 +118,28 @@ export default function IncidentsView({ currentUser }) {
         <ErrorMessage message={error} onDismiss={() => setError(null)} />
         {loading ? (
           <LoadingState text="Cargando incidentes…" />
-        ) : incidents.length === 0 ? (
-          !error && (
-            <EmptyState title="No hay incidentes en este estado">
-              Los incidentes se abren a partir de una alerta de fatiga.
-            </EmptyState>
-          )
+        ) : shown.length === 0 ? (
+          <EmptyState title={view === 'closed' ? 'Aún no se cerró ningún incidente' : 'No hay incidentes por atender'}>
+            Los incidentes se abren desde una alerta, en la sección Alertas.
+          </EmptyState>
         ) : (
-          <ul className="flex flex-col gap-3" aria-label="Lista de incidentes">
-            {incidents.map((incident) => (
-              <IncidentCard
+          <ul className="flex flex-col" aria-label="Incidentes">
+            {shown.map((incident) => (
+              <IncidentItem
                 key={incident.id}
                 incident={incident}
+                operator={byOperatorId[incident.operatorId]}
                 currentUser={currentUser}
                 onUpdated={replaceIncident}
               />
             ))}
           </ul>
         )}
-      </Panel>
+      </Section>
 
-      <OpenIncidentForm onOpened={() => load(status)} />
+      <Disclosure summary="Abrir un incidente manualmente">
+        <OpenIncidentForm operators={operators} onOpened={load} />
+      </Disclosure>
     </div>
   )
 }
@@ -123,60 +149,48 @@ function sortIncidents(data) {
   return list.sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt))
 }
 
-function OpenIncidentForm({ onOpened }) {
-  const [form, setForm] = useState({ alertId: '', operatorId: '' })
-  const [success, setSuccess] = useState(null)
-  const { run, pending, error, clearError } = useAsyncAction(openIncident)
-
-  const update = (field) => (event) => setForm((prev) => ({ ...prev, [field]: event.target.value }))
-  const invalid = (value) => value !== '' && !isGuid(value)
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setSuccess(null)
-    const created = await run({ alertId: form.alertId.trim(), operatorId: form.operatorId.trim() })
-    if (created) {
-      setSuccess(`Incidente ${created.id.slice(0, 8)}… abierto.`)
-      setForm({ alertId: '', operatorId: '' })
-      onOpened()
-    }
-  }
-
+/** Pending, assigned, closed: escalation is a detour that sends the incident back to be assigned. */
+function Lifecycle({ incident }) {
+  const steps = [
+    { id: 'opened', label: 'Abierto', done: true },
+    { id: 'assigned', label: incident.status === 'Escalated' ? 'Escalado' : 'Asignado', done: incident.status !== 'Pending' },
+    { id: 'closed', label: 'Cerrado', done: incident.status === 'Closed' },
+  ]
   return (
-    <Panel title="Abrir incidente" description="Registra un incidente a partir de una alerta." className="h-fit">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <TextField
-          label="ID de la alerta"
-          value={form.alertId}
-          onChange={update('alertId')}
-          required
-          aria-invalid={invalid(form.alertId) || undefined}
-          hint={invalid(form.alertId) ? 'Debe ser un GUID válido.' : undefined}
-        />
-        <TextField
-          label="ID del operador"
-          value={form.operatorId}
-          onChange={update('operatorId')}
-          required
-          aria-invalid={invalid(form.operatorId) || undefined}
-          hint={invalid(form.operatorId) ? 'Debe ser un GUID válido.' : undefined}
-        />
-        <ErrorMessage message={error} onDismiss={clearError} />
-        <SuccessMessage message={success} />
-        <Button type="submit" pending={pending} disabled={invalid(form.alertId) || invalid(form.operatorId)}>
-          Abrir incidente
-        </Button>
-      </form>
-    </Panel>
+    <ol className="flex items-center gap-2 text-xs" aria-label="Etapa del incidente">
+      {steps.map((step, index) => {
+        const isEscalated = step.id === 'assigned' && incident.status === 'Escalated'
+        return (
+          <li key={step.id} className="flex items-center gap-2">
+            {index > 0 && <span className={`h-px w-6 ${step.done ? 'bg-ink' : 'bg-rule'}`} aria-hidden="true" />}
+            <span
+              className={`inline-flex items-center gap-1.5 ${
+                isEscalated ? 'font-semibold text-signal' : step.done ? 'font-semibold text-ink' : 'text-rock'
+              }`}
+            >
+              <span
+                className={`inline-block h-2 w-2 rounded-full ${
+                  isEscalated ? 'bg-signal' : step.done ? 'bg-ink' : 'border border-rock'
+                }`}
+                aria-hidden="true"
+              />
+              {step.label}
+              <span className="sr-only">{step.done ? '(completado)' : '(pendiente)'}</span>
+            </span>
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 
-function IncidentCard({ incident, currentUser, onUpdated }) {
+function IncidentItem({ incident, operator, currentUser, onUpdated }) {
   const [mode, setMode] = useState(null) // 'assign' | 'action' | 'close'
-  const closed = incident.status === 'Closed'
-  const actions = incident.actions ?? []
-
   const escalate = useAsyncAction(escalateIncident)
+  const actions = incident.actions ?? []
+  const closed = incident.status === 'Closed'
+  const canAssign = incident.status === 'Pending' || incident.status === 'Escalated'
+  const assigned = incident.status === 'Assigned'
 
   const handleEscalate = async () => {
     const updated = await escalate.run(incident.id)
@@ -191,121 +205,139 @@ function IncidentCard({ incident, currentUser, onUpdated }) {
   const toggle = (next) => setMode((current) => (current === next ? null : next))
 
   return (
-    <li className="rounded-md border border-slate-800 bg-slate-950/40 px-4 py-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <IncidentStatusBadge status={incident.status} />
-          <span className="font-mono text-sm text-slate-200" title={incident.id}>
-            INC-{incident.id.slice(0, 8).toUpperCase()}
-          </span>
-          <span className="text-xs text-slate-400">Abierto {formatDateTime(incident.openedAt)}</span>
+    <li className="border-b border-rule py-5">
+      <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3 className="text-lg font-semibold">{operator?.fullName ?? 'Operador no registrado en la flota'}</h3>
+            <span className="stretch-condensed text-sm text-rock" title={incident.id}>
+              {code(incident.id)}
+            </span>
+            <IncidentStatusTag status={incident.status} />
+          </div>
+          <p className="stretch-condensed text-sm text-rock">
+            {operator ? `${operator.vehicleCode}, ${operator.fleet}. ` : ''}Abierto el {formatDateTime(incident.openedAt)}
+            {incident.assignedAt && `; asignado el ${formatDateTime(incident.assignedAt)}`}
+            {incident.closedAt && `; cerrado el ${formatDateTime(incident.closedAt)}`}.
+          </p>
+          <Lifecycle incident={incident} />
         </div>
+
         {!closed && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => toggle('assign')} aria-expanded={mode === 'assign'}>
-              Asignar
-            </Button>
-            <Button variant="secondary" onClick={() => toggle('action')} aria-expanded={mode === 'action'}>
-              Registrar acción
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleEscalate}
-              pending={escalate.pending}
-              disabled={incident.status === 'Escalated'}
-            >
-              Escalar
-            </Button>
-            <Button variant="ghost" onClick={() => toggle('close')} aria-expanded={mode === 'close'}>
-              Cerrar
-            </Button>
+          <div className="flex flex-wrap items-start gap-2 lg:justify-end">
+            {canAssign && (
+              <Button onClick={() => toggle('assign')} aria-expanded={mode === 'assign'}>
+                Asignar responsable
+              </Button>
+            )}
+            {assigned && (
+              <>
+                <Button onClick={() => toggle('action')} aria-expanded={mode === 'action'}>
+                  Registrar acción
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => toggle('close')}
+                  aria-expanded={mode === 'close'}
+                  disabled={actions.length === 0}
+                  title={actions.length === 0 ? 'Registre al menos una acción antes de cerrar.' : undefined}
+                >
+                  Cerrar incidente
+                </Button>
+              </>
+            )}
+            {incident.status !== 'Escalated' && (
+              <Button variant="danger" onClick={handleEscalate} pending={escalate.pending}>
+                Escalar
+              </Button>
+            )}
           </div>
         )}
       </div>
 
-      <dl className="mt-2 grid gap-x-6 gap-y-1 text-xs text-slate-400 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex gap-1">
-          <dt>Alerta:</dt>
-          <dd><Guid value={incident.alertId} /></dd>
-        </div>
-        <div className="flex gap-1">
-          <dt>Operador:</dt>
-          <dd><Guid value={incident.operatorId} /></dd>
-        </div>
-        <div className="flex gap-1">
-          <dt>Supervisor:</dt>
-          <dd><Guid value={incident.assignedSupervisorId} /></dd>
-        </div>
-        <div className="flex gap-1">
-          <dt>{closed ? 'Cerrado:' : 'Asignado:'}</dt>
-          <dd>{formatDateTime(closed ? incident.closedAt : incident.assignedAt)}</dd>
-        </div>
-      </dl>
+      {actions.length > 0 && (
+        <ol className="mt-4 flex flex-col gap-3 border-l-2 border-rule pl-4" aria-label="Acciones registradas">
+          {actions.map((action, index) => (
+            <li key={`${action.registeredAt}-${index}`}>
+              <p className="text-base">{action.description}</p>
+              <p className="text-sm text-rock">
+                Resultado: {action.outcome}. {formatDateTime(action.registeredAt)}, supervisor <Guid value={action.supervisorId} />
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
 
       {incident.resolution && (
-        <p className="mt-2 text-sm text-slate-300">
-          <span className="text-slate-400">Resolución: </span>
-          {incident.resolution}
+        <p className="mt-4 max-w-prose border-l-2 border-malachite pl-4">
+          <span className="font-semibold">Resolución.</span> {incident.resolution}
         </p>
       )}
 
-      {actions.length > 0 && (
-        <details className="mt-2 text-sm">
-          <summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-200">
-            Acciones registradas ({actions.length})
-          </summary>
-          <ol className="mt-2 flex flex-col gap-2 border-l border-slate-700 pl-3">
-            {actions.map((action, index) => (
-              <li key={`${action.registeredAt}-${index}`}>
-                <p className="text-slate-200">{action.description}</p>
-                <p className="text-xs text-slate-400">
-                  Resultado: {action.outcome} · {formatDateTime(action.registeredAt)} · Supervisor{' '}
-                  <Guid value={action.supervisorId} />
-                </p>
-              </li>
-            ))}
-          </ol>
-        </details>
-      )}
-
-      <div className="mt-2">
+      <div className="mt-3">
         <ErrorMessage message={escalate.error} onDismiss={escalate.clearError} />
       </div>
 
       {mode === 'assign' && (
-        <AssignForm incidentId={incident.id} defaultSupervisorId={currentUser?.id} onDone={handleDone} />
+        <AssignForm incidentId={incident.id} currentUser={currentUser} onDone={handleDone} onCancel={() => setMode(null)} />
       )}
       {mode === 'action' && (
-        <ActionForm incidentId={incident.id} defaultSupervisorId={currentUser?.id} onDone={handleDone} />
+        <ActionForm incidentId={incident.id} currentUser={currentUser} onDone={handleDone} onCancel={() => setMode(null)} />
       )}
-      {mode === 'close' && <CloseForm incidentId={incident.id} onDone={handleDone} />}
+      {mode === 'close' && <CloseForm incidentId={incident.id} onDone={handleDone} onCancel={() => setMode(null)} />}
     </li>
   )
 }
 
-function InlineForm({ title, onSubmit, pending, error, clearError, submitLabel, disabled, children }) {
+function InlineForm({ title, onSubmit, onCancel, pending, error, clearError, submitLabel, disabled, children }) {
   return (
     <form
       onSubmit={onSubmit}
       aria-label={title}
-      className="mt-3 flex flex-col gap-3 rounded-md border border-slate-800 bg-slate-900 p-3"
+      className="mt-4 flex max-w-2xl flex-col gap-3 rounded-md border border-rule bg-sheet p-4"
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">{title}</p>
+      <p className="font-semibold">{title}</p>
       {children}
       <ErrorMessage message={error} onDismiss={clearError} />
-      <div>
+      <div className="flex gap-2">
         <Button type="submit" pending={pending} disabled={disabled}>
           {submitLabel}
+        </Button>
+        <Button variant="quiet" onClick={onCancel}>
+          Cancelar
         </Button>
       </div>
     </form>
   )
 }
 
-function AssignForm({ incidentId, defaultSupervisorId, onDone }) {
-  const [supervisorId, setSupervisorId] = useState(defaultSupervisorId ?? '')
+function SupervisorField({ currentUser, value, onChange }) {
+  const invalid = value !== '' && !isGuid(value)
+  if (currentUser && value === currentUser.id) {
+    return (
+      <p className="text-sm text-rock">
+        Responsable: <span className="font-semibold text-ink">{currentUser.username}</span> (sesión actual).{' '}
+        <button type="button" className="text-malachite underline" onClick={() => onChange('')}>
+          Elegir a otra persona
+        </button>
+      </p>
+    )
+  }
+  return (
+    <TextField
+      label="Identificador del supervisor"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      required
+      aria-invalid={invalid || undefined}
+      hint={invalid ? 'El identificador no tiene el formato correcto.' : 'Inicie sesión para usar su propia cuenta.'}
+    />
+  )
+}
+
+function AssignForm({ incidentId, currentUser, onDone, onCancel }) {
+  const [supervisorId, setSupervisorId] = useState(currentUser?.id ?? '')
   const { run, pending, error, clearError } = useAsyncAction(assignIncident)
-  const invalid = supervisorId !== '' && !isGuid(supervisorId)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -315,30 +347,23 @@ function AssignForm({ incidentId, defaultSupervisorId, onDone }) {
 
   return (
     <InlineForm
-      title="Asignar supervisor"
+      title="Asignar responsable"
       onSubmit={handleSubmit}
+      onCancel={onCancel}
       pending={pending}
       error={error}
       clearError={clearError}
       submitLabel="Asignar"
-      disabled={invalid}
+      disabled={!isGuid(supervisorId)}
     >
-      <TextField
-        label="ID del supervisor"
-        value={supervisorId}
-        onChange={(event) => setSupervisorId(event.target.value)}
-        required
-        aria-invalid={invalid || undefined}
-        hint={invalid ? 'Debe ser un GUID válido.' : 'Por defecto, el usuario con sesión iniciada.'}
-      />
+      <SupervisorField currentUser={currentUser} value={supervisorId} onChange={setSupervisorId} />
     </InlineForm>
   )
 }
 
-function ActionForm({ incidentId, defaultSupervisorId, onDone }) {
-  const [form, setForm] = useState({ supervisorId: defaultSupervisorId ?? '', description: '', outcome: '' })
+function ActionForm({ incidentId, currentUser, onDone, onCancel }) {
+  const [form, setForm] = useState({ supervisorId: currentUser?.id ?? '', description: '', outcome: '' })
   const { run, pending, error, clearError } = useAsyncAction(registerIncidentAction)
-  const invalid = form.supervisorId !== '' && !isGuid(form.supervisorId)
   const update = (field) => (event) => setForm((prev) => ({ ...prev, [field]: event.target.value }))
 
   const handleSubmit = async (event) => {
@@ -349,41 +374,39 @@ function ActionForm({ incidentId, defaultSupervisorId, onDone }) {
 
   return (
     <InlineForm
-      title="Registrar acción correctiva"
+      title="Registrar acción en cabina"
       onSubmit={handleSubmit}
+      onCancel={onCancel}
       pending={pending}
       error={error}
       clearError={clearError}
       submitLabel="Registrar acción"
-      disabled={invalid}
+      disabled={!isGuid(form.supervisorId)}
     >
-      <TextField
-        label="ID del supervisor"
+      <SupervisorField
+        currentUser={currentUser}
         value={form.supervisorId}
-        onChange={update('supervisorId')}
-        required
-        aria-invalid={invalid || undefined}
-        hint={invalid ? 'Debe ser un GUID válido.' : undefined}
+        onChange={(value) => setForm((prev) => ({ ...prev, supervisorId: value }))}
       />
       <TextArea
-        label="Descripción"
+        label="Qué se hizo"
         value={form.description}
         onChange={update('description')}
-        placeholder="Ej. Se detuvo el equipo y se relevó al operador."
+        placeholder="Se detuvo el camión en la bahía de seguridad y se relevó al operador."
         required
       />
       <TextField
         label="Resultado"
         value={form.outcome}
         onChange={update('outcome')}
-        placeholder="Ej. Operador en descanso"
+        placeholder="Operador en descanso supervisado"
         required
       />
     </InlineForm>
   )
 }
 
-function CloseForm({ incidentId, onDone }) {
+function CloseForm({ incidentId, onDone, onCancel }) {
   const [resolution, setResolution] = useState('')
   const { run, pending, error, clearError } = useAsyncAction(closeIncident)
 
@@ -397,17 +420,69 @@ function CloseForm({ incidentId, onDone }) {
     <InlineForm
       title="Cerrar incidente"
       onSubmit={handleSubmit}
+      onCancel={onCancel}
       pending={pending}
       error={error}
       clearError={clearError}
-      submitLabel="Confirmar cierre"
+      submitLabel="Cerrar incidente"
     >
       <TextArea
         label="Resolución"
         value={resolution}
         onChange={(event) => setResolution(event.target.value)}
+        placeholder="El operador retomó la jornada tras el descanso y la evaluación médica."
         required
       />
     </InlineForm>
+  )
+}
+
+function OpenIncidentForm({ operators, onOpened }) {
+  const [form, setForm] = useState({ alertId: '', operatorId: '' })
+  const [success, setSuccess] = useState(null)
+  const { run, pending, error, clearError } = useAsyncAction(openIncident)
+  const invalidAlert = form.alertId !== '' && !isGuid(form.alertId)
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setSuccess(null)
+    const created = await run({ alertId: form.alertId.trim(), operatorId: form.operatorId })
+    if (created) {
+      setSuccess(`Incidente ${code(created.id)} abierto.`)
+      setForm({ alertId: '', operatorId: '' })
+      onOpened()
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+      <SelectField
+        label="Operador"
+        value={form.operatorId}
+        onChange={(event) => setForm((prev) => ({ ...prev, operatorId: event.target.value }))}
+        options={[
+          { value: '', label: 'Seleccione un operador' },
+          ...operators.map((op) => ({ value: op.operatorId, label: `${op.fullName} (${op.vehicleCode})` })),
+        ]}
+        required
+      />
+      <TextField
+        label="Identificador de la alerta"
+        value={form.alertId}
+        onChange={(event) => setForm((prev) => ({ ...prev, alertId: event.target.value }))}
+        required
+        aria-invalid={invalidAlert || undefined}
+        hint={invalidAlert ? 'El identificador no tiene el formato correcto.' : 'Lo encuentra en el detalle de la alerta.'}
+      />
+      <div className="flex flex-col gap-2 md:col-span-2">
+        <ErrorMessage message={error} onDismiss={clearError} />
+        <SuccessMessage message={success} />
+        <div>
+          <Button type="submit" pending={pending} disabled={invalidAlert || !form.operatorId}>
+            Abrir incidente
+          </Button>
+        </div>
+      </div>
+    </form>
   )
 }

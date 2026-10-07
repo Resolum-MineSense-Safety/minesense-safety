@@ -35,8 +35,11 @@ export const roleLabels = {
 export const label = (dictionary, value) => dictionary[value] ?? value ?? '—'
 
 const dateTimeFormat = new Intl.DateTimeFormat('es-PE', {
-  dateStyle: 'short',
-  timeStyle: 'short',
+  day: 'numeric',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
 })
 
 export function formatDateTime(value) {

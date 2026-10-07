@@ -4,10 +4,57 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
-    @apply min-h-screen bg-slate-950 font-sans text-slate-200 antialiased;
+    @apply min-h-screen bg-limestone font-sans text-base text-ink antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.malachite.DEFAULT');
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Archivo's width axis carries the hierarchy: expanded for status, condensed for dense data. */
+  .stretch-expanded {
+    font-stretch: 120%;
+  }
+  .stretch-condensed {
+    font-stretch: 80%;
+  }
+
+  /* Hazard tape: reserved for critical risk only. */
+  .hazard-tape {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      theme('colors.signal.DEFAULT') 0 6px,
+      #e25a3f 6px 12px
+    );
+  }
+
+  .pulse-critical {
+    animation: pulse-critical 1.8s ease-out infinite;
+  }
+}
+
+@keyframes pulse-critical {
+  0% {
+    box-shadow: 0 0 0 0 rgb(191 48 24 / 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgb(191 48 24 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(191 48 24 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-critical {
+    animation: none;
   }
 }
