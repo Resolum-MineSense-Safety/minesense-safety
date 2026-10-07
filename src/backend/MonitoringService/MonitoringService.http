@@ -1,0 +1,56 @@
+@MonitoringService_HostAddress = http://localhost:5101
+@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@sessionId = 00000000-0000-0000-0000-000000000000
+
+# Start monitoring (US01) — requires the Operations service (http://localhost:5103) to validate the context
+POST {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "vehicleCode": "CAM-001",
+  "preShiftCheckId": null,
+  "availableSignals": ["EyeTracking", "HeartRate"]
+}
+
+###
+
+GET {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions?status=Active
+Accept: application/json
+
+###
+
+GET {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}
+Accept: application/json
+
+###
+
+# Current status for the operator dashboard (US02)
+GET {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/current?operatorId={{operatorId}}
+Accept: application/json
+
+###
+
+# Edge gateway: a signal stopped being available
+POST {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}/signal-losses
+Content-Type: application/json
+
+{
+  "signal": "HeartRate"
+}
+
+###
+
+# Edge gateway: the signal is available again
+POST {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}/signal-restorations
+Content-Type: application/json
+
+{
+  "signal": "HeartRate"
+}
+
+###
+
+POST {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}/stop
+
+###
