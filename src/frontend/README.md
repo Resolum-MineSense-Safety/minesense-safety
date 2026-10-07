@@ -41,3 +41,20 @@ src/
   hooks/       useAsyncAction and GUID helpers
   i18n/        Spanish labels for backend enum values and date formatting
 ```
+
+## Visual design
+
+The dashboard is designed for supervisors in a mine control room who must see, in two seconds,
+who is at risk and act on it.
+
+- **Palette ("survey sheet")**: limestone ground `#E8ECE6`, paper `#F6F7F3`, slate ink `#1D2A2E`
+  and malachite `#1E6A5A` (copper ore) for actions. Risk colours appear only when someone is at
+  risk: ochre for warning and signal red for critical; a normal state stays in neutral ink.
+- **Risk by shape, not only colour**: normal is a ring, warning a diamond and critical a square of
+  hazard tape, so it reads for colour-blind users and on washed-out screens. Hazard tape and the
+  pulse animation are reserved for critical risk (the pulse respects `prefers-reduced-motion`).
+- **Type**: one family, Archivo (variable width, self-hosted with `@fontsource-variable/archivo`).
+  Expanded and heavy for the status sentence that opens each view, normal for text, condensed
+  with tabular figures for dense table data. Times use the 24-hour clock.
+- **Layout**: a slate rail with the sections, the shift and the clock; each view opens with a
+  sentence that states the situation ("1 operador en riesgo crítico") followed by the work list.
