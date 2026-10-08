@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace FleetMonitoringService.Interfaces.REST.Resources;
 
 public record RegisterMonitoredOperatorResource(
-    Guid OperatorId,
+    [property: JsonRequired] Guid OperatorId,
     string FullName,
     string VehicleCode,
     string Fleet,
