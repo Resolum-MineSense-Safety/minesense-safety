@@ -1,6 +1,18 @@
 @AlertService_HostAddress = http://localhost:5233
+@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-GET {{AlertService_HostAddress}}/weatherforecast/
+POST {{AlertService_HostAddress}}/api/v1/alerts
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "assessmentId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "severity": "Critical"
+}
+
+###
+
+GET {{AlertService_HostAddress}}/api/v1/alerts?operatorId={{operatorId}}
 Accept: application/json
 
 ###
