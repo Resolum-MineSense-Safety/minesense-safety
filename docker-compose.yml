@@ -1,4 +1,12 @@
-version: '3.8'
+# MineSense Safety - Local (Development) environment
+# Usage: docker compose up --build
+# See README.md "Getting Started" for the service URLs.
+
+x-backend-service: &backend-service
+  restart: unless-stopped
+  environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_URLS: http://+:8080
 
 services:
   postgres:
@@ -23,3 +31,96 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+    volumes:
+      - ./infrastructure/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: minesense_kafka
+    ports:
+      - "9094:9094"
+    environment:
+      # Single-node KRaft cluster (broker + controller, no ZooKeeper)
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  identity-access-service:
+    <<: *backend-service
+    build:
+      context: ./src/backend
+      dockerfile: IdentityAccessService/Dockerfile
+    container_name: minesense_identity_access
+    ports:
+      - "5150:8080"
+
+  fatigue-detection-service:
+    <<: *backend-service
+    build:
+      context: ./src/backend
+      dockerfile: FatigueDetectionService/Dockerfile
+    container_name: minesense_fatigue_detection
+    ports:
+      - "5158:8080"
+
+  alert-service:
+    <<: *backend-service
+    build:
+      context: ./src/backend
+      dockerfile: AlertService/Dockerfile
+    container_name: minesense_alert
+    ports:
+      - "5233:8080"
+
+  fleet-monitoring-service:
+    <<: *backend-service
+    build:
+      context: ./src/backend
+      dockerfile: FleetMonitoringService/Dockerfile
+    container_name: minesense_fleet_monitoring
+    ports:
+      - "5255:8080"
+
+  incident-management-service:
+    <<: *backend-service
+    build:
+      context: ./src/backend
+      dockerfile: IncidentManagementService/Dockerfile
+    container_name: minesense_incident_management
+    ports:
+      - "5070:8080"
+
+  edge-simulator:
+    build:
+      context: ./src/edge
+    container_name: minesense_edge_simulator
+    restart: unless-stopped
+    depends_on:
+      - fatigue-detection-service
+      - alert-service
+      - mosquitto
+    environment:
+      FATIGUE_SERVICE_URL: http://fatigue-detection-service:8080
+      ALERT_SERVICE_URL: http://alert-service:8080
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+      EDGE_OPERATOR_ID: ${EDGE_OPERATOR_ID:-3f2504e0-4f89-41d3-9a0c-0305e82c3301}
+      EDGE_PROFILE: ${EDGE_PROFILE:-cycle}
+      EDGE_CYCLE_LENGTH: ${EDGE_CYCLE_LENGTH:-10}
+      EDGE_INTERVAL_SECONDS: ${EDGE_INTERVAL_SECONDS:-2}
+    volumes:
+      - edge-buffer:/app/data
+
+volumes:
+  edge-buffer:

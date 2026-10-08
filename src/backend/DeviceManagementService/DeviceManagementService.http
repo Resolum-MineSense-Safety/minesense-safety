@@ -1,0 +1,70 @@
+@DeviceManagementService_HostAddress = http://localhost:5102
+@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@deviceId = 00000000-0000-0000-0000-000000000000
+
+POST {{DeviceManagementService_HostAddress}}/api/v1/devices
+Content-Type: application/json
+
+{
+  "serialNumber": "CAM-0001",
+  "type": "Camera"
+}
+
+###
+
+PUT {{DeviceManagementService_HostAddress}}/api/v1/devices/{{deviceId}}/assignment
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "vehicleCode": "CAT-797F-012"
+}
+
+###
+
+POST {{DeviceManagementService_HostAddress}}/api/v1/devices/{{deviceId}}/heartbeats
+Content-Type: application/json
+
+{
+  "batteryLevel": 15
+}
+
+###
+
+POST {{DeviceManagementService_HostAddress}}/api/v1/devices/{{deviceId}}/disconnections
+Content-Type: application/json
+
+{
+  "reason": "Signal lost in tunnel"
+}
+
+###
+
+POST {{DeviceManagementService_HostAddress}}/api/v1/devices/{{deviceId}}/recoveries
+
+###
+
+GET {{DeviceManagementService_HostAddress}}/api/v1/devices?status=Disconnected
+Accept: application/json
+
+###
+
+GET {{DeviceManagementService_HostAddress}}/api/v1/devices?operatorId={{operatorId}}
+Accept: application/json
+
+###
+
+POST {{DeviceManagementService_HostAddress}}/api/v1/pre-shift-checks
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "vehicleCode": "CAT-797F-012"
+}
+
+###
+
+GET {{DeviceManagementService_HostAddress}}/api/v1/pre-shift-checks/latest?operatorId={{operatorId}}
+Accept: application/json
+
+###

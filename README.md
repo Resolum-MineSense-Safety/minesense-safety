@@ -30,10 +30,51 @@ See [docs/ddd/context-map.md](docs/ddd/context-map.md) for relationships, layer 
 
 ## Getting Started
 
+### Run the whole local environment (Docker)
+
+Requires Docker Desktop (or Docker Engine with Compose v2) running.
+
 ```bash
-docker compose up -d
+docker compose up --build
+```
+
+| Component | URL / port |
+|---|---|
+| IdentityAccessService | http://localhost:5150/swagger |
+| FatigueDetectionService | http://localhost:5158/swagger |
+| AlertService | http://localhost:5233/swagger |
+| FleetMonitoringService | http://localhost:5255/swagger |
+| IncidentManagementService | http://localhost:5070/swagger |
+| PostgreSQL | `localhost:5432` |
+| MongoDB | `localhost:27017` |
+| Apache Kafka (KRaft, single node) | `localhost:9094` from the host, `kafka:9092` inside the network |
+| MQTT broker (Mosquitto) | `localhost:1883`, WebSockets `localhost:9001` |
+| Edge simulator | no port; follow it with `docker compose logs -f edge-simulator` |
+
+The Edge simulator generates synthetic PERCLOS, blink rate and HRV readings, classifies the
+risk locally (same thresholds as `FatigueRiskPolicy`), raises the in-cabin alarm offline,
+posts every assessment to FatigueDetectionService and, on `Critical`, issues an alert in
+AlertService. While the cloud is unreachable the events stay in an offline buffer
+(`edge-buffer` volume) and are flushed in order when it comes back. Tune it with
+`EDGE_PROFILE` (`normal`, `drowsy`, `microsleep`, `cycle`), `EDGE_OPERATOR_ID`,
+`EDGE_INTERVAL_SECONDS` and `EDGE_CYCLE_LENGTH`, for example:
+
+```bash
+EDGE_PROFILE=microsleep docker compose up --build edge-simulator
+curl "http://localhost:5233/api/v1/alerts?operatorId=3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+```
+
+Persistence is in-memory for now, so data is lost when a service container restarts.
+
+### Run and test without Docker
+
+```bash
 dotnet test src/backend/MineSenseSafety.sln
 dotnet run --project src/backend/AlertService
+
+pip install -r src/edge/requirements.txt
+python -m pytest src/edge -q
+cd src/edge && python main.py
 ```
 
 Each service exposes Swagger at `/swagger` in the Development environment and ships a `.http` file with sample requests.
