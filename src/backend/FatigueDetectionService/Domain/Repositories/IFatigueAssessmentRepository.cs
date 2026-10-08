@@ -7,4 +7,7 @@ public interface IFatigueAssessmentRepository : IBaseRepository<FatigueAssessmen
 {
     /// <summary>Returns the assessments of an operator, newest first.</summary>
     Task<IEnumerable<FatigueAssessment>> FindByOperatorIdAsync(Guid operatorId);
+
+    /// <summary>Returns the assessments of a monitoring session, oldest first.</summary>
+    Task<IEnumerable<FatigueAssessment>> FindByMonitoringSessionIdAsync(Guid monitoringSessionId);
 }
