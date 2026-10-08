@@ -33,4 +33,8 @@ public class AlertCommandService(IAlertRepository alertRepository, TimeProvider 
         await alertRepository.UpdateAsync(alert);
         return alert;
     }
+
+    // A2 (Application): escalate the issued alerts that are overdue and return them.
+    public Task<IEnumerable<Alert>> Handle(EscalateOverdueAlertsCommand command) =>
+        throw new NotImplementedException("A2: pending implementation.");
 }

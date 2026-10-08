@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace FatigueDetectionService.Interfaces.REST.Resources;
 
 public record AssessFatigueResource(
-    Guid OperatorId,
-    Guid MonitoringSessionId,
-    double Perclos,
-    double BlinkRatePerMinute,
-    double HeartRateVariabilityMs);
+    [property: JsonRequired] Guid OperatorId,
+    [property: JsonRequired] Guid MonitoringSessionId,
+    [property: JsonRequired] double Perclos,
+    [property: JsonRequired] double BlinkRatePerMinute,
+    [property: JsonRequired] double HeartRateVariabilityMs
+);

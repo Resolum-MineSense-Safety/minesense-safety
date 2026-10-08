@@ -12,4 +12,8 @@ public class AlertQueryService(IAlertRepository alertRepository) : IAlertQuerySe
 
     public Task<IEnumerable<Alert>> Handle(GetAlertsByOperatorIdQuery query) =>
         alertRepository.FindByOperatorIdAsync(query.OperatorId);
+
+    // A2 (Application): return the alerts in the requested status.
+    public Task<IEnumerable<Alert>> Handle(GetAlertsByStatusQuery query) =>
+        throw new NotImplementedException("A2: pending implementation.");
 }

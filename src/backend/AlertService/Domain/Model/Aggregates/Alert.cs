@@ -45,4 +45,9 @@ public class Alert : AggregateRoot
 
         Status = AlertStatus.Escalated;
     }
+
+    // A1 (Domain): true while the alert is Issued and its deadline (AlertAcknowledgementPolicy:
+    // 30 s for Critical, 2 min for Warning) has passed.
+    public bool IsAcknowledgementOverdue(DateTimeOffset now) =>
+        throw new NotImplementedException("A1: pending implementation.");
 }

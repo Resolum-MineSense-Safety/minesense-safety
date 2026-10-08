@@ -1,3 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace AlertService.Interfaces.REST.Resources;
 
-public record IssueAlertResource(Guid OperatorId, Guid AssessmentId, string Severity);
+public record IssueAlertResource(
+    [property: JsonRequired] Guid OperatorId,
+    [property: JsonRequired] Guid AssessmentId,
+    string Severity
+);
