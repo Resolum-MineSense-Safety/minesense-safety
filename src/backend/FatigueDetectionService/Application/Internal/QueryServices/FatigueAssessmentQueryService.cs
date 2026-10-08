@@ -19,4 +19,8 @@ public class FatigueAssessmentQueryService(IFatigueAssessmentRepository fatigueA
         var assessments = await fatigueAssessmentRepository.FindByOperatorIdAsync(query.OperatorId);
         return assessments.FirstOrDefault();
     }
+
+    // F2 (Application): return the assessments of the session; empty list when the id is Guid.Empty.
+    public Task<IEnumerable<FatigueAssessment>> Handle(GetFatigueAssessmentsByMonitoringSessionIdQuery query) =>
+        throw new NotImplementedException("F2: pending implementation.");
 }
