@@ -1,3 +1,0 @@
-namespace FatigueDetectionService.Domain.Model.Queries;
-
-public record GetFatigueAssessmentsByMonitoringSessionIdQuery(Guid MonitoringSessionId);
