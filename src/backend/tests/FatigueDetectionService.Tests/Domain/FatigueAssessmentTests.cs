@@ -9,6 +9,25 @@ public class FatigueAssessmentTests
 {
     private static readonly DateTimeOffset AssessedAt = new(2026, 10, 6, 8, 0, 0, TimeSpan.Zero);
 
+    [Theory]
+    [InlineData(0.10, RiskLevel.Normal, false)]
+    [InlineData(0.15, RiskLevel.Warning, true)]
+    [InlineData(0.40, RiskLevel.Critical, true)]
+    public void RequiresAlert_WithClassifiedRiskLevel_ReturnsExpectedResult(
+        double perclos, RiskLevel expectedRiskLevel, bool expectedRequiresAlert)
+    {
+        // Arrange
+        var command = new AssessFatigueCommand(Guid.NewGuid(), Guid.NewGuid(), perclos, 15, 50);
+        var assessment = new FatigueAssessment(command, AssessedAt);
+
+        // Act
+        var requiresAlert = assessment.RequiresAlert;
+
+        // Assert
+        Assert.Equal(expectedRiskLevel, assessment.RiskLevel);
+        Assert.Equal(expectedRequiresAlert, requiresAlert);
+    }
+
     [Fact]
     public void Constructor_WithValidCommand_ClassifiesRiskLevel()
     {

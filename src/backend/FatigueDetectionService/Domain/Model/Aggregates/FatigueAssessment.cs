@@ -17,6 +17,9 @@ public class FatigueAssessment : AggregateRoot
     public RiskLevel RiskLevel { get; private set; }
     public DateTimeOffset AssessedAt { get; private set; }
 
+    /// <summary>Whether this assessment requires a preventive alert.</summary>
+    public bool RequiresAlert => RiskLevel is RiskLevel.Warning or RiskLevel.Critical;
+
     public FatigueAssessment(AssessFatigueCommand command, DateTimeOffset assessedAt)
     {
         if (command.OperatorId == Guid.Empty)
