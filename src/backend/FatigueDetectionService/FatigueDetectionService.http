@@ -1,25 +1,6 @@
 @FatigueDetectionService_HostAddress = http://localhost:5158
-@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
 
-POST {{FatigueDetectionService_HostAddress}}/api/v1/fatigue-assessments
-Content-Type: application/json
-
-{
-  "operatorId": "{{operatorId}}",
-  "monitoringSessionId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "perclos": 0.28,
-  "blinkRatePerMinute": 22,
-  "heartRateVariabilityMs": 18
-}
-
-###
-
-GET {{FatigueDetectionService_HostAddress}}/api/v1/fatigue-assessments?operatorId={{operatorId}}
-Accept: application/json
-
-###
-
-GET {{FatigueDetectionService_HostAddress}}/api/v1/fatigue-assessments/latest?operatorId={{operatorId}}
+GET {{FatigueDetectionService_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

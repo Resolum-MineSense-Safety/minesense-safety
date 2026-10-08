@@ -1,22 +1,9 @@
-using IncidentManagementService.Application.Internal.CommandServices;
-using IncidentManagementService.Application.Internal.QueryServices;
-using IncidentManagementService.Domain.Repositories;
-using IncidentManagementService.Domain.Services;
-using IncidentManagementService.Infrastructure.Persistence.InMemory;
-using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMineSenseWebApi();
-builder.Services.AddSingleton(TimeProvider.System);
-
-// Incident Management bounded context (EP05)
-builder.Services.AddSingleton<IIncidentRepository, InMemoryIncidentRepository>();
-builder.Services.AddScoped<IIncidentCommandService, IncidentCommandService>();
-builder.Services.AddScoped<IIncidentQueryService, IncidentQueryService>();
 
 var app = builder.Build();
 
@@ -29,8 +16,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
+var summaries = new[]
+{
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
 
-await app.RunAsync();
+app.MapGet("/weatherforecast", () =>
+{
+    var forecast =  Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast
+        (
+            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Random.Shared.Next(-20, 55),
+            summaries[Random.Shared.Next(summaries.Length)]
+        ))
+        .ToArray();
+    return forecast;
+})
+.WithName("GetWeatherForecast")
+.WithOpenApi();
 
-public partial class Program;
+app.Run();
+
+record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}

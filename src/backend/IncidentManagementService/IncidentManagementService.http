@@ -1,56 +1,6 @@
 @IncidentManagementService_HostAddress = http://localhost:5070
-@incidentId = 00000000-0000-0000-0000-000000000000
-@supervisorId = 9b2f6c1e-4d3a-4f8e-a1b2-c3d4e5f60718
 
-POST {{IncidentManagementService_HostAddress}}/api/v1/incidents
-Content-Type: application/json
-
-{
-  "alertId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "operatorId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-}
-
-###
-
-GET {{IncidentManagementService_HostAddress}}/api/v1/incidents?status=Pending
+GET {{IncidentManagementService_HostAddress}}/weatherforecast/
 Accept: application/json
-
-###
-
-GET {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}
-Accept: application/json
-
-###
-
-POST {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/assignment
-Content-Type: application/json
-
-{
-  "supervisorId": "{{supervisorId}}"
-}
-
-###
-
-POST {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/actions
-Content-Type: application/json
-
-{
-  "supervisorId": "{{supervisorId}}",
-  "description": "Operator relieved and sent to rest area",
-  "outcome": "Haul truck resumed operation with relief operator"
-}
-
-###
-
-POST {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/escalation
-
-###
-
-POST {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/closure
-Content-Type: application/json
-
-{
-  "resolution": "Fatigue risk mitigated; operator rested before next shift"
-}
 
 ###
