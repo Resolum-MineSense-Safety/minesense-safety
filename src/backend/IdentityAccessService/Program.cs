@@ -9,6 +9,9 @@ using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddMineSenseWebApi();
 
 // Identity & Access bounded context (EP08)
@@ -19,6 +22,7 @@ builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -26,8 +30,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;
