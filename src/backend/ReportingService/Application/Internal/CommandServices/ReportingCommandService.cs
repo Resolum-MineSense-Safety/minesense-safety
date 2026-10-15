@@ -2,6 +2,7 @@ using ReportingService.Domain.Model.Aggregates;
 using ReportingService.Domain.Model.Commands;
 using ReportingService.Domain.Repositories;
 using ReportingService.Domain.Services;
+using MineSenseSafety.Shared.Domain.Model;
 
 namespace ReportingService.Application.Internal.CommandServices;
 
@@ -27,6 +28,16 @@ public class ReportingCommandService(
         return (definition, true);
     }
 
-    public Task<ReportJob> Handle(RequestReportGenerationCommand command) =>
-        throw new NotImplementedException("Fase 2 (US22): report generation handling is not implemented yet.");
+    public async Task<ReportJob> Handle(RequestReportGenerationCommand command)
+    {
+        _ = artifactRepository;
+
+        var definition = await definitionRepository.FindByCodeAsync(command.DefinitionCode);
+        if (definition is null)
+            throw new DomainException($"Unknown report definition '{command.DefinitionCode}'.");
+
+        var job = new ReportJob(command, timeProvider.GetUtcNow());
+        await jobRepository.AddAsync(job);
+        return job;
+    }
 }
