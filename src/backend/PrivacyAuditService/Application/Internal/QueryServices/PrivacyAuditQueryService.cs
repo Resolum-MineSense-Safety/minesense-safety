@@ -7,7 +7,8 @@ namespace PrivacyAuditService.Application.Internal.QueryServices;
 
 public class PrivacyAuditQueryService(
     IProcessingConsentRepository consentRepository,
-    IAccessAuditRepository accessAuditRepository)
+    IAccessAuditRepository accessAuditRepository,
+    IComplianceReportRepository reportRepository)
     : IPrivacyAuditQueryService
 {
     public async Task<ProcessingConsent?> Handle(GetCurrentConsentByOperatorIdQuery query) =>
@@ -41,5 +42,5 @@ public class PrivacyAuditQueryService(
     }
 
     public Task<ComplianceReport?> Handle(GetReportByIdQuery query) =>
-        throw new NotImplementedException("Fase 2 (US22): report query is not implemented yet.");
+        reportRepository.FindByIdAsync(query.ReportId);
 }
