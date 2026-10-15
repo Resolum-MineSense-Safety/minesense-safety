@@ -7,4 +7,5 @@ public record RegisterAccessAttemptResource(
     [property: JsonRequired] string ResourceType,
     [property: JsonRequired] Guid ResourceId,
     [property: JsonRequired] IEnumerable<string> Fields,
-    [property: JsonRequired] string Purpose);
+    [property: JsonRequired] string Purpose,
+    [property: JsonRequired] string Decision);

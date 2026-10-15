@@ -1,7 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using PrivacyAuditService.Domain.Model.Queries;
 using PrivacyAuditService.Domain.Services;
 using PrivacyAuditService.Interfaces.REST.Resources;
+using PrivacyAuditService.Interfaces.REST.Transform;
 
 namespace PrivacyAuditService.Interfaces.REST;
 
@@ -13,18 +15,23 @@ public class ReportsController(
     IPrivacyAuditQueryService queryService) : ControllerBase
 {
     [HttpPost("safety")]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public IActionResult RequestSafetyReport([FromBody] RequestSafetyReportResource resource)
+    [ProducesResponseType(typeof(ReportResource), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> RequestSafetyReport([FromBody] RequestSafetyReportResource resource)
     {
-        _ = commandService;
-        _ = queryService;
-        return StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "PrivacyAuditService scaffold (US22): safety report request is not implemented yet." });
+        var command = RequestSafetyReportCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var report = await commandService.Handle(command);
+        var reportResource = ReportResourceFromEntityAssembler.ToResourceFromEntity(report);
+        return CreatedAtAction(nameof(GetReportById), new { reportId = report.Id }, reportResource);
     }
 
     [HttpGet("{reportId:guid}")]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public IActionResult GetReportById(Guid reportId) =>
-        StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "PrivacyAuditService scaffold (US22): report query is not implemented yet." });
+    [ProducesResponseType(typeof(ReportResource), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetReportById(Guid reportId)
+    {
+        var report = await queryService.Handle(new GetReportByIdQuery(reportId));
+        if (report is null) return NotFound();
+        return Ok(ReportResourceFromEntityAssembler.ToResourceFromEntity(report));
+    }
 }
