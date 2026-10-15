@@ -20,8 +20,28 @@ public class ReportingQueryService(
     }
 
     public Task<ReportJob?> Handle(GetReportJobByIdQuery query) =>
-        throw new NotImplementedException("Fase 2 (US22): report job query is not implemented yet.");
+        jobRepository.FindByIdAsync(query.ReportJobId);
 
-    public Task<IEnumerable<ReportJob>> Handle(GetReportJobsQuery query) =>
-        throw new NotImplementedException("Fase 2 (US22): report jobs query is not implemented yet.");
+    public async Task<IEnumerable<ReportJob>> Handle(GetReportJobsQuery query)
+    {
+        var jobs = await jobRepository.ListAsync();
+
+        if (!string.IsNullOrWhiteSpace(query.SiteId))
+            jobs = jobs.Where(j => string.Equals(j.SiteId, query.SiteId, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(query.FleetId))
+            jobs = jobs.Where(j => string.Equals(j.FleetId, query.FleetId, StringComparison.OrdinalIgnoreCase));
+        if (query.From.HasValue)
+            jobs = jobs.Where(j => j.RequestedAt >= query.From.Value);
+        if (query.To.HasValue)
+            jobs = jobs.Where(j => j.RequestedAt <= query.To.Value);
+
+        return jobs
+            .OrderByDescending(j => j.RequestedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToList();
+    }
+
+    public Task<ReportArtifact?> FindArtifactByJobIdAsync(Guid reportJobId) =>
+        artifactRepository.FindByReportJobIdAsync(reportJobId);
 }
