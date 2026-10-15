@@ -34,7 +34,8 @@ public static class PreventiveMeasureEvaluator
                 $"The period before the measure has only {before.Alerts} observations; at least " +
                 $"{AnalyticsPolicy.MinimumSampleSize} are needed to compare.");
 
-        var alertsVariation = Variation(before.AlertsPerDay, after.AlertsPerDay);
+        // Both windows have the same length, so the per-day variation equals the count variation
+        var alertsVariation = Variation(before.Alerts, after.Alerts);
         var repeatedVariation = Variation(before.OperatorsWithRepeatedAlerts, after.OperatorsWithRepeatedAlerts);
         var trend = alertsVariation switch
         {
