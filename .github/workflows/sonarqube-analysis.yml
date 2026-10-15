@@ -57,6 +57,7 @@ jobs:
           dotnet test MineSenseSafety.sln \
             --configuration Release \
             --no-build \
+            --results-directory TestResults \
             --collect:"XPlat Code Coverage" \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
