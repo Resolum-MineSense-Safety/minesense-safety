@@ -47,6 +47,10 @@ public class PrivacyAuditCommandService(
         await accessAuditRepository.AddAsync(entry);
         return entry;
     }
-    public Task<ComplianceReport> Handle(RequestSafetyReportCommand command) =>
-        throw new NotImplementedException("Fase 2 (US22): report request handling is not implemented yet.");
+    public async Task<ComplianceReport> Handle(RequestSafetyReportCommand command)
+    {
+        var report = new ComplianceReport(command, timeProvider.GetUtcNow());
+        await reportRepository.AddAsync(report);
+        return report;
+    }
 }
