@@ -23,3 +23,15 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+
+  privacy-audit-service:
+    build:
+      context: ./src/backend
+      dockerfile: PrivacyAuditService/Dockerfile
+    container_name: minesense_privacy_audit
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5260:8080"
