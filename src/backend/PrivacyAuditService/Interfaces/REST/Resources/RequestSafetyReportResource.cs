@@ -6,4 +6,5 @@ public record RequestSafetyReportResource(
     [property: JsonRequired] DateTimeOffset From,
     [property: JsonRequired] DateTimeOffset To,
     string? SiteId,
-    string? FleetId);
+    string? FleetId,
+    Guid? RequestedBy);
