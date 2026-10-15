@@ -23,9 +23,6 @@ public class ScaffoldTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Theory]
-    [InlineData("/api/v1/processing-purposes")]
-    [InlineData("/api/v1/consents/operator/3fa85f64-5717-4562-b3fc-2c963f66afa6/current")]
-    [InlineData("/api/v1/consents/operator/3fa85f64-5717-4562-b3fc-2c963f66afa6/history")]
     [InlineData("/api/v1/access-log?operatorId=3fa85f64-5717-4562-b3fc-2c963f66afa6")]
     [InlineData("/api/v1/incidents/7c9e6679-7425-40de-944b-e07fc1f90ae7/history")]
     public async Task ScaffoldGetRoutes_ReturnNotImplemented(string url)
