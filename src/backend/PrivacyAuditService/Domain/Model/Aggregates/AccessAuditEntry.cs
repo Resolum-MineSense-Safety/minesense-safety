@@ -1,6 +1,7 @@
 using MineSenseSafety.Shared.Domain.Model;
 using PrivacyAuditService.Domain.Model.Commands;
 using PrivacyAuditService.Domain.Model.ValueObjects;
+using PrivacyAuditService.Domain.Services;
 
 namespace PrivacyAuditService.Domain.Model.Aggregates;
 
@@ -18,18 +19,28 @@ public class AccessAuditEntry : AggregateRoot
     public string Purpose { get; private set; } = string.Empty;
     public AccessDecision Decision { get; private set; }
     public DateTimeOffset AccessedAt { get; private set; }
+    public string PrevHash { get; private set; } = string.Empty;
+    public string Hash { get; private set; } = string.Empty;
 
-    public AccessAuditEntry(RegisterAccessAttemptCommand command, DateTimeOffset accessedAt)
+    public AccessAuditEntry(RegisterAccessAttemptCommand command, DateTimeOffset accessedAt, string prevHash)
     {
         if (command.UserId == Guid.Empty)
             throw new DomainException("An access audit entry must belong to a user.");
+        if (string.IsNullOrWhiteSpace(command.ResourceType))
+            throw new DomainException("An access audit entry must identify the resource type.");
+        if (command.ResourceId == Guid.Empty)
+            throw new DomainException("An access audit entry must identify the resource.");
+        if (string.IsNullOrWhiteSpace(command.Purpose))
+            throw new DomainException("An access audit entry must declare its purpose.");
 
         UserId = command.UserId;
         ResourceType = command.ResourceType;
         ResourceId = command.ResourceId;
         Fields = command.Fields.ToList();
         Purpose = command.Purpose;
-        Decision = AccessDecision.Granted;
+        Decision = command.Decision;
         AccessedAt = accessedAt;
+        PrevHash = prevHash;
+        Hash = AccessAuditHashChain.Compute(this);
     }
 }

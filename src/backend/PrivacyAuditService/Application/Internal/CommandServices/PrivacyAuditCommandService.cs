@@ -36,9 +36,21 @@ public class PrivacyAuditCommandService(
         return (consent, true);
     }
 
-    public Task<AccessAuditEntry> Handle(RegisterAccessAttemptCommand command) =>
-        throw new NotImplementedException("Fase 1 (US21): access attempt handling is not implemented yet.");
+    public async Task<AccessAuditEntry> Handle(RegisterAccessAttemptCommand command)
+    {
+        var entries = await accessAuditRepository.ListAsync();
+        var prevHash = entries.OrderByDescending(e => e.AccessedAt).ThenByDescending(e => e.Id)
+            .Select(e => e.Hash)
+            .FirstOrDefault() ?? AccessAuditHashChain.GenesisPrevHash;
 
-    public Task<ComplianceReport> Handle(RequestSafetyReportCommand command) =>
-        throw new NotImplementedException("Fase 2 (US22): report request handling is not implemented yet.");
+        var entry = new AccessAuditEntry(command, timeProvider.GetUtcNow(), prevHash);
+        await accessAuditRepository.AddAsync(entry);
+        return entry;
+    }
+    public async Task<ComplianceReport> Handle(RequestSafetyReportCommand command)
+    {
+        var report = new ComplianceReport(command, timeProvider.GetUtcNow());
+        await reportRepository.AddAsync(report);
+        return report;
+    }
 }
