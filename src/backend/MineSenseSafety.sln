@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncidentManagementService.Tests", "tests\IncidentManagementService.Tests\IncidentManagementService.Tests.csproj", "{91EDB4F7-F555-456A-B4C3-D9A87A1638BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlertService.Tests", "tests\AlertService.Tests\AlertService.Tests.csproj", "{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,18 @@ Global
 		{91EDB4F7-F555-456A-B4C3-D9A87A1638BF}.Release|x64.Build.0 = Release|Any CPU
 		{91EDB4F7-F555-456A-B4C3-D9A87A1638BF}.Release|x86.ActiveCfg = Release|Any CPU
 		{91EDB4F7-F555-456A-B4C3-D9A87A1638BF}.Release|x86.Build.0 = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|x64.Build.0 = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Debug|x86.Build.0 = Debug|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|x64.ActiveCfg = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|x64.Build.0 = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|x86.ActiveCfg = Release|Any CPU
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,5 +151,6 @@ Global
 		{171D0A4D-B3DC-4853-B6EC-E1A233DB53C7} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 		{D685D488-7027-4070-8EAA-9F3EABBDEDB9} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 		{91EDB4F7-F555-456A-B4C3-D9A87A1638BF} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{44CCF4C9-FF96-40B8-BE90-CCC88BB6918D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
