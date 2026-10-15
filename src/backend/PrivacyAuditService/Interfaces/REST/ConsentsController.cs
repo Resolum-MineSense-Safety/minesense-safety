@@ -1,7 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using PrivacyAuditService.Domain.Model.Queries;
 using PrivacyAuditService.Domain.Services;
 using PrivacyAuditService.Interfaces.REST.Resources;
+using PrivacyAuditService.Interfaces.REST.Transform;
 
 namespace PrivacyAuditService.Interfaces.REST;
 
@@ -13,24 +15,34 @@ public class ConsentsController(
     IPrivacyAuditQueryService queryService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public IActionResult RegisterConsent([FromBody] RegisterConsentResource resource)
+    [ProducesResponseType(typeof(ConsentResource), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ConsentResource), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> RegisterConsent([FromBody] RegisterConsentResource resource)
     {
-        _ = commandService;
-        _ = queryService;
-        return StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "PrivacyAuditService scaffold (US20): consent registration is not implemented yet." });
+        var command = RegisterConsentCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var (consent, created) = await commandService.Handle(command);
+        var consentResource = ConsentResourceFromEntityAssembler.ToResourceFromEntity(consent);
+        return created
+            ? CreatedAtAction(nameof(GetCurrentConsent), new { operatorId = consent.OperatorId }, consentResource)
+            : Ok(consentResource);
     }
 
     [HttpGet("operator/{operatorId:guid}/current")]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public IActionResult GetCurrentConsent(Guid operatorId) =>
-        StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "PrivacyAuditService scaffold (US20): current consent query is not implemented yet." });
+    [ProducesResponseType(typeof(ConsentResource), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCurrentConsent(Guid operatorId)
+    {
+        var consent = await queryService.Handle(new GetCurrentConsentByOperatorIdQuery(operatorId));
+        if (consent is null) return NotFound();
+        return Ok(ConsentResourceFromEntityAssembler.ToResourceFromEntity(consent));
+    }
 
     [HttpGet("operator/{operatorId:guid}/history")]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public IActionResult GetConsentHistory(Guid operatorId) =>
-        StatusCode(StatusCodes.Status501NotImplemented,
-            new { message = "PrivacyAuditService scaffold (US20): consent history query is not implemented yet." });
+    [ProducesResponseType(typeof(IEnumerable<ConsentResource>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetConsentHistory(Guid operatorId)
+    {
+        var history = await queryService.Handle(new GetConsentHistoryByOperatorIdQuery(operatorId));
+        return Ok(history.Select(ConsentResourceFromEntityAssembler.ToResourceFromEntity));
+    }
 }
