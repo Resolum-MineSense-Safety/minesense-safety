@@ -1,0 +1,42 @@
+name: Infrastructure CI (Terraform)
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths: [ "infrastructure/terraform/**" ]
+  push:
+    branches: [ "develop" ]
+    paths: [ "infrastructure/terraform/**" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        stack: [ bootstrap, environments/staging, environments/production ]
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/${{ matrix.stack }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive ../..
+
+      - name: Init without backend
+        run: terraform init -backend=false -input=false
+
+      - name: Validate configuration
+        run: terraform validate -no-color
