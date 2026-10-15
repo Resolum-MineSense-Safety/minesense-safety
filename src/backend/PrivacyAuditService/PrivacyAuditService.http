@@ -1,0 +1,67 @@
+@PrivacyAuditService_HostAddress = http://localhost:5260
+@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@userId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+# Scaffold: every endpoint below returns 501 until Fase 1 (US20/US21) and Fase 2 (US22/US23).
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/processing-purposes
+Accept: application/json
+
+###
+
+POST {{PrivacyAuditService_HostAddress}}/api/v1/consents
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "policyVersion": "v1.0",
+  "purposes": ["fatigue-monitoring", "safety-alerts"],
+  "status": "Accepted"
+}
+
+###
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/consents/operator/{{operatorId}}/current
+Accept: application/json
+
+###
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/consents/operator/{{operatorId}}/history
+Accept: application/json
+
+###
+
+POST {{PrivacyAuditService_HostAddress}}/api/v1/access-log/entries
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "resourceType": "FatigueAssessment",
+  "resourceId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "fields": ["perclos", "riskLevel"],
+  "purpose": "shift-supervision"
+}
+
+###
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/access-log?operatorId={{operatorId}}&page=1&pageSize=20
+Accept: application/json
+
+###
+
+POST {{PrivacyAuditService_HostAddress}}/api/v1/reports/safety
+Content-Type: application/json
+
+{
+  "from": "2026-10-01T00:00:00Z",
+  "to": "2026-10-14T00:00:00Z",
+  "siteId": "site-north",
+  "fleetId": null
+}
+
+###
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/incidents/7c9e6679-7425-40de-944b-e07fc1f90ae7/history
+Accept: application/json
+
+###
