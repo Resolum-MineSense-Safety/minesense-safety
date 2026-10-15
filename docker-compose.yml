@@ -35,3 +35,15 @@ services:
       ASPNETCORE_URLS: http://+:8080
     ports:
       - "5260:8080"
+
+  reporting-service:
+    build:
+      context: ./src/backend
+      dockerfile: ReportingService/Dockerfile
+    container_name: minesense_reporting
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5270:8080"
