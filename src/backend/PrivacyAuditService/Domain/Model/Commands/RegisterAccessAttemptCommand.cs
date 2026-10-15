@@ -1,3 +1,5 @@
+using PrivacyAuditService.Domain.Model.ValueObjects;
+
 namespace PrivacyAuditService.Domain.Model.Commands;
 
 public record RegisterAccessAttemptCommand(
@@ -5,4 +7,5 @@ public record RegisterAccessAttemptCommand(
     string ResourceType,
     Guid ResourceId,
     IEnumerable<string> Fields,
-    string Purpose);
+    string Purpose,
+    AccessDecision Decision);
