@@ -5,7 +5,8 @@ namespace PrivacyAuditService.Domain.Services;
 
 public interface IPrivacyAuditCommandService
 {
-    Task<ProcessingConsent> Handle(RegisterConsentDecisionCommand command);
+    /// <returns>The decision and whether it was newly created (false when idempotent replay).</returns>
+    Task<(ProcessingConsent Consent, bool Created)> Handle(RegisterConsentDecisionCommand command);
     Task<AccessAuditEntry> Handle(RegisterAccessAttemptCommand command);
     Task<ComplianceReport> Handle(RequestSafetyReportCommand command);
 }
