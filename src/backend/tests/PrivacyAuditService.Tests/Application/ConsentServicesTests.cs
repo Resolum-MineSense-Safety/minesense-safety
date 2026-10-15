@@ -15,7 +15,7 @@ public class ConsentServicesTests
         // Arrange
         var repo = repository ?? new FakeProcessingConsentRepository();
         return (new PrivacyAuditCommandService(repo, null!, null!, TimeProvider.System),
-            new PrivacyAuditQueryService(repo));
+            new PrivacyAuditQueryService(repo, new FakeAccessAuditRepository()));
     }
 
     [Fact]
