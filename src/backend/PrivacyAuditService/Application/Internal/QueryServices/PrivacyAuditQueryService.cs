@@ -1,5 +1,7 @@
 using PrivacyAuditService.Domain.Model.Aggregates;
 using PrivacyAuditService.Domain.Model.Queries;
+using PrivacyAuditService.Domain.Model.ReadModels;
+using PrivacyAuditService.Domain.Model.ValueObjects;
 using PrivacyAuditService.Domain.Repositories;
 using PrivacyAuditService.Domain.Services;
 
@@ -43,4 +45,19 @@ public class PrivacyAuditQueryService(
 
     public Task<ComplianceReport?> Handle(GetReportByIdQuery query) =>
         reportRepository.FindByIdAsync(query.ReportId);
+
+    public async Task<IEnumerable<IncidentHistoryEntry>> Handle(GetIncidentHistoryQuery query)
+    {
+        var entries = await accessAuditRepository.ListAsync();
+
+        return entries
+            .Where(e => e.ResourceId == query.IncidentId)
+            .OrderBy(e => e.AccessedAt)
+            .Select(e => new IncidentHistoryEntry(
+                e.AccessedAt,
+                e.Decision == AccessDecision.Granted ? "AccessGranted" : "AccessDenied",
+                e.UserId,
+                $"{e.Purpose} on {e.ResourceType} [{string.Join(",", e.Fields)}]"))
+            .ToList();
+    }
 }
