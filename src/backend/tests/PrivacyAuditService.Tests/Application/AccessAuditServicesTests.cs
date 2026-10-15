@@ -15,8 +15,9 @@ public class AccessAuditServicesTests
         // Arrange
         var audits = new FakeAccessAuditRepository();
         return (new PrivacyAuditCommandService(new FakeProcessingConsentRepository(), audits,
-                null!, TimeProvider.System),
-            new PrivacyAuditQueryService(new FakeProcessingConsentRepository(), audits));
+                new FakeComplianceReportRepository(), TimeProvider.System),
+            new PrivacyAuditQueryService(new FakeProcessingConsentRepository(), audits,
+                new FakeComplianceReportRepository()));
     }
 
     private static RegisterAccessAttemptCommand AttemptCommand(
