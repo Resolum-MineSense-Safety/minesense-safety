@@ -5,14 +5,18 @@ using MineSenseSafety.Shared.Domain.Model;
 namespace MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 
 /// <summary>
-/// Maps broken business rules to HTTP 422 so controllers stay free of try/catch.
+/// Maps broken business rules to HTTP 422 (or 409 for state conflicts)
+/// so controllers stay free of try/catch.
 /// </summary>
 public class DomainExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
         if (context.Exception is not DomainException exception) return;
-        context.Result = new UnprocessableEntityObjectResult(new { message = exception.Message });
+        var body = new { message = exception.Message };
+        context.Result = exception is DomainConflictException
+            ? new ConflictObjectResult(body)
+            : new UnprocessableEntityObjectResult(body);
         context.ExceptionHandled = true;
     }
 }
