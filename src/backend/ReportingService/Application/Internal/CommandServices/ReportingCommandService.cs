@@ -11,13 +11,20 @@ public class ReportingCommandService(
     IReportArtifactRepository artifactRepository,
     TimeProvider timeProvider) : IReportingCommandService
 {
-    public Task<ReportDefinition> Handle(DefineReportIndicatorCommand command)
+    public async Task<(ReportDefinition Definition, bool Created)> Handle(DefineReportIndicatorCommand command)
     {
-        _ = definitionRepository;
         _ = jobRepository;
         _ = artifactRepository;
         _ = timeProvider;
-        throw new NotImplementedException("Fase 1 (US22): indicator definition handling is not implemented yet.");
+
+        var existing = await definitionRepository.FindByCodeAsync(command.Code);
+        if (existing is not null
+            && string.Equals(existing.Version, command.Version, StringComparison.OrdinalIgnoreCase))
+            return (existing, false);
+
+        var definition = new ReportDefinition(command);
+        await definitionRepository.AddAsync(definition);
+        return (definition, true);
     }
 
     public Task<ReportJob> Handle(RequestReportGenerationCommand command) =>
