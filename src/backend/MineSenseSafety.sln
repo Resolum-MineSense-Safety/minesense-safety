@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrivacyAuditService.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsService.Tests", "tests\AnalyticsService.Tests\AnalyticsService.Tests.csproj", "{1023FD57-7065-492C-A8E1-D9AB76DEB4FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsService", "AnalyticsService\AnalyticsService.csproj", "{C10943F2-EADF-414D-9C6E-2F4D5241A63B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{1023FD57-7065-492C-A8E1-D9AB76DEB4FE}.Release|x64.Build.0 = Release|Any CPU
 		{1023FD57-7065-492C-A8E1-D9AB76DEB4FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{1023FD57-7065-492C-A8E1-D9AB76DEB4FE}.Release|x86.Build.0 = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|x64.Build.0 = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Debug|x86.Build.0 = Debug|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|x64.ActiveCfg = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|x64.Build.0 = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|x86.ActiveCfg = Release|Any CPU
+		{C10943F2-EADF-414D-9C6E-2F4D5241A63B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
