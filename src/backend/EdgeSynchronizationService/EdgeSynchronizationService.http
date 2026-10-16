@@ -1,0 +1,18 @@
+@HostAddress = http://localhost:5040
+
+POST {{HostAddress}}/api/v1/edge-sync/events
+Content-Type: application/json
+
+{
+  "eventId": "b6b7c7dc-5d46-4b27-b4b7-2cc7e4a6be55",
+  "vehicleId": "truck-07",
+  "eventType": "telemetry",
+  "occurredAt": "2026-10-16T17:00:00Z",
+  "payload": { "heartRate": 82, "signalQuality": 0.98 }
+}
+
+###
+POST {{HostAddress}}/api/v1/edge-sync/sync?batchSize=100
+
+###
+GET {{HostAddress}}/api/v1/edge-sync/vehicles/truck-07/events
