@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:5280
+@alertId = 44444444-4444-4444-8444-444444444444
+@operationId = 11111111-1111-4111-8111-111111111111
+@operatorId = 22222222-2222-4222-8222-222222222222
+@supervisorId = 33333333-3333-4333-8333-333333333333
+# Supply valid tokens from the configured issuer, with matching subject/role/operation.
+@serviceToken = replace-with-service-token
+@operatorToken = replace-with-operator-token
+@supervisorToken = replace-with-supervisor-token
+
+### Integration: verify an existing AlertService alert and register its operation
+PUT {{baseUrl}}/api/v1/feedback-alerts/{{alertId}}
+Authorization: Bearer {{serviceToken}}
+Content-Type: application/json
+
+{ "operationId": "{{operationId}}" }
+
+### US26 / TS-20: evaluate an alert (201; duplicate by this reporter -> 409)
+POST {{baseUrl}}/api/v1/alerts/{{alertId}}/feedback
+Authorization: Bearer {{operatorToken}}
+Content-Type: application/json
+
+{ "classification": "FALSE_ALARM", "reason": "No fatigue; dust obscured camera", "reportedBy": "{{operatorId}}" }
+
+### Read evaluation history
+GET {{baseUrl}}/api/v1/alerts/{{alertId}}/feedback
+Authorization: Bearer {{supervisorToken}}
+
+### US27: supervisor review (200; original report remains unchanged)
+POST {{baseUrl}}/api/v1/alerts/{{alertId}}/feedback/reviews
+Authorization: Bearer {{supervisorToken}}
+Content-Type: application/json
+
+{ "classification": "INCONCLUSIVE", "observation": "Insufficient evidence", "reviewedBy": "{{supervisorId}}" }
+
+### US27: paginated queue; remove status to include all three states
+GET {{baseUrl}}/api/v1/feedback-alerts?operationId={{operationId}}&from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z&status=PENDING&page=1&pageSize=20
+Authorization: Bearer {{supervisorToken}}
+
+### US28 / TS-28: proportions 0..1, one final classification per alert
+GET {{baseUrl}}/api/v1/analytics/alert-reliability?operationId={{operationId}}&from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z
+Authorization: Bearer {{supervisorToken}}
+
+### Process liveness (not database/upstream readiness)
+GET {{baseUrl}}/health/live
