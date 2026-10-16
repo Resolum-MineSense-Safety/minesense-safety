@@ -23,4 +23,11 @@
         <ProjectReference Include="..\..\DeviceManagementService\DeviceManagementService.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Application\" />
+      <Folder Include="Domain\" />
+      <Folder Include="Infrastructure\" />
+      <Folder Include="Interfaces\" />
+    </ItemGroup>
+
 </Project>
