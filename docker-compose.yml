@@ -47,3 +47,23 @@ services:
       ASPNETCORE_URLS: http://+:8080
     ports:
       - "5270:8080"
+
+  feedback-reliability-service:
+    build:
+      context: ./src/backend
+      dockerfile: FeedbackReliabilityService/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_feedback
+      Authentication__Authority: ${FEEDBACK_AUTHORITY:-}
+      Authentication__Audience: minesense-feedback
+      Services__AlertServiceUrl: ${FEEDBACK_ALERT_SERVICE_URL:-http://host.docker.internal:5233/}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5280:8080"
+    depends_on:
+      mongodb:
+        condition: service_started
