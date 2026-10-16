@@ -47,3 +47,15 @@ services:
       ASPNETCORE_URLS: http://+:8080
     ports:
       - "5270:8080"
+
+  edge-synchronization-service:
+    build:
+      context: ./src/backend
+      dockerfile: EdgeSynchronizationService/Dockerfile
+    container_name: minesense_edge_synchronization
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5280:8080"
