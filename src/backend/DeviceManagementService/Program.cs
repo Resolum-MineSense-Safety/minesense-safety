@@ -11,6 +11,7 @@ builder.Services.AddMineSenseWebApi();
 builder.Services.AddSingleton<IDeviceRepository, InMemoryDeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();
+builder.Services.AddScoped<IPreShiftAvailabilityQueryService, PreShiftAvailabilityQueryService>();
 
 var app = builder.Build();
 
