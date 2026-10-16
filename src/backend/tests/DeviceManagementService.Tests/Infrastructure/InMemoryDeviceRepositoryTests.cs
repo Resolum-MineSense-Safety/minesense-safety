@@ -19,6 +19,7 @@ public class InMemoryDeviceRepositoryTests
 
         await _repository.AddAsync(device);
         device.ReportStatus(new ReportDeviceStatusCommand(
+            device.Id,
             DeviceStatus.Available,
             new BatteryLevel(90),
             DateTimeOffset.UtcNow,

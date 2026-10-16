@@ -75,6 +75,7 @@ public class DeviceTests
         var reportedAt = new DateTimeOffset(2026, 10, 15, 12, 0, 0, TimeSpan.Zero);
 
         device.ReportStatus(new ReportDeviceStatusCommand(
+            device.Id,
             DeviceStatus.Limited,
             new BatteryLevel(75),
             reportedAt,
