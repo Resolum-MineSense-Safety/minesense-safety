@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlertService.Tests", "tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceManagementService", "DeviceManagementService\DeviceManagementService.csproj", "{7EB388EB-75ED-4C12-A007-19B5E919466D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceManagementService.Tests", "tests\DeviceManagementService.Tests\DeviceManagementService.Tests.csproj", "{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}"
+EndProject
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -271,6 +273,18 @@ Global
 		{7EB388EB-75ED-4C12-A007-19B5E919466D}.Release|x64.Build.0 = Release|Any CPU
 		{7EB388EB-75ED-4C12-A007-19B5E919466D}.Release|x86.ActiveCfg = Release|Any CPU
 		{7EB388EB-75ED-4C12-A007-19B5E919466D}.Release|x86.Build.0 = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|x64.Build.0 = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Debug|x86.Build.0 = Debug|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|x64.ActiveCfg = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|x64.Build.0 = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|x86.ActiveCfg = Release|Any CPU
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -285,5 +299,6 @@ Global
 				{1023FD57-7065-492C-A8E1-D9AB76DEB4FE} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 				{5B9E1CC9-4D55-4E78-A562-C2B269A6C557} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 				{52D9DA82-7490-403F-9932-B0674ADE8FC0} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
+		{B6473FAC-6AAC-49FC-BE7A-DE2C752CAA6F} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 	EndGlobalSection
 EndGlobal
