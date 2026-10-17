@@ -1,0 +1,53 @@
+name: Feedback MongoDB Integration
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/backend/FeedbackReliabilityService/**'
+      - 'src/backend/tests/FeedbackReliabilityService.Tests/**'
+      - 'src/backend/.dockerignore'
+      - '.github/workflows/feedback-mongodb-ci.yml'
+  push:
+    branches: [develop]
+    paths:
+      - 'src/backend/FeedbackReliabilityService/**'
+      - 'src/backend/tests/FeedbackReliabilityService.Tests/**'
+      - 'src/backend/.dockerignore'
+      - '.github/workflows/feedback-mongodb-ci.yml'
+permissions:
+  contents: read
+jobs:
+  mongodb:
+    name: Feedback tests with MongoDB
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports: ['27017:27017']
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test feedback with real persistence
+        env:
+          FEEDBACK_TEST_MONGODB: mongodb://localhost:27017
+        run: dotnet test src/backend/tests/FeedbackReliabilityService.Tests/FeedbackReliabilityService.Tests.csproj --configuration Release
+      - name: Build service container
+        run: docker build -f src/backend/FeedbackReliabilityService/Dockerfile -t minesense-feedback:ci src/backend
+      - name: Check running service and Swagger
+        run: |
+          docker run -d --name feedback-ci --network host \
+            -e ASPNETCORE_ENVIRONMENT=Development \
+            -e ASPNETCORE_HTTP_PORTS=5280 \
+            -e ConnectionStrings__MongoDb=mongodb://localhost:27017 \
+            minesense-feedback:ci
+          curl --fail --retry 20 --retry-delay 2 --retry-connrefused http://localhost:5280/health/live
+          curl --fail http://localhost:5280/swagger/v1/swagger.json
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://localhost:5280/api/v1/alerts/44444444-4444-4444-8444-444444444444/feedback)" = "401"
+      - name: Container diagnostics
+        if: always()
+        run: docker logs feedback-ci || true
