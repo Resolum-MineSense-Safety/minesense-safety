@@ -1,11 +1,11 @@
-using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EdgeSynchronizationService.Interfaces.REST.Resources;
 
 public sealed record SubmitSynchronizationBatchResource(
-    Guid BatchId,
-    Guid EdgeNodeId,
-    Guid DeviceId,
-    long SequenceNumber,
-    DateTimeOffset CapturedAt,
-    IReadOnlyCollection<SynchronizationEventResource> Events);
+    [property: JsonRequired] Guid BatchId,
+    [property: JsonRequired] Guid EdgeNodeId,
+    [property: JsonRequired] Guid DeviceId,
+    [property: JsonRequired] long SequenceNumber,
+    [property: JsonRequired] DateTimeOffset CapturedAt,
+    [property: JsonRequired] IReadOnlyCollection<SynchronizationEventResource> Events);
