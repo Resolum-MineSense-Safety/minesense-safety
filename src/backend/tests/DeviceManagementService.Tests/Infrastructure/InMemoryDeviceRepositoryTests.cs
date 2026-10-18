@@ -56,4 +56,32 @@ public class InMemoryDeviceRepositoryTests
         Assert.Same(device, await _repository.FindByDeviceCodeAsync("cam-01"));
         Assert.Null(await _repository.FindByDeviceCodeAsync("missing"));
     }
+
+    [Fact]
+    public async Task FindByAssignedOperatorIdAsync_ReturnsOnlyAssignedDevices()
+    {
+        var operatorId = Guid.NewGuid();
+        var assigned = Device("cam-01");
+        assigned.Assign(new AssignDeviceCommand(assigned.Id, operatorId, null));
+        var other = Device("cam-02");
+        other.Assign(new AssignDeviceCommand(other.Id, Guid.NewGuid(), null));
+        await _repository.AddAsync(assigned);
+        await _repository.AddAsync(other);
+        await _repository.AddAsync(Device("cam-03"));
+
+        var devices = (await _repository.FindByAssignedOperatorIdAsync(operatorId)).ToList();
+
+        Assert.Single(devices);
+        Assert.Same(assigned, devices[0]);
+    }
+
+    [Fact]
+    public async Task FindByAssignedOperatorIdAsync_WhenNoDevicesAreAssigned_ReturnsEmpty()
+    {
+        await _repository.AddAsync(Device("cam-01"));
+
+        var devices = await _repository.FindByAssignedOperatorIdAsync(Guid.NewGuid());
+
+        Assert.Empty(devices);
+    }
 }

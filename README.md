@@ -10,6 +10,7 @@ Integrated microservices and IoT system for the preventive detection and mitigat
 - `src/backend/ReportingService/`: Reporting bounded context (EP10, scaffold).
 - `src/backend/EdgeSynchronizationService/`: Recepción idempotente de lotes de eventos
   generados offline por los nodos edge (puerto local `5280`).
+- `src/backend/FeedbackReliabilityService/`: Feedback & Reliability (EP12, US26–US28); [setup, contracts and testing](src/backend/FeedbackReliabilityService/README.md).
 - `src/edge/`: Local cabin processing and inference agent developed in Python.
 - `src/frontend/`: Web-based monitoring dashboard built with React, Vite, and Tailwind CSS.
 - `infrastructure/`: Provisioning code using Terraform and Kubernetes/Helm manifests.

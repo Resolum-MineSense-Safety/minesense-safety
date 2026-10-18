@@ -9,4 +9,8 @@ public class InMemoryDeviceRepository : InMemoryRepository<Device>, IDeviceRepos
     public Task<Device?> FindByDeviceCodeAsync(string deviceCode) =>
         Task.FromResult(
             Store.Values.FirstOrDefault(device => device.DeviceCode == deviceCode));
+
+    public Task<IEnumerable<Device>> FindByAssignedOperatorIdAsync(Guid operatorId) =>
+        Task.FromResult<IEnumerable<Device>>(
+            Store.Values.Where(device => device.AssignedOperatorId == operatorId).ToList());
 }

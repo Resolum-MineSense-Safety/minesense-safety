@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using DeviceManagementService.Domain.Model.Queries;
+using DeviceManagementService.Domain.Model.ValueObjects;
 using DeviceManagementService.Domain.Services;
 using DeviceManagementService.Interfaces.REST.Resources;
 using DeviceManagementService.Interfaces.REST.Transform;
@@ -12,7 +13,8 @@ namespace DeviceManagementService.Interfaces.REST;
 [Produces(MediaTypeNames.Application.Json)]
 public class DevicesController(
     IDeviceCommandService deviceCommandService,
-    IDeviceQueryService deviceQueryService) : ControllerBase
+    IDeviceQueryService deviceQueryService,
+    IPreShiftAvailabilityQueryService preShiftAvailabilityQueryService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(typeof(DeviceResource), StatusCodes.Status201Created)]
@@ -52,6 +54,18 @@ public class DevicesController(
     {
         var devices = await deviceQueryService.Handle(new GetDevicesQuery());
         return Ok(devices.Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("pre-shift-availability")]
+    [ProducesResponseType(typeof(PreShiftAvailabilityResource), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetPreShiftAvailability(
+        [FromQuery] Guid operatorId, [FromQuery] decimal batteryThreshold)
+    {
+        var result = await preShiftAvailabilityQueryService.Handle(
+            new GetPreShiftAvailabilityQuery(operatorId),
+            new BatteryThreshold(batteryThreshold));
+        return Ok(PreShiftAvailabilityResourceFromResultAssembler.ToResourceFromResult(result));
     }
 
     [HttpGet("{deviceId:guid}/status")]

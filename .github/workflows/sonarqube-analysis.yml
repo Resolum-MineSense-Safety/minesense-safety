@@ -14,6 +14,13 @@ jobs:
   sonarqube-analysis:
     name: Static Code Analysis
     runs-on: ubuntu-latest
+    services:
+      feedback-mongodb:
+        image: mongo:7.0
+        ports: ['27017:27017']
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s --health-timeout 5s --health-retries 10
 
     defaults:
       run:
@@ -44,6 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          FEEDBACK_TEST_MONGODB: mongodb://localhost:27017
         run: |
           dotnet sonarscanner begin \
             /k:"Resolum_MineSenseSafety_Backend" \
