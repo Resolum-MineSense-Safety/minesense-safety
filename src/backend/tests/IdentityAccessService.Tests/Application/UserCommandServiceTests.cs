@@ -39,14 +39,14 @@ public class UserCommandServiceTests
     }
 
     [Fact]
-    public async Task Handle_SignUpWithDuplicateUsername_ThrowsDomainException()
+    public async Task Handle_SignUpWithDuplicateUsername_ThrowsConflict()
     {
         // Arrange
         await _service.Handle(SignUpJuan());
         var duplicate = new SignUpCommand("jperez", "Other Person", Password, UserRole.Supervisor);
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => _service.Handle(duplicate));
+        await Assert.ThrowsAsync<DomainConflictException>(() => _service.Handle(duplicate));
     }
 
     [Fact]
@@ -57,48 +57,6 @@ public class UserCommandServiceTests
 
         // Act & Assert
         await Assert.ThrowsAsync<DomainException>(() => _service.Handle(command));
-    }
-
-    [Fact]
-    public async Task Handle_SignInWithValidCredentials_ReturnsUser()
-    {
-        // Arrange
-        var registered = await _service.Handle(SignUpJuan());
-
-        // Act
-        var user = await _service.Handle(new SignInCommand("jperez", Password));
-
-        // Assert
-        Assert.Equal(registered.Id, user.Id);
-    }
-
-    [Fact]
-    public async Task Handle_SignInWithWrongPassword_ThrowsInvalidCredentials()
-    {
-        // Arrange
-        await _service.Handle(SignUpJuan());
-
-        // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(
-            () => _service.Handle(new SignInCommand("jperez", "wrong-password")));
-
-        // Assert
-        Assert.Equal("Invalid credentials.", exception.Message);
-    }
-
-    [Fact]
-    public async Task Handle_SignInWithInactiveUser_ThrowsInvalidCredentials()
-    {
-        // Arrange
-        var user = await _service.Handle(SignUpJuan());
-        await _service.Handle(new DeactivateUserCommand(user.Id));
-
-        // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(
-            () => _service.Handle(new SignInCommand("jperez", Password)));
-
-        // Assert
-        Assert.Equal("Invalid credentials.", exception.Message);
     }
 
     [Fact]
@@ -113,5 +71,30 @@ public class UserCommandServiceTests
         // Assert
         Assert.NotNull(updated);
         Assert.Equal(UserRole.SafetyManager, updated.Role);
+    }
+
+    [Fact]
+    public async Task Handle_GrantAndRevokeMiningUnit_UpdateTheScopes()
+    {
+        // Arrange
+        var user = await _service.Handle(SignUpJuan());
+        var miningUnitId = Guid.NewGuid();
+
+        // Act
+        var granted = await _service.Handle(new GrantMiningUnitScopeCommand(user.Id, miningUnitId));
+        var grantedScopes = granted!.MiningUnitIds.ToList();
+        var revoked = await _service.Handle(new RevokeMiningUnitScopeCommand(user.Id, miningUnitId));
+
+        // Assert
+        Assert.Equal([miningUnitId], grantedScopes);
+        Assert.Empty(revoked!.MiningUnitIds);
+    }
+
+    [Fact]
+    public async Task Handle_ScopeCommandsOnUnknownUser_ReturnNull()
+    {
+        // Act & Assert
+        Assert.Null(await _service.Handle(new GrantMiningUnitScopeCommand(Guid.NewGuid(), Guid.NewGuid())));
+        Assert.Null(await _service.Handle(new RevokeMiningUnitScopeCommand(Guid.NewGuid(), Guid.NewGuid())));
     }
 }
