@@ -56,6 +56,14 @@ public class DevicesController(
         return Ok(devices.Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
+    [HttpGet("operator-availability")]
+    [ProducesResponseType(typeof(IEnumerable<OperatorAvailabilityResource>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetOperatorAvailability()
+    {
+        var availability = await deviceQueryService.Handle(new GetOperatorAvailabilityQuery());
+        return Ok(availability.Select(OperatorAvailabilityResourceFromResultAssembler.ToResourceFromResult));
+    }
+
     [HttpGet("pre-shift-availability")]
     [ProducesResponseType(typeof(PreShiftAvailabilityResource), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
