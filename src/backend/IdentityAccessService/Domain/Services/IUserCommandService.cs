@@ -6,7 +6,8 @@ namespace IdentityAccessService.Domain.Services;
 public interface IUserCommandService
 {
     Task<User> Handle(SignUpCommand command);
-    Task<User> Handle(SignInCommand command);
     Task<User?> Handle(ChangeUserRoleCommand command);
     Task<User?> Handle(DeactivateUserCommand command);
+    Task<User?> Handle(GrantMiningUnitScopeCommand command);
+    Task<User?> Handle(RevokeMiningUnitScopeCommand command);
 }
