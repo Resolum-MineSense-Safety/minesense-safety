@@ -13,7 +13,8 @@ namespace OperationsService.Interfaces.REST;
 [Produces(MediaTypeNames.Application.Json)]
 public class FleetsController(
     IFleetCommandService fleetCommandService,
-    IFleetQueryService fleetQueryService) : ControllerBase
+    IFleetQueryService fleetQueryService,
+    IVehicleCommandService vehicleCommandService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> RegisterFleet([FromBody] RegisterFleetResource resource)
@@ -22,6 +23,17 @@ public class FleetsController(
         var fleet = await fleetCommandService.Handle(command);
         var fleetResource = FleetResourceFromEntityAssembler.ToResourceFromEntity(fleet);
         return CreatedAtAction(nameof(GetFleetById), new { fleetId = fleet.Id }, fleetResource);
+    }
+
+    /// <summary>TS-06: registers a vehicle inside the fleet (404 unknown fleet, 409 duplicated code).</summary>
+    [HttpPost("{fleetId:guid}/vehicles")]
+    public async Task<IActionResult> RegisterFleetVehicle(Guid fleetId, [FromBody] RegisterFleetVehicleResource resource)
+    {
+        var command = RegisterVehicleCommandFromResourceAssembler.ToCommandFromResource(fleetId, resource);
+        var vehicle = await vehicleCommandService.Handle(command);
+        var vehicleResource = VehicleResourceFromEntityAssembler.ToResourceFromEntity(vehicle);
+        return CreatedAtAction(nameof(VehiclesController.GetVehicleById), "Vehicles",
+            new { vehicleId = vehicle.Id }, vehicleResource);
     }
 
     [HttpGet("{fleetId:guid}")]

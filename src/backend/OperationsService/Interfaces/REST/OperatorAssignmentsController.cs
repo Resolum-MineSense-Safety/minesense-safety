@@ -12,6 +12,7 @@ namespace OperationsService.Interfaces.REST;
 // Sprint 1 · T18 (Andreow Santiago): GET context validates a monitoring session context for the Monitoring service.
 [ApiController]
 [Route("api/v1/[controller]")]
+[Route("api/v1/shift-assignments")] // TS-08 name for the same resource
 [Produces(MediaTypeNames.Application.Json)]
 public class OperatorAssignmentsController(
     IOperatorAssignmentCommandService assignmentCommandService,

@@ -10,6 +10,7 @@ namespace OperationsService.Interfaces.REST;
 // Sprint 1 · T14 (Joseph Huamani): CRUD endpoints for mining units and locations (US17). Remaining: delete/deactivate and admin views in src/frontend.
 [ApiController]
 [Route("api/v1/[controller]")]
+[Route("api/v1/mining-sites")] // TS-05 name for the same resource
 [Produces(MediaTypeNames.Application.Json)]
 public class MiningUnitsController(
     IMiningUnitCommandService miningUnitCommandService,
