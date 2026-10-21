@@ -15,7 +15,7 @@ public class OperatorAssignmentServiceTests
     {
         // Arrange
         var vehicle = await _context.RegisterVehicleAsync();
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _context.NewOperatorIdAsync();
 
         // Act
         var assignment = await _context.AssignmentCommands.Handle(
@@ -30,9 +30,43 @@ public class OperatorAssignmentServiceTests
     [Fact]
     public async Task CreateAssignment_UnknownVehicle_IsRejected()
     {
+        // Arrange
+        var operatorId = await _context.NewOperatorIdAsync();
+
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => _context.AssignmentCommands.Handle(
-            new CreateAssignmentCommand(Guid.NewGuid(), Guid.NewGuid(), Shift.Day, October1, null)));
+        await Assert.ThrowsAsync<DomainNotFoundException>(() => _context.AssignmentCommands.Handle(
+            new CreateAssignmentCommand(operatorId, Guid.NewGuid(), Shift.Day, October1, null)));
+    }
+
+    [Fact]
+    public async Task CreateAssignment_UnknownOperator_IsRejectedAsNotFound()
+    {
+        // Arrange
+        var vehicle = await _context.RegisterVehicleAsync();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<DomainNotFoundException>(() => _context.AssignmentCommands.Handle(
+            new CreateAssignmentCommand(Guid.NewGuid(), vehicle.Id, Shift.Day, October1, null)));
+
+        // Assert
+        Assert.Contains("Operator", exception.Message);
+    }
+
+    [Fact]
+    public async Task CreateAssignment_InactiveOperator_IsRejected()
+    {
+        // Arrange
+        var vehicle = await _context.RegisterVehicleAsync();
+        var @operator = await _context.RegisterOperatorAsync();
+        await _context.OperatorCommands.Handle(new UpdateOperatorCommand(
+            @operator.Id, @operator.FirstName, @operator.LastName, @operator.MiningUnitId, OperatorStatus.Inactive));
+
+        // Act
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() => _context.AssignmentCommands.Handle(
+            new CreateAssignmentCommand(@operator.Id, vehicle.Id, Shift.Day, October1, null)));
+
+        // Assert
+        Assert.Contains("Inactive", exception.Message);
     }
 
     [Fact]
@@ -42,10 +76,11 @@ public class OperatorAssignmentServiceTests
         var vehicle = await _context.RegisterVehicleAsync();
         await _context.VehicleCommands.Handle(
             new UpdateVehicleCommand(vehicle.Id, vehicle.Model, VehicleStatus.InMaintenance, vehicle.FleetId));
+        var operatorId = await _context.NewOperatorIdAsync();
 
         // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(() => _context.AssignmentCommands.Handle(
-            new CreateAssignmentCommand(Guid.NewGuid(), vehicle.Id, Shift.Day, October1, null)));
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() => _context.AssignmentCommands.Handle(
+            new CreateAssignmentCommand(operatorId, vehicle.Id, Shift.Day, October1, null)));
 
         // Assert
         Assert.Contains("InMaintenance", exception.Message);
@@ -56,11 +91,11 @@ public class OperatorAssignmentServiceTests
     {
         // Arrange
         var vehicle = await _context.RegisterVehicleAsync();
-        await _context.AssignmentCommands.Handle(new CreateAssignmentCommand(Guid.NewGuid(), vehicle.Id, Shift.Day, October1, null));
-        var secondOperator = Guid.NewGuid();
+        await _context.AssignmentCommands.Handle(new CreateAssignmentCommand(await _context.NewOperatorIdAsync(), vehicle.Id, Shift.Day, October1, null));
+        var secondOperator = await _context.NewOperatorIdAsync();
 
         // Act
-        await Assert.ThrowsAsync<DomainException>(() => _context.AssignmentCommands.Handle(
+        await Assert.ThrowsAnyAsync<DomainException>(() => _context.AssignmentCommands.Handle(
             new CreateAssignmentCommand(secondOperator, vehicle.Id, Shift.Day, October1.AddDays(2), null)));
 
         // Assert
@@ -74,7 +109,7 @@ public class OperatorAssignmentServiceTests
         var fleet = await _context.RegisterFleetAsync();
         var firstVehicle = await _context.RegisterVehicleAsync(fleet);
         var secondVehicle = await _context.RegisterVehicleAsync(fleet);
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _context.NewOperatorIdAsync();
         var current = await _context.AssignmentCommands.Handle(
             new CreateAssignmentCommand(operatorId, firstVehicle.Id, Shift.Night, October1, null));
 
@@ -98,12 +133,12 @@ public class OperatorAssignmentServiceTests
         var fleet = await _context.RegisterFleetAsync();
         var firstVehicle = await _context.RegisterVehicleAsync(fleet);
         var takenVehicle = await _context.RegisterVehicleAsync(fleet);
-        await _context.AssignmentCommands.Handle(new CreateAssignmentCommand(Guid.NewGuid(), takenVehicle.Id, Shift.Day, October1, null));
+        await _context.AssignmentCommands.Handle(new CreateAssignmentCommand(await _context.NewOperatorIdAsync(), takenVehicle.Id, Shift.Day, October1, null));
         var current = await _context.AssignmentCommands.Handle(
-            new CreateAssignmentCommand(Guid.NewGuid(), firstVehicle.Id, Shift.Day, October1, null));
+            new CreateAssignmentCommand(await _context.NewOperatorIdAsync(), firstVehicle.Id, Shift.Day, October1, null));
 
         // Act
-        await Assert.ThrowsAsync<DomainException>(() => _context.AssignmentCommands.Handle(
+        await Assert.ThrowsAnyAsync<DomainException>(() => _context.AssignmentCommands.Handle(
             new ChangeAssignedVehicleCommand(current.Id, takenVehicle.Id, October1.AddDays(3))));
 
         // Assert
@@ -132,7 +167,7 @@ public class OperatorAssignmentServiceTests
         // Arrange
         var vehicle = await _context.RegisterVehicleAsync();
         var assignment = await _context.AssignmentCommands.Handle(
-            new CreateAssignmentCommand(Guid.NewGuid(), vehicle.Id, Shift.Day, October1, null));
+            new CreateAssignmentCommand(await _context.NewOperatorIdAsync(), vehicle.Id, Shift.Day, October1, null));
 
         // Act
         var ended = await _context.AssignmentCommands.Handle(new EndAssignmentCommand(assignment.Id, October1.AddDays(10)));

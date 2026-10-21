@@ -34,6 +34,16 @@ public static class OperationsApiClient
             new RegisterVehicleResource(UniqueCode("CAT"), "Caterpillar 797F", fleetId.Value))).ReadAsync<VehicleResource>();
     }
 
+    public static async Task<OperatorResource> RegisterOperatorAsync(this HttpClient client, Guid? miningUnitId = null)
+    {
+        miningUnitId ??= (await client.RegisterMiningUnitAsync()).Id;
+        return await (await client.PostAsJsonAsync("/api/v1/operators",
+            new RegisterOperatorResource(UniqueCode("OP"), "Juan", "Quispe", miningUnitId.Value))).ReadAsync<OperatorResource>();
+    }
+
+    /// <summary>Id of a freshly registered, active operator (assignments require an existing operator).</summary>
+    public static async Task<Guid> NewOperatorIdAsync(this HttpClient client) => (await client.RegisterOperatorAsync()).Id;
+
     public static async Task<OperatorAssignmentResource> CreateAssignmentAsync(
         this HttpClient client, Guid operatorId, Guid vehicleId, DateOnly validFrom, string shift = "Day") =>
         await (await client.PostAsJsonAsync("/api/v1/operator-assignments",

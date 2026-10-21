@@ -11,7 +11,7 @@ public class FleetAndVehicleTests
     public void Fleet_WithMissingData_ListsMiningUnitIdAndName()
     {
         // Act
-        var exception = Assert.Throws<DomainException>(() => new Fleet(new RegisterFleetCommand(Guid.Empty, "")));
+        var exception = Assert.ThrowsAny<DomainException>(() => new Fleet(new RegisterFleetCommand(Guid.Empty, "")));
 
         // Assert
         Assert.Equal("Missing mandatory data: MiningUnitId, Name.", exception.Message);
@@ -47,7 +47,7 @@ public class FleetAndVehicleTests
     public void Vehicle_WithMissingData_ListsEveryMissingField()
     {
         // Act
-        var exception = Assert.Throws<DomainException>(() =>
+        var exception = Assert.ThrowsAny<DomainException>(() =>
             new Vehicle(new RegisterVehicleCommand("", "", Guid.Empty)));
 
         // Assert
@@ -78,7 +78,7 @@ public class FleetAndVehicleTests
         var vehicle = new Vehicle(new RegisterVehicleCommand("CAT-797F-12", "797F", Guid.NewGuid()));
 
         // Act
-        var exception = Assert.Throws<DomainException>(() =>
+        var exception = Assert.ThrowsAny<DomainException>(() =>
             vehicle.Update(new UpdateVehicleCommand(vehicle.Id, "", VehicleStatus.Active, vehicle.FleetId)));
 
         // Assert

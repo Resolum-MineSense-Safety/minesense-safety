@@ -30,7 +30,7 @@ public class MiningUnitTests
         var command = new RegisterMiningUnitCommand("", " ", "Ancash");
 
         // Act
-        var exception = Assert.Throws<DomainException>(() => new MiningUnit(command));
+        var exception = Assert.ThrowsAny<DomainException>(() => new MiningUnit(command));
 
         // Assert
         Assert.Equal("Missing mandatory data: BusinessCode, Name.", exception.Message);
@@ -57,7 +57,7 @@ public class MiningUnitTests
         var miningUnit = RegisterUnit();
 
         // Act
-        var exception = Assert.Throws<DomainException>(() =>
+        var exception = Assert.ThrowsAny<DomainException>(() =>
             miningUnit.Update(new UpdateMiningUnitCommand(miningUnit.Id, "Antamina", "")));
 
         // Assert
@@ -86,7 +86,7 @@ public class MiningUnitTests
         miningUnit.AddLocation("Chancadora 1", LocationKind.Crusher);
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => miningUnit.AddLocation("CHANCADORA 1", LocationKind.Dump));
+        Assert.ThrowsAny<DomainException>(() => miningUnit.AddLocation("CHANCADORA 1", LocationKind.Dump));
         Assert.Single(miningUnit.Locations);
     }
 
@@ -97,7 +97,7 @@ public class MiningUnitTests
         var miningUnit = RegisterUnit();
 
         // Act
-        var exception = Assert.Throws<DomainException>(() => miningUnit.AddLocation(" ", LocationKind.Ramp));
+        var exception = Assert.ThrowsAny<DomainException>(() => miningUnit.AddLocation(" ", LocationKind.Ramp));
 
         // Assert
         Assert.Equal("Missing mandatory data: Name.", exception.Message);

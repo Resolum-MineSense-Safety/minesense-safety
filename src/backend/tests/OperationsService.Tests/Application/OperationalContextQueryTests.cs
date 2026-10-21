@@ -14,7 +14,7 @@ public class OperationalContextQueryTests
     {
         // Arrange
         var vehicle = await _context.RegisterVehicleAsync();
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _context.NewOperatorIdAsync();
         var assignment = await _context.AssignmentCommands.Handle(
             new CreateAssignmentCommand(operatorId, vehicle.Id, Shift.Day, October1, null));
 
@@ -64,7 +64,7 @@ public class OperationalContextQueryTests
         var fleet = await _context.RegisterFleetAsync();
         var assignedVehicle = await _context.RegisterVehicleAsync(fleet);
         var otherVehicle = await _context.RegisterVehicleAsync(fleet);
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _context.NewOperatorIdAsync();
         await _context.AssignmentCommands.Handle(new CreateAssignmentCommand(operatorId, assignedVehicle.Id, Shift.Day, October1, null));
 
         // Act

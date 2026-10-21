@@ -16,7 +16,7 @@ public class StructureCommandServiceTests
         var existing = await _context.MiningUnitCommands.Handle(new RegisterMiningUnitCommand("UM-01", "Antamina", "Ancash"));
 
         // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(() =>
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() =>
             _context.MiningUnitCommands.Handle(new RegisterMiningUnitCommand("um-01", "Otra", "Lima")));
 
         // Assert
@@ -55,7 +55,7 @@ public class StructureCommandServiceTests
     public async Task RegisterFleet_UnknownMiningUnit_IsRejected()
     {
         // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(() =>
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() =>
             _context.FleetCommands.Handle(new RegisterFleetCommand(Guid.NewGuid(), "Acarreo 1")));
 
         // Assert
@@ -69,7 +69,7 @@ public class StructureCommandServiceTests
         var fleet = await _context.RegisterFleetAsync();
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() =>
+        await Assert.ThrowsAnyAsync<DomainException>(() =>
             _context.FleetCommands.Handle(new RegisterFleetCommand(fleet.MiningUnitId, "ACARREO 1")));
         Assert.Single(await _context.FleetQueries.Handle(new GetFleetsByMiningUnitQuery(fleet.MiningUnitId)));
     }
@@ -78,7 +78,7 @@ public class StructureCommandServiceTests
     public async Task RegisterVehicle_UnknownFleet_IsRejected()
     {
         // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(() =>
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() =>
             _context.VehicleCommands.Handle(new RegisterVehicleCommand("CAT-797F-12", "797F", Guid.NewGuid())));
 
         // Assert
@@ -93,7 +93,7 @@ public class StructureCommandServiceTests
         await _context.VehicleCommands.Handle(new RegisterVehicleCommand("CAT-797F-12", "797F", fleet.Id));
 
         // Act
-        var exception = await Assert.ThrowsAsync<DomainException>(() =>
+        var exception = await Assert.ThrowsAnyAsync<DomainException>(() =>
             _context.VehicleCommands.Handle(new RegisterVehicleCommand("cat-797f-12", "797F", fleet.Id)));
 
         // Assert
@@ -112,7 +112,7 @@ public class StructureCommandServiceTests
 
         // Assert
         Assert.Null(missing);
-        await Assert.ThrowsAsync<DomainException>(() => _context.VehicleCommands.Handle(
+        await Assert.ThrowsAnyAsync<DomainException>(() => _context.VehicleCommands.Handle(
             new UpdateVehicleCommand(vehicle.Id, "797F", VehicleStatus.Active, Guid.NewGuid())));
     }
 

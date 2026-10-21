@@ -27,14 +27,14 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
-    public async Task PostMiningUnit_WithMissingData_ReturnsUnprocessableEntityListingFields()
+    public async Task PostMiningUnit_WithMissingData_ReturnsBadRequestListingFields()
     {
         // Act
         var response = await _client.PostAsJsonAsync("/api/v1/mining-units",
             new RegisterMiningUnitResource(null, "Antamina", null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var error = await response.Content.ReadFromJsonAsync<ErrorResource>();
         Assert.Equal("Missing mandatory data: BusinessCode, Region.", error!.Message);
     }
@@ -83,7 +83,7 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
-    public async Task PutMiningUnit_ValidUnknownAndIncomplete_ReturnsOkNotFoundAndUnprocessable()
+    public async Task PutMiningUnit_ValidUnknownAndIncomplete_ReturnsOkNotFoundAndBadRequest()
     {
         // Arrange
         var miningUnit = await _client.RegisterMiningUnitAsync();
@@ -99,11 +99,11 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         Assert.Equal("Antamina Norte", (await updated.ReadAsync<MiningUnitResource>()).Name);
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, incomplete.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, incomplete.StatusCode);
     }
 
     [Fact]
-    public async Task PostLocation_NewDuplicatedAndUnknownUnit_ReturnsCreatedUnprocessableAndNotFound()
+    public async Task PostLocation_NewDuplicatedAndUnknownUnit_ReturnsCreatedConflictBadRequestAndNotFound()
     {
         // Arrange
         var miningUnit = await _client.RegisterMiningUnitAsync();
@@ -122,8 +122,8 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
         var location = Assert.Single((await created.Content.ReadFromJsonAsync<MiningUnitResource>())!.Locations);
         Assert.Equal(new LocationResource("Tajo Norte", "Pit"), location);
         Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, unknownKind.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, missingKind.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, unknownKind.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, missingKind.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, unknownUnit.StatusCode);
     }
 }

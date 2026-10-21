@@ -15,7 +15,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _client.NewOperatorIdAsync();
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/v1/operator-assignments",
@@ -30,23 +30,51 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     }
 
     [Fact]
-    public async Task PostAssignment_InvalidRequests_ReturnUnprocessableEntity()
+    public async Task PostAssignment_InvalidRequests_ReturnBadRequestOrNotFound()
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
+        var operatorId = await _client.NewOperatorIdAsync();
 
         // Act
         var missingShift = await _client.PostAsJsonAsync("/api/v1/operator-assignments",
-            new CreateAssignmentResource(Guid.NewGuid(), vehicle.Id, null, October1, null));
+            new CreateAssignmentResource(operatorId, vehicle.Id, null, October1, null));
         var unknownVehicle = await _client.PostAsJsonAsync("/api/v1/operator-assignments",
-            new CreateAssignmentResource(Guid.NewGuid(), Guid.NewGuid(), "Day", October1, null));
+            new CreateAssignmentResource(operatorId, Guid.NewGuid(), "Day", October1, null));
+        var unknownOperator = await _client.PostAsJsonAsync("/api/v1/operator-assignments",
+            new CreateAssignmentResource(Guid.NewGuid(), vehicle.Id, "Day", October1, null));
         var missingOperator = await _client.PostAsJsonAsync("/api/v1/operator-assignments",
             new CreateAssignmentResource(Guid.Empty, vehicle.Id, "Day", October1, null));
 
         // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, missingShift.StatusCode);
         Assert.Equal("Missing mandatory data: Shift.", (await missingShift.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, unknownVehicle.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknownVehicle.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknownOperator.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, missingOperator.StatusCode);
         Assert.Equal("Missing mandatory data: OperatorId.", (await missingOperator.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
+    }
+
+    [Fact]
+    public async Task PostShiftAssignment_WithStartsAtAndEndsAt_ReturnsCreatedForThatPeriod()
+    {
+        // Arrange
+        var vehicle = await _client.RegisterVehicleAsync();
+        var operatorId = await _client.NewOperatorIdAsync();
+        var startsAt = new DateTimeOffset(2026, 10, 1, 7, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/shift-assignments",
+            new CreateAssignmentResource(operatorId, vehicle.Id, "Day", default, null, startsAt, startsAt.AddDays(6)));
+        var conflict = await _client.PostAsJsonAsync("/api/v1/shift-assignments",
+            new CreateAssignmentResource(operatorId, vehicle.Id, "Day", default, null, startsAt.AddDays(2), null));
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var assignment = await response.ReadAsync<OperatorAssignmentResource>();
+        Assert.Equal(October1, assignment.ValidFrom);
+        Assert.Equal(October1.AddDays(6), assignment.ValidTo);
+        Assert.Equal(HttpStatusCode.Conflict, conflict.StatusCode);
     }
 
     [Fact]
@@ -56,8 +84,8 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
         var fleet = await _client.RegisterFleetAsync();
         var vehicle = await _client.RegisterVehicleAsync(fleet.Id);
         var otherVehicle = await _client.RegisterVehicleAsync(fleet.Id);
-        var operatorId = Guid.NewGuid();
-        var secondOperator = Guid.NewGuid();
+        var operatorId = await _client.NewOperatorIdAsync();
+        var secondOperator = await _client.NewOperatorIdAsync();
         await _client.CreateAssignmentAsync(operatorId, vehicle.Id, October1);
 
         // Act
@@ -80,7 +108,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
-        var assignment = await _client.CreateAssignmentAsync(Guid.NewGuid(), vehicle.Id, October1);
+        var assignment = await _client.CreateAssignmentAsync(await _client.NewOperatorIdAsync(), vehicle.Id, October1);
 
         // Act
         var found = await _client.GetAsync($"/api/v1/operator-assignments/{assignment.Id}");
@@ -96,7 +124,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _client.NewOperatorIdAsync();
         var assignment = await _client.CreateAssignmentAsync(operatorId, vehicle.Id, October1);
 
         // Act
@@ -119,7 +147,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
         var fleet = await _client.RegisterFleetAsync();
         var firstVehicle = await _client.RegisterVehicleAsync(fleet.Id);
         var secondVehicle = await _client.RegisterVehicleAsync(fleet.Id);
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _client.NewOperatorIdAsync();
         var current = await _client.CreateAssignmentAsync(operatorId, firstVehicle.Id, October1);
 
         // Act
@@ -143,7 +171,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
-        var current = await _client.CreateAssignmentAsync(Guid.NewGuid(), vehicle.Id, October1);
+        var current = await _client.CreateAssignmentAsync(await _client.NewOperatorIdAsync(), vehicle.Id, October1);
 
         // Act
         var missing = await _client.PostAsJsonAsync($"/api/v1/operator-assignments/{Guid.NewGuid()}/vehicle-change",
@@ -161,7 +189,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
-        var assignment = await _client.CreateAssignmentAsync(Guid.NewGuid(), vehicle.Id, October1);
+        var assignment = await _client.CreateAssignmentAsync(await _client.NewOperatorIdAsync(), vehicle.Id, October1);
         var url = $"/api/v1/operator-assignments/{assignment.Id}/end";
 
         // Act
@@ -185,7 +213,7 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
         var fleet = await _client.RegisterFleetAsync();
         var vehicle = await _client.RegisterVehicleAsync(fleet.Id);
         var otherVehicle = await _client.RegisterVehicleAsync(fleet.Id);
-        var operatorId = Guid.NewGuid();
+        var operatorId = await _client.NewOperatorIdAsync();
         var assignment = await _client.CreateAssignmentAsync(operatorId, vehicle.Id, October1);
         var baseUrl = $"/api/v1/operator-assignments/context?operatorId={operatorId}";
 

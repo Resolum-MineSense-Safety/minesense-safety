@@ -10,7 +10,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
-    public async Task PostFleet_ExistingAndUnknownMiningUnit_ReturnsCreatedAndUnprocessable()
+    public async Task PostFleet_ExistingAndUnknownMiningUnit_ReturnsCreatedAndNotFound()
     {
         // Arrange
         var miningUnit = await _client.RegisterMiningUnitAsync();
@@ -22,7 +22,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, orphan.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, orphan.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
     }
 
@@ -33,7 +33,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
         var response = await _client.PostAsJsonAsync("/api/v1/fleets", new RegisterFleetResource(Guid.Empty, null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Missing mandatory data: MiningUnitId, Name.",
             (await response.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
     }
@@ -88,11 +88,36 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var vehicle = await created.Content.ReadFromJsonAsync<VehicleResource>();
         Assert.Equal("Active", vehicle!.Status);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, orphan.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, orphan.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
         Assert.Contains(code, (await duplicated.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
+        Assert.Equal(HttpStatusCode.BadRequest, incomplete.StatusCode);
         Assert.Equal("Missing mandatory data: Code, Model.",
             (await incomplete.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
+    }
+
+    [Fact]
+    public async Task PostFleetVehicle_ValidUnknownFleetAndDuplicated_ReturnsCreatedNotFoundAndConflict()
+    {
+        // Arrange
+        var fleet = await _client.RegisterFleetAsync();
+        var code = OperationsApiClient.UniqueCode("CAT");
+
+        // Act
+        var created = await _client.PostAsJsonAsync($"/api/v1/fleets/{fleet.Id}/vehicles",
+            new RegisterFleetVehicleResource(code, "Caterpillar 797F"));
+        var unknownFleet = await _client.PostAsJsonAsync($"/api/v1/fleets/{Guid.NewGuid()}/vehicles",
+            new RegisterFleetVehicleResource(OperationsApiClient.UniqueCode("CAT"), "797F"));
+        var duplicated = await _client.PostAsJsonAsync($"/api/v1/fleets/{fleet.Id}/vehicles",
+            new RegisterFleetVehicleResource(code, "797F"));
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var vehicle = await created.ReadAsync<VehicleResource>();
+        Assert.Equal(fleet.Id, vehicle.FleetId);
+        Assert.Equal($"/api/v1/vehicles/{vehicle.Id}", created.Headers.Location!.AbsolutePath);
+        Assert.Equal(HttpStatusCode.NotFound, unknownFleet.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
     }
 
     [Fact]
@@ -127,7 +152,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
     }
 
     [Fact]
-    public async Task PutVehicle_ValidUnknownAndInvalidStatus_ReturnsOkNotFoundAndUnprocessable()
+    public async Task PutVehicle_ValidUnknownAndInvalidStatus_ReturnsOkNotFoundAndBadRequest()
     {
         // Arrange
         var vehicle = await _client.RegisterVehicleAsync();
@@ -148,7 +173,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
         Assert.Equal("InMaintenance", resource.Status);
         Assert.Equal(otherFleet.Id, resource.FleetId);
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, invalidStatus.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, unknownFleet.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, invalidStatus.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknownFleet.StatusCode);
     }
 }

@@ -23,7 +23,7 @@ public class AssignmentConflictPolicyTests
         var candidate = Assign(operatorId, Guid.NewGuid(), Shift.Night, October1.AddDays(10));
 
         // Act
-        var exception = Assert.Throws<DomainException>(() =>
+        var exception = Assert.ThrowsAny<DomainException>(() =>
             AssignmentConflictPolicy.EnsureNoConflict(candidate, [existing]));
 
         // Assert
@@ -40,7 +40,7 @@ public class AssignmentConflictPolicyTests
         var candidate = Assign(Guid.NewGuid(), vehicleId, Shift.Night, October1.AddDays(5), October1.AddDays(6));
 
         // Act
-        var exception = Assert.Throws<DomainException>(() =>
+        var exception = Assert.ThrowsAny<DomainException>(() =>
             AssignmentConflictPolicy.EnsureNoConflict(candidate, [existing]));
 
         // Assert

@@ -34,7 +34,7 @@ public class OperatorAssignmentTests
         var command = new CreateAssignmentCommand(Guid.Empty, Guid.Empty, Shift.Night, default, null);
 
         // Act
-        var exception = Assert.Throws<DomainException>(() => new OperatorAssignment(command, Now));
+        var exception = Assert.ThrowsAny<DomainException>(() => new OperatorAssignment(command, Now));
 
         // Assert
         Assert.Equal("Missing mandatory data: OperatorId, VehicleId, ValidFrom.", exception.Message);
@@ -44,7 +44,7 @@ public class OperatorAssignmentTests
     public void Constructor_WithValidToBeforeValidFrom_ThrowsDomainException()
     {
         // Act & Assert
-        Assert.Throws<DomainException>(() => Assign(October1, October1.AddDays(-1)));
+        Assert.ThrowsAny<DomainException>(() => Assign(October1, October1.AddDays(-1)));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class OperatorAssignmentTests
         var current = Assign(October1);
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => current.ChangeVehicle(current.VehicleId, October1.AddDays(1), Now));
+        Assert.ThrowsAny<DomainException>(() => current.ChangeVehicle(current.VehicleId, October1.AddDays(1), Now));
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class OperatorAssignmentTests
         var current = Assign(October1, October1.AddDays(5));
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => current.ChangeVehicle(Guid.NewGuid(), October1.AddDays(6), Now));
+        Assert.ThrowsAny<DomainException>(() => current.ChangeVehicle(Guid.NewGuid(), October1.AddDays(6), Now));
         Assert.Equal(AssignmentStatus.Active, current.Status);
     }
 
@@ -149,7 +149,7 @@ public class OperatorAssignmentTests
         var assignment = Assign(October1);
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => assignment.End(October1.AddDays(-1)));
+        Assert.ThrowsAny<DomainException>(() => assignment.End(October1.AddDays(-1)));
     }
 
     [Fact]
@@ -160,6 +160,6 @@ public class OperatorAssignmentTests
         assignment.End(October1.AddDays(2));
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => assignment.End(October1.AddDays(3)));
+        Assert.ThrowsAny<DomainException>(() => assignment.End(October1.AddDays(3)));
     }
 }
