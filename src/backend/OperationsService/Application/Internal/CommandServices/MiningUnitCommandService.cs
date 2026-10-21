@@ -15,7 +15,7 @@ public class MiningUnitCommandService(IMiningUnitRepository miningUnitRepository
 
         var duplicate = await miningUnitRepository.FindByBusinessCodeAsync(miningUnit.BusinessCode);
         if (duplicate is not null)
-            throw new DomainException(
+            throw new DomainConflictException(
                 $"Business code {miningUnit.BusinessCode} is already registered for mining unit '{duplicate.Name}' ({duplicate.Id}).");
 
         await miningUnitRepository.AddAsync(miningUnit);

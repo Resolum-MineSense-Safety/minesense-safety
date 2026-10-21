@@ -23,7 +23,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
         // Assert
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, orphan.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, duplicated.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class FleetsAndVehiclesApiTests(WebApplicationFactory<Program> factory) :
         var vehicle = await created.Content.ReadFromJsonAsync<VehicleResource>();
         Assert.Equal("Active", vehicle!.Status);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, orphan.StatusCode);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, duplicated.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
         Assert.Contains(code, (await duplicated.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
         Assert.Equal("Missing mandatory data: Code, Model.",
             (await incomplete.Content.ReadFromJsonAsync<ErrorResource>())!.Message);

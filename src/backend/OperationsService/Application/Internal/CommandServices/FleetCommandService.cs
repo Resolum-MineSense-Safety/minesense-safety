@@ -20,7 +20,7 @@ public class FleetCommandService(
 
         var siblings = await fleetRepository.FindByMiningUnitIdAsync(fleet.MiningUnitId);
         if (siblings.Any(other => string.Equals(other.Name, fleet.Name, StringComparison.OrdinalIgnoreCase)))
-            throw new DomainException($"Fleet '{fleet.Name}' already exists in mining unit {miningUnit.BusinessCode}.");
+            throw new DomainConflictException($"Fleet '{fleet.Name}' already exists in mining unit {miningUnit.BusinessCode}.");
 
         await fleetRepository.AddAsync(fleet);
         return fleet;

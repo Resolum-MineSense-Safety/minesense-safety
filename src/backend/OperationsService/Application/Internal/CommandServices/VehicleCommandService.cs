@@ -20,7 +20,7 @@ public class VehicleCommandService(
 
         var duplicate = await vehicleRepository.FindByCodeAsync(vehicle.Code);
         if (duplicate is not null)
-            throw new DomainException($"Vehicle code {vehicle.Code} is already registered ({duplicate.Id}).");
+            throw new DomainConflictException($"Vehicle code {vehicle.Code} is already registered ({duplicate.Id}).");
 
         await vehicleRepository.AddAsync(vehicle);
         return vehicle;

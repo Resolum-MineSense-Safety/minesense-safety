@@ -40,7 +40,7 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
-    public async Task PostMiningUnit_WithDuplicatedBusinessCode_ReturnsUnprocessableEntity()
+    public async Task PostMiningUnit_WithDuplicatedBusinessCode_ReturnsConflict()
     {
         // Arrange
         var existing = await _client.RegisterMiningUnitAsync();
@@ -50,7 +50,7 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
             new RegisterMiningUnitResource(existing.BusinessCode, "Otra", "Lima"));
 
         // Assert
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Contains(existing.BusinessCode, (await response.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
     }
 
@@ -121,7 +121,7 @@ public class MiningUnitsApiTests(WebApplicationFactory<Program> factory) : IClas
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var location = Assert.Single((await created.Content.ReadFromJsonAsync<MiningUnitResource>())!.Locations);
         Assert.Equal(new LocationResource("Tajo Norte", "Pit"), location);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, duplicated.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, duplicated.StatusCode);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, unknownKind.StatusCode);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, missingKind.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, unknownUnit.StatusCode);

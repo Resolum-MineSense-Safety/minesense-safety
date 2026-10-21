@@ -26,14 +26,14 @@ public static class AssignmentConflictPolicy
 
         var operatorConflict = others.FirstOrDefault(other => other.OperatorId == candidate.OperatorId);
         if (operatorConflict is not null)
-            throw new DomainException(
+            throw new DomainConflictException(
                 $"Assignment conflict: operator {candidate.OperatorId} already has active assignment {operatorConflict.Id} " +
                 $"from {Describe(operatorConflict)}.");
 
         var vehicleConflict = others.FirstOrDefault(other =>
             other.VehicleId == candidate.VehicleId && other.Shift == candidate.Shift);
         if (vehicleConflict is not null)
-            throw new DomainException(
+            throw new DomainConflictException(
                 $"Assignment conflict: vehicle {candidate.VehicleId} is already assigned in the {candidate.Shift} shift " +
                 $"to operator {vehicleConflict.OperatorId} (assignment {vehicleConflict.Id}, from {Describe(vehicleConflict)}).");
     }

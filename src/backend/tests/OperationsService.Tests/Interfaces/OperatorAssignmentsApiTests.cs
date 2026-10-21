@@ -67,9 +67,9 @@ public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory)
             new CreateAssignmentResource(secondOperator, vehicle.Id, "Day", October1.AddDays(3), null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, operatorConflict.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, operatorConflict.StatusCode);
         Assert.Contains("conflict", (await operatorConflict.Content.ReadFromJsonAsync<ErrorResource>())!.Message);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, vehicleConflict.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, vehicleConflict.StatusCode);
         var history = await _client.GetFromJsonAsync<List<OperatorAssignmentResource>>(
             $"/api/v1/operator-assignments?operatorId={secondOperator}");
         Assert.Empty(history!);

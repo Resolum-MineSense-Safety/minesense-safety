@@ -46,7 +46,7 @@ public class MiningUnit : AggregateRoot
     {
         var location = new Location(name, kind);
         if (_locations.Any(existing => string.Equals(existing.Name, location.Name, StringComparison.OrdinalIgnoreCase)))
-            throw new DomainException($"Location '{location.Name}' already exists in mining unit {BusinessCode}.");
+            throw new DomainConflictException($"Location '{location.Name}' already exists in mining unit {BusinessCode}.");
 
         _locations.Add(location);
         return location;
