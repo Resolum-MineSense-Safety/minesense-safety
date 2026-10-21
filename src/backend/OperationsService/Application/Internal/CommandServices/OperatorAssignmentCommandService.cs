@@ -15,7 +15,8 @@ public class OperatorAssignmentCommandService(
     {
         var assignment = new OperatorAssignment(command, timeProvider.GetUtcNow());
 
-        // T15: only existing, active vehicles can be assigned.
+        // T15 / TS-08: only existing, active operators and vehicles can be assigned (404 when unknown).
+        await structureValidator.EnsureActiveOperatorAsync(assignment.OperatorId);
         await structureValidator.EnsureActiveVehicleAsync(assignment.VehicleId);
 
         AssignmentConflictPolicy.EnsureNoConflict(assignment, await RelatedAssignmentsAsync(assignment));

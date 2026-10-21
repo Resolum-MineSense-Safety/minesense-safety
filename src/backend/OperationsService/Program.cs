@@ -14,6 +14,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IMiningUnitRepository, InMemoryMiningUnitRepository>();
 builder.Services.AddSingleton<IFleetRepository, InMemoryFleetRepository>();
 builder.Services.AddSingleton<IVehicleRepository, InMemoryVehicleRepository>();
+builder.Services.AddSingleton<IOperatorRepository, InMemoryOperatorRepository>();
 builder.Services.AddSingleton<IOperatorAssignmentRepository, InMemoryOperatorAssignmentRepository>();
 builder.Services.AddScoped<OperationalStructureValidator>();
 builder.Services.AddScoped<IMiningUnitCommandService, MiningUnitCommandService>();
@@ -22,6 +23,8 @@ builder.Services.AddScoped<IFleetCommandService, FleetCommandService>();
 builder.Services.AddScoped<IFleetQueryService, FleetQueryService>();
 builder.Services.AddScoped<IVehicleCommandService, VehicleCommandService>();
 builder.Services.AddScoped<IVehicleQueryService, VehicleQueryService>();
+builder.Services.AddScoped<IOperatorCommandService, OperatorCommandService>();
+builder.Services.AddScoped<IOperatorQueryService, OperatorQueryService>();
 builder.Services.AddScoped<IOperatorAssignmentCommandService, OperatorAssignmentCommandService>();
 builder.Services.AddScoped<IOperatorAssignmentQueryService, OperatorAssignmentQueryService>();
 
