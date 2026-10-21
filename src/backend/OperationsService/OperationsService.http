@@ -129,3 +129,62 @@ GET {{OperationsService_HostAddress}}/api/v1/operator-assignments/context?operat
 Accept: application/json
 
 ###
+
+# TS-05 / TS-06 / TS-07 / TS-08 routes named as in the report
+
+GET {{OperationsService_HostAddress}}/api/v1/mining-sites
+Accept: application/json
+
+###
+
+POST {{OperationsService_HostAddress}}/api/v1/fleets/{{fleetId}}/vehicles
+Content-Type: application/json
+
+{
+  "code": "CAT-797F-13",
+  "model": "Caterpillar 797F"
+}
+
+###
+
+POST {{OperationsService_HostAddress}}/api/v1/operators
+Content-Type: application/json
+
+{
+  "employeeCode": "OP-0042",
+  "firstName": "Juan",
+  "lastName": "Quispe",
+  "miningUnitId": "{{miningUnitId}}"
+}
+
+###
+
+GET {{OperationsService_HostAddress}}/api/v1/operators?miningUnitId={{miningUnitId}}
+Accept: application/json
+
+###
+
+PUT {{OperationsService_HostAddress}}/api/v1/operators/{{operatorId}}
+Content-Type: application/json
+
+{
+  "firstName": "Juan",
+  "lastName": "Quispe Mamani",
+  "miningUnitId": "{{miningUnitId}}",
+  "status": "Active"
+}
+
+###
+
+POST {{OperationsService_HostAddress}}/api/v1/shift-assignments
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "vehicleId": "{{vehicleId}}",
+  "shift": "Night",
+  "startsAt": "2026-10-07T19:00:00Z",
+  "endsAt": "2026-10-31T07:00:00Z"
+}
+
+###
