@@ -24,6 +24,18 @@ services:
       - "1883:1883"
       - "9001:9001"
 
+  operations-service:
+    build:
+      context: ./src/backend
+      dockerfile: OperationsService/Dockerfile
+    container_name: minesense_operations
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5203:8080"
+
   privacy-audit-service:
     build:
       context: ./src/backend
