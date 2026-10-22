@@ -1,9 +1,36 @@
+using IdentityAccessService.Application.Internal.CommandServices;
+using IdentityAccessService.Application.Internal.OutboundServices;
+using IdentityAccessService.Application.Internal.QueryServices;
+using IdentityAccessService.Domain.Repositories;
+using IdentityAccessService.Domain.Services;
+using IdentityAccessService.Infrastructure.Hashing;
+using IdentityAccessService.Infrastructure.Persistence.InMemory;
+using IdentityAccessService.Infrastructure.Seeding;
+using IdentityAccessService.Infrastructure.Tokens;
+using IdentityAccessService.Interfaces.ASP.Configuration;
+using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Controllers, kebab-case routes, domain error handling (HTTP 422/409) and Swagger
+builder.Services.AddMineSenseWebApi();
+builder.Services.AddSingleton(TimeProvider.System);
+
+// JWT bearer tokens signed with RS256 and published as JWKS (ADR-007)
+builder.Services.AddIdentityAccessAuthentication(builder.Configuration);
+
+// Identity & Access bounded context (EP08)
+builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddSingleton<ISessionRepository, InMemorySessionRepository>();
+builder.Services.AddSingleton<IHashingService, Pbkdf2HashingService>();
+builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<IAuthenticationCommandService, AuthenticationCommandService>();
+
+builder.Services.Configure<BootstrapAdministratorOptions>(
+    builder.Configuration.GetSection(BootstrapAdministratorOptions.SectionName));
+builder.Services.AddHostedService<BootstrapAdministratorSeeder>();
 
 var app = builder.Build();
 
@@ -16,29 +43,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.MapControllers();
 
-app.Run();
+await app.RunAsync();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public partial class Program;
