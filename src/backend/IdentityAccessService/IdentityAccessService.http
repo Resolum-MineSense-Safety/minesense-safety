@@ -1,6 +1,95 @@
 @IdentityAccessService_HostAddress = http://localhost:5150
+@userId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@miningUnitId = 6f1c2a52-0b6a-4c7e-9a43-2f4a1d0c9b11
+# Paste the accessToken / refreshToken returned by the sign-in request
+@accessToken = <access-token>
+@refreshToken = <refresh-token>
 
-GET {{IdentityAccessService_HostAddress}}/weatherforecast/
-Accept: application/json
+### Self-registration (any role except Administrator)
+POST {{IdentityAccessService_HostAddress}}/api/v1/authentication/sign-up
+Content-Type: application/json
+
+{
+  "username": "jperez",
+  "fullName": "Juan Perez",
+  "password": "S3cure-pass",
+  "role": "Supervisor"
+}
+
+### TS-01 Sign in (the Development profile seeds admin / Admin-Local-2026)
+POST {{IdentityAccessService_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin-Local-2026"
+}
+
+### TS-02 Refresh the session (rotates the refresh token)
+POST {{IdentityAccessService_HostAddress}}/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Sign out
+POST {{IdentityAccessService_HostAddress}}/api/v1/authentication/sign-out
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### TS-03 Current user
+GET {{IdentityAccessService_HostAddress}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+
+### TS-04 Administrator creates a user
+POST {{IdentityAccessService_HostAddress}}/api/v1/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "lrojas",
+  "fullName": "Lucia Rojas",
+  "password": "S3cure-pass",
+  "role": "SafetyManager"
+}
 
 ###
+GET {{IdentityAccessService_HostAddress}}/api/v1/users?role=Supervisor
+Authorization: Bearer {{accessToken}}
+
+###
+GET {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+###
+PUT {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/role
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "role": "SafetyManager"
+}
+
+### US18 Grant a mining unit scope
+POST {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/mining-units
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "miningUnitId": "{{miningUnitId}}"
+}
+
+### US18 Revoke a mining unit scope
+DELETE {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/mining-units/{{miningUnitId}}
+Authorization: Bearer {{accessToken}}
+
+###
+POST {{IdentityAccessService_HostAddress}}/api/v1/users/{{userId}}/deactivation
+Authorization: Bearer {{accessToken}}
+
+### Public signing key for the other microservices
+GET {{IdentityAccessService_HostAddress}}/.well-known/jwks.json
