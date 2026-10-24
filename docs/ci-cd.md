@@ -62,7 +62,7 @@ propia rama; por ejemplo, el hallazgo S6964 de SonarCloud en los PRs #25–#27.
 - Secretos únicamente en GitHub Secrets (`SONAR_TOKEN`, `SONAR_HOST_URL`). AWS se usa por OIDC,
   sin claves de larga duración.
 - Versiones fijadas: .NET 8.0.x, Node 20, Terraform 1.9.8, Helm 3.16.2, kubeconform 0.6.7 y
-  `aquasecurity/trivy-action` 0.28.0.
+  `aquasecurity/trivy-action` v0.36.0.
 - Caché de NuGet, npm y capas Docker (`type=gha`).
 - Filtros `paths`: Terraform, Helm, contenedores y MongoDB solo se ejecutan cuando cambian sus
   archivos, lo que mantiene el feedback de un PR común por debajo de 2 minutos.

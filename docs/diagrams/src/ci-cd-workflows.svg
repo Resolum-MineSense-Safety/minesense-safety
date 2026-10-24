@@ -135,7 +135,7 @@
   <text x="60" y="792" class="h">Prácticas comunes a todos los workflows</text>
   <text x="60" y="822" class="t">• concurrency: una nueva ejecución en la misma rama cancela la anterior (excepto el despliegue, que nunca se interrumpe).</text>
   <text x="60" y="848" class="t">• permissions mínimos (contents: read) y secretos solo en GitHub Secrets; AWS por OIDC, sin claves de larga duración.</text>
-  <text x="60" y="874" class="t">• Versiones fijadas de herramientas: .NET 8.0.x, Node 20, Terraform 1.9.8, Helm 3.16.2, kubeconform 0.6.7, Trivy action 0.28.0.</text>
+  <text x="60" y="874" class="t">• Versiones fijadas de herramientas: .NET 8.0.x, Node 20, Terraform 1.9.8, Helm 3.16.2, kubeconform 0.6.7, Trivy action v0.36.0.</text>
   <text x="60" y="900" class="t">• Caché de NuGet/npm y de capas Docker (type=gha) para mantener las ejecuciones por debajo de 2 minutos de mediana.</text>
   <text x="60" y="926" class="t">• Filtros paths: Terraform, Helm, contenedores y MongoDB solo corren cuando cambian sus archivos.</text>
 </svg>
