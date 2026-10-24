@@ -1,0 +1,23 @@
+# Production: at least two replicas per service spread across availability zones,
+# autoscaling on CPU and a disruption budget so node upgrades never stop a service.
+environment: Production
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+topologySpread:
+  enabled: true
