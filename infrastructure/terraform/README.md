@@ -8,14 +8,15 @@ redundancia, de modo que lo validado en Staging es lo que se promueve a Producti
 
 ```
 infrastructure/terraform/
-├── bootstrap/                 # Bucket S3 + tabla DynamoDB del estado remoto (se aplica una vez)
+├── bootstrap/                 # Estado remoto (S3 + DynamoDB) y proveedor OIDC de GitHub (se aplica una vez)
 ├── modules/
 │   ├── network/               # VPC, subredes públicas/privadas en 2-3 AZ, NAT
 │   ├── eks/                   # Clúster Amazon EKS + node group administrado + IRSA
 │   ├── data/                  # RDS PostgreSQL 16 y Amazon DocumentDB (Database per Service)
 │   ├── messaging/             # Amazon MSK Serverless (Kafka) con autenticación IAM
 │   ├── iot/                   # AWS IoT Core: tipo de thing y política MQTTS de los gateways Edge
-│   └── reporting/             # Lambda de reportes PDF + SQS (con DLQ) + bucket S3 (sección 3.5)
+│   ├── reporting/             # Lambda de reportes PDF + SQS (con DLQ) + bucket S3 (sección 3.5)
+│   └── delivery/              # Rol de despliegue de GitHub Actions (OIDC) + acceso a EKS + rol del Load Balancer Controller (sección 3.4)
 └── environments/
     ├── staging/               # 2 AZ, 1 NAT, t3.large x2, sin Multi-AZ
     └── production/            # 3 AZ, NAT por AZ, m6i.large x3, Multi-AZ y protección de borrado
@@ -66,3 +67,6 @@ terraform apply tfplan
 
 El workflow `.github/workflows/terraform-validate.yml` ejecuta `terraform fmt -check` y
 `terraform validate` en cada Pull Request que toque `infrastructure/terraform/`.
+
+El despliegue de los microservicios sobre estos clústeres (Helm, Ingress y pipeline de CD) se
+documenta en [`infrastructure/helm/README.md`](../helm/README.md).

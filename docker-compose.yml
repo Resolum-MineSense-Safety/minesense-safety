@@ -1,21 +1,52 @@
-version: '3.8'
+# MineSense Safety: complete local environment (section 3.1).
+#
+#   docker compose up --build -d          # everything: 13 microservices, dashboard and gateway
+#   docker compose up --build -d operations-service gateway   # only what you need
+#
+# Entry point: http://localhost:8080 (dashboard) and http://localhost:8080/api/v1/... (API).
+# Each service also keeps its own port (52xx) for Swagger at /swagger.
+# Containers run as in Kubernetes: non-root user, read-only filesystem and no capabilities.
+
+x-dotnet-service: &dotnet-service
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  environment: &dotnet-environment
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_HTTP_PORTS: "8080"
 
 services:
+  # ---------- Infrastructure ----------
   postgres:
     image: postgres:16-alpine
     container_name: minesense_postgres
     environment:
       POSTGRES_DB: minesense_db
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: SecretPassword123!
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-minesense-local}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d minesense_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mongodb:
     image: mongo:7.0
     container_name: minesense_mongodb
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   mosquitto:
     image: eclipse-mosquitto:2.0
@@ -24,70 +55,187 @@ services:
       - "1883:1883"
       - "9001:9001"
 
+  # ---------- EP08: identity and operational structure ----------
+  identity-access-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: IdentityAccessService/Dockerfile
+    image: minesense/identity-access-service:local
+    container_name: minesense_identity_access
+    ports:
+      - "5202:8080"
+
   operations-service:
+    <<: *dotnet-service
     build:
       context: ./src/backend
       dockerfile: OperationsService/Dockerfile
+    image: minesense/operations-service:local
     container_name: minesense_operations
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5203:8080"
 
+  # ---------- EP01, EP06: devices and monitoring ----------
+  device-management-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: DeviceManagementService/Dockerfile
+    image: minesense/device-management-service:local
+    container_name: minesense_device_management
+    ports:
+      - "5204:8080"
+
+  monitoring-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: MonitoringService/Dockerfile
+    image: minesense/monitoring-service:local
+    container_name: minesense_monitoring
+    environment:
+      <<: *dotnet-environment
+      Services__DeviceManagementServiceUrl: ${MONITORING_DEVICE_SERVICE_URL:-http://device-management-service:8080/}
+    ports:
+      - "5201:8080"
+    depends_on:
+      - device-management-service
+
+  # ---------- EP02 to EP05: detection, alerts, fleet and incidents ----------
+  fatigue-detection-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: FatigueDetectionService/Dockerfile
+    image: minesense/fatigue-detection-service:local
+    container_name: minesense_fatigue_detection
+    ports:
+      - "5205:8080"
+
+  alert-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: AlertService/Dockerfile
+    image: minesense/alert-service:local
+    container_name: minesense_alert
+    ports:
+      - "5206:8080"
+
+  fleet-monitoring-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: FleetMonitoringService/Dockerfile
+    image: minesense/fleet-monitoring-service:local
+    container_name: minesense_fleet_monitoring
+    ports:
+      - "5207:8080"
+
+  incident-management-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: IncidentManagementService/Dockerfile
+    image: minesense/incident-management-service:local
+    container_name: minesense_incident_management
+    ports:
+      - "5208:8080"
+
+  # ---------- EP07, EP09 to EP12 ----------
+  edge-synchronization-service:
+    <<: *dotnet-service
+    build:
+      context: ./src/backend
+      dockerfile: EdgeSynchronizationService/Dockerfile
+    image: minesense/edge-synchronization-service:local
+    container_name: minesense_edge_synchronization
+    ports:
+      - "5280:8080"
+
   privacy-audit-service:
+    <<: *dotnet-service
     build:
       context: ./src/backend
       dockerfile: PrivacyAuditService/Dockerfile
+    image: minesense/privacy-audit-service:local
     container_name: minesense_privacy_audit
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5260:8080"
 
   reporting-service:
+    <<: *dotnet-service
     build:
       context: ./src/backend
       dockerfile: ReportingService/Dockerfile
+    image: minesense/reporting-service:local
     container_name: minesense_reporting
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
     ports:
       - "5270:8080"
 
-  edge-synchronization-service:
+  analytics-service:
+    <<: *dotnet-service
     build:
       context: ./src/backend
-      dockerfile: EdgeSynchronizationService/Dockerfile
-    container_name: minesense_edge_synchronization
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
+      dockerfile: AnalyticsService/Dockerfile
+    image: minesense/analytics-service:local
+    container_name: minesense_analytics
     ports:
-      - "5280:8080"
+      - "5209:8080"
 
   feedback-reliability-service:
+    <<: *dotnet-service
     build:
       context: ./src/backend
       dockerfile: FeedbackReliabilityService/Dockerfile
-    restart: unless-stopped
+    image: minesense/feedback-reliability-service:local
+    container_name: minesense_feedback_reliability
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      <<: *dotnet-environment
       ConnectionStrings__MongoDb: mongodb://mongodb:27017
       MongoDb__Database: minesense_feedback
       Authentication__Authority: ${FEEDBACK_AUTHORITY:-}
       Authentication__Audience: minesense-feedback
-      Services__AlertServiceUrl: ${FEEDBACK_ALERT_SERVICE_URL:-http://host.docker.internal:5233/}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      Services__AlertServiceUrl: ${FEEDBACK_ALERT_SERVICE_URL:-http://alert-service:8080/}
     ports:
       - "5281:8080"
     depends_on:
       mongodb:
+        condition: service_healthy
+      alert-service:
         condition: service_started
+
+  # ---------- Supervision Dashboard and single entry point ----------
+  supervision-dashboard:
+    build:
+      context: ./src/frontend
+    image: minesense/supervision-dashboard:local
+    container_name: minesense_dashboard
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  # Same routes as the ALB Ingress of Kubernetes (rendered from the Helm gateway values).
+  gateway:
+    image: nginxinc/nginx-unprivileged:1.30.6-alpine3.24
+    container_name: minesense_gateway
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./infrastructure/docker/gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - supervision-dashboard
