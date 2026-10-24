@@ -11,8 +11,8 @@ verifica el CI y se despliegan en Amazon EKS (sección 3.4).
 | Imagen | Origen | Base de runtime | Puerto |
 | --- | --- | --- | --- |
 | 13 microservicios .NET 8 | `src/backend/<Servicio>/Dockerfile` | `mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled-extra` | 8080 |
-| `supervision-dashboard` | `src/frontend/Dockerfile` | `nginxinc/nginx-unprivileged:1.27-alpine` | 8080 |
-| `gateway` (solo local) | `infrastructure/docker/gateway/nginx.conf` | `nginxinc/nginx-unprivileged:1.27-alpine` | 8080 |
+| `supervision-dashboard` | `src/frontend/Dockerfile` | `nginxinc/nginx-unprivileged:1.30.6-alpine3.24` | 8080 |
+| `gateway` (solo local) | `infrastructure/docker/gateway/nginx.conf` | `nginxinc/nginx-unprivileged:1.30.6-alpine3.24` | 8080 |
 
 ### Plantilla de los microservicios
 

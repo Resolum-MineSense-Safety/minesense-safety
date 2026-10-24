@@ -50,7 +50,7 @@ jobs:
       - name: Gateway configuration is valid nginx
         run: |
           docker run --rm -v "$PWD/infrastructure/docker/gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
-            nginxinc/nginx-unprivileged:1.27-alpine nginx -t
+            nginxinc/nginx-unprivileged:1.30.6-alpine3.24 nginx -t
 
   image:
     name: Image ${{ matrix.image.name }}
