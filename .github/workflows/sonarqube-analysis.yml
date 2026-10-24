@@ -10,6 +10,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# SonarCloud reads the pull request to decorate it; nothing else needs write access.
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   sonarqube-analysis:
     name: Static Code Analysis
@@ -42,6 +47,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
 
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
