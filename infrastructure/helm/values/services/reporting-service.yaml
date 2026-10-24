@@ -1,0 +1,9 @@
+# Reporting (EP10): report definitions and jobs; publishes to the PDF Lambda queue.
+name: reporting-service
+image:
+  repository: reporting-service
+# IAM role created by the Terraform reporting module (IRSA): SendMessage on the queue and
+# GetObject on reports/. The pipeline sets serviceAccount.roleArn from the Terraform output.
+serviceAccount:
+  create: true
+  roleArn: ""
