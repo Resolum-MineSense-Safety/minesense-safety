@@ -50,6 +50,11 @@ Content-Type: application/json
 
 ###
 
+# Finish the session (route of the API contract, report 2.1.6)
+PATCH {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}/finish
+
+###
+
 POST {{MonitoringService_HostAddress}}/api/v1/monitoring-sessions/{{sessionId}}/stop
 
 ###
