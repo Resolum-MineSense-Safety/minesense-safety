@@ -73,6 +73,8 @@ public class MonitoringSessionsController(
         return Ok(MonitoringSessionResourceFromEntityAssembler.ToResourceFromEntity(session));
     }
 
+    /// <summary>Ends the session. PATCH {id}/finish is the route of the API contract (report 2.1.6).</summary>
+    [HttpPatch("{sessionId:guid}/finish")]
     [HttpPost("{sessionId:guid}/stop")]
     public async Task<IActionResult> StopMonitoring(Guid sessionId)
     {

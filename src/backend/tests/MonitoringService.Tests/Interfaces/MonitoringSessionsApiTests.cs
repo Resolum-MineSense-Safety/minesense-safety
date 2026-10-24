@@ -260,6 +260,27 @@ public class MonitoringSessionsApiTests : IClassFixture<WebApplicationFactory<Pr
     }
 
     [Fact]
+    public async Task PatchFinish_ThenFinishAgain_ReturnsOkThenUnprocessableEntity()
+    {
+        // Arrange
+        var operatorId = Guid.NewGuid();
+        var session = await StartSessionAsync(operatorId);
+
+        // Act
+        var finished = await _client.PatchAsync($"{BaseUrl}/{session.Id}/finish", null);
+        var finishedAgain = await _client.PatchAsync($"{BaseUrl}/{session.Id}/finish", null);
+        var unknown = await _client.PatchAsync($"{BaseUrl}/{Guid.NewGuid()}/finish", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, finished.StatusCode);
+        var finishedSession = (await finished.Content.ReadFromJsonAsync<MonitoringSessionResource>())!;
+        Assert.Equal("Stopped", finishedSession.Status);
+        Assert.NotNull(finishedSession.StoppedAt);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, finishedAgain.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+    }
+
+    [Fact]
     public async Task Actions_OnUnknownSession_ReturnNotFound()
     {
         // Arrange
