@@ -223,7 +223,7 @@ services:
 
   # Same routes as the ALB Ingress of Kubernetes (rendered from the Helm gateway values).
   gateway:
-    image: nginxinc/nginx-unprivileged:1.27-alpine
+    image: nginxinc/nginx-unprivileged:1.30.6-alpine3.24
     container_name: minesense_gateway
     restart: unless-stopped
     read_only: true
