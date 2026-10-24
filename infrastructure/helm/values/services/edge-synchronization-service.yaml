@@ -1,0 +1,4 @@
+# Edge Synchronization (EP07): batches synchronized by the cabin gateways.
+name: edge-synchronization-service
+image:
+  repository: edge-synchronization-service

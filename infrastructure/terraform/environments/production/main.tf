@@ -99,3 +99,14 @@ module "reporting" {
   oidc_provider        = module.eks.oidc_provider
   kubernetes_namespace = var.environment
 }
+
+module "delivery" {
+  source = "../../modules/delivery"
+
+  name               = local.name
+  cluster_name       = module.eks.cluster_name
+  cluster_arn        = module.eks.cluster_arn
+  oidc_provider_arn  = module.eks.oidc_provider_arn
+  github_environment = var.environment
+  tags               = local.tags
+}

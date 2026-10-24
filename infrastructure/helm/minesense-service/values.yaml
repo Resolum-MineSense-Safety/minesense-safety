@@ -1,0 +1,84 @@
+# Defaults shared by every microservice. Each service overrides what it needs in
+# ../values/services/<service>.yaml and each environment in ../values/environments/<env>.yaml.
+
+# Short name of the service (kebab-case). Used for the Deployment, Service and labels.
+name: ""
+
+image:
+  # Images live in GitHub Container Registry (section 2.2.4): built once, promoted by tag.
+  registry: ghcr.io/resolum-minesense-safety
+  repository: ""
+  # The pipeline sets the tag to the commit SHA that produced the image (sha-<sha>).
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+replicaCount: 1
+
+containerPort: 8080
+
+environment: Staging
+
+# Plain environment variables (ASP.NET Core reads Section__Key).
+env: {}
+
+# Names of Kubernetes Secrets loaded as environment variables (synced from AWS Secrets Manager).
+envFromSecrets: []
+
+serviceAccount:
+  create: true
+  # IAM role for the pod (IRSA), e.g. the Reporting Service role created by Terraform.
+  roleArn: ""
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 384Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+probes:
+  liveness:
+    path: /health/live
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    failureThreshold: 3
+  readiness:
+    path: /health/ready
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1654
+  runAsGroup: 1654
+  fsGroup: 1654
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+nodeSelector:
+  workload: microservices
+
+tolerations: []
+
+# Spread the replicas of a service across availability zones.
+topologySpread:
+  enabled: false

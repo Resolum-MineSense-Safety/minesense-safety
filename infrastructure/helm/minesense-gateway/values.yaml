@@ -1,0 +1,87 @@
+# Public host of the environment, e.g. api.staging.minesense.example. Empty = any host.
+host: ""
+
+# ACM certificate for HTTPS. Without it the ALB only listens on HTTP (useful for a first smoke test).
+certificateArn: ""
+
+# Optional AWS WAF web ACL attached to the load balancer.
+wafAclArn: ""
+
+loadBalancer:
+  scheme: internet-facing
+  healthCheckPath: /health/ready
+  idleTimeoutSeconds: 60
+
+# Path -> service. The ALB evaluates the rules in this order, so the specific paths that
+# overlap a broader prefix of another service go first (for example
+# /api/v1/operators/*/status belongs to Fleet Monitoring while /api/v1/operators to Operations).
+routes:
+  # Fleet Monitoring aliases inside prefixes of other services
+  - path: /api/v1/operators/*/status
+    service: fleet-monitoring-service
+  # Feedback & Reliability inside the Alerts and Analytics prefixes
+  - path: /api/v1/alerts/*/feedback
+    service: feedback-reliability-service
+  - path: /api/v1/analytics/alert-reliability
+    service: feedback-reliability-service
+  - path: /api/v1/feedback-alerts
+    service: feedback-reliability-service
+  # Identity & Access
+  - path: /api/v1/auth
+    service: identity-access-service
+  - path: /api/v1/authentication
+    service: identity-access-service
+  - path: /api/v1/users
+    service: identity-access-service
+  - path: /.well-known/jwks.json
+    service: identity-access-service
+  # Operations
+  - path: /api/v1/mining-units
+    service: operations-service
+  - path: /api/v1/mining-sites
+    service: operations-service
+  - path: /api/v1/fleets
+    service: operations-service
+  - path: /api/v1/vehicles
+    service: operations-service
+  - path: /api/v1/operators
+    service: operations-service
+  - path: /api/v1/operator-assignments
+    service: operations-service
+  - path: /api/v1/shift-assignments
+    service: operations-service
+  # Device Management and Monitoring
+  - path: /api/v1/devices
+    service: device-management-service
+  - path: /api/v1/monitoring-sessions
+    service: monitoring-service
+  # Detection, alerts and control center
+  - path: /api/v1/fatigue-assessments
+    service: fatigue-detection-service
+  - path: /api/v1/alerts
+    service: alert-service
+  - path: /api/v1/fleet-operators
+    service: fleet-monitoring-service
+  - path: /api/v1/fleet
+    service: fleet-monitoring-service
+  - path: /api/v1/fleet-monitoring
+    service: fleet-monitoring-service
+  - path: /api/v1/incidents
+    service: incident-management-service
+  # Privacy & Audit
+  - path: /api/v1/consents
+    service: privacy-audit-service
+  - path: /api/v1/access-log
+    service: privacy-audit-service
+  - path: /api/v1/processing-purposes
+    service: privacy-audit-service
+  # Reporting and Analytics
+  - path: /api/v1/report-definitions
+    service: reporting-service
+  - path: /api/v1/reports
+    service: reporting-service
+  - path: /api/v1/analytics
+    service: analytics-service
+  # Edge synchronization
+  - path: /api/v1/synchronization-batches
+    service: edge-synchronization-service

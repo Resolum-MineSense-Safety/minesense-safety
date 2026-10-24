@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MineSenseSafety.Shared.Interfaces.ASP.Configuration;
@@ -5,7 +6,7 @@ namespace MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers controllers, kebab-case routes, domain error handling and Swagger
+    /// Registers controllers, kebab-case routes, domain error handling, Swagger and health checks
     /// the same way in every microservice.
     /// </summary>
     public static IServiceCollection AddMineSenseWebApi(this IServiceCollection services)
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtensions
         });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+        services.AddHealthChecks();
+        services.AddTransient<IStartupFilter, HealthProbesStartupFilter>();
         return services;
     }
 }
