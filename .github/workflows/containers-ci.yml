@@ -100,7 +100,7 @@ jobs:
             --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges \
             -e ASPNETCORE_ENVIRONMENT=Development \
             "$IMAGE"
-          curl --fail --silent --show-error --retry 20 --retry-delay 2 --retry-connrefused \
+          curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors \
             "http://localhost:8080${{ matrix.image.probe }}"
           user="$(docker inspect --format '{{.Config.User}}' "$IMAGE")"
           echo "Image user: ${user:-root}"
