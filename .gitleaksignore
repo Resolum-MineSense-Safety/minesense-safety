@@ -1,0 +1,4 @@
+# Known false positives: fake passwords used only by the Identity & Access integration tests.
+# Each entry is the exact gitleaks fingerprint (commit:file:rule:line), so new findings still fail the scan.
+ab72aed2eb940adf8881ffbd5ae6750a1ffd87b0:src/backend/tests/IdentityAccessService.Tests/Interfaces/IdentityApiTests.cs:generic-api-key:11
+9a4c2eb19710a35876a0aaae0a0cdf6450d8c24b:src/backend/tests/IdentityAccessService.Tests/Interfaces/IdentityApiTests.cs:generic-api-key:11

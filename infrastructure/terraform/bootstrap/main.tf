@@ -1,5 +1,7 @@
 # One-time stack that creates the remote state backend shared by every
 # environment: an encrypted, versioned S3 bucket and a DynamoDB lock table.
+# It also registers GitHub Actions as an OpenID Connect provider of the account,
+# so the deployment pipeline gets short-lived AWS credentials without access keys.
 terraform {
   required_version = ">= 1.6.0"
 
@@ -70,6 +72,19 @@ resource "aws_dynamodb_table" "locks" {
     name = "LockID"
     type = "S"
   }
+}
+
+# GitHub Actions OIDC provider: one per AWS account, shared by Staging and Production.
+# Each environment creates its own deploy role that trusts it (modules/delivery).
+resource "aws_iam_openid_connect_provider" "github" {
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+  # AWS validates GitHub's certificate chain itself; the thumbprint is kept for older providers.
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+output "github_oidc_provider_arn" {
+  value = aws_iam_openid_connect_provider.github.arn
 }
 
 output "state_bucket" {
