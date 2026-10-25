@@ -29,3 +29,11 @@ output "report_requests_queue_url" {
 output "reporting_service_role_arn" {
   value = module.reporting.reporting_service_role_arn
 }
+
+output "github_deploy_role_arn" {
+  value = module.delivery.deploy_role_arn
+}
+
+output "load_balancer_controller_role_arn" {
+  value = module.delivery.load_balancer_controller_role_arn
+}
