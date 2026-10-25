@@ -24,6 +24,21 @@ services:
       - "1883:1883"
       - "9001:9001"
 
+  monitoring-service:
+    build:
+      context: ./src/backend
+      dockerfile: MonitoringService/Dockerfile
+    container_name: minesense_monitoring
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Services__DeviceManagementServiceUrl: ${MONITORING_DEVICE_SERVICE_URL:-http://host.docker.internal:5031/}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5201:8080"
+
   operations-service:
     build:
       context: ./src/backend
