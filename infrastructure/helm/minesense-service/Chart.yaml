@@ -3,7 +3,7 @@ name: minesense-service
 description: Generic chart that deploys one MineSense Safety .NET 8 microservice on Amazon EKS (ADR-008).
 type: application
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: "0.1.0"
 maintainers:
   - name: Resolum
     url: https://github.com/Resolum-MineSense-Safety/minesense-safety
