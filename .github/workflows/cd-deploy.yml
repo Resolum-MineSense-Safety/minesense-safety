@@ -43,6 +43,7 @@ jobs:
       environment: ${{ steps.target.outputs.environment }}
       image_tag: ${{ steps.target.outputs.image_tag }}
       build: ${{ steps.target.outputs.build }}
+      release_tags: ${{ steps.target.outputs.release_tags }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -75,9 +76,16 @@ jobs:
           else
             build="false"
           fi
+          # A release branch also publishes the SemVer tag of section 3.1.3, so the digest
+          # built here is the one that main promotes later ("build once, deploy many").
+          release_tags=""
+          if [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            release_tags="v${GITHUB_REF#refs/heads/release/}"
+          fi
           echo "environment=$environment" >> "$GITHUB_OUTPUT"
           echo "image_tag=$tag" >> "$GITHUB_OUTPUT"
           echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "release_tags=$release_tags" >> "$GITHUB_OUTPUT"
           echo "### Target: \`$environment\` with images \`$tag\` (build: $build)" >> "$GITHUB_STEP_SUMMARY"
 
   build:
@@ -143,7 +151,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        run: docker push "$IMAGE"
+        env:
+          RELEASE_TAGS: ${{ needs.resolve.outputs.release_tags }}
+          REPOSITORY: ghcr.io/resolum-minesense-safety/${{ matrix.service.name }}
+        run: |
+          docker push "$IMAGE"
+          for tag in $RELEASE_TAGS; do
+            docker tag "$IMAGE" "$REPOSITORY:$tag"
+            docker push "$REPOSITORY:$tag"
+          done
 
   deploy:
     name: Deploy to ${{ needs.resolve.outputs.environment }}
