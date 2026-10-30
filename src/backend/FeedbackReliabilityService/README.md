@@ -1,6 +1,6 @@
 # Feedback and Reliability Service
 
-EP12 implements US26 (operator feedback), US27 (supervisor review), US28 (reliability metrics), TS-20 and TS-28 from the MineSense Safety report. Cloud service: .NET 8, port **5280**, MongoDB database `minesense_feedback`, collection `alert_evaluations`.
+EP12 implements US26 (operator feedback), US27 (supervisor review), US28 (reliability metrics), TS-20 and TS-28 from the MineSense Safety report. Cloud service: .NET 8, port **5281** (same host port as `docker-compose.yml`), MongoDB database `minesense_feedback`, collection `alert_evaluations`.
 
 ## Responsibilities and architecture
 
