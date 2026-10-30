@@ -1,7 +1,7 @@
 name: Continuous Delivery (Amazon EKS)
 
 # GitFlow promotion (section 1.4.6 and 3.4):
-#   release/*  -> build every image once, scan it with Trivy, push it to GHCR and deploy to Staging
+#   release/*  -> build every image once, scan it with Trivy, push it to GHCR (and Docker Hub) and deploy to Staging
 #   main       -> deploy the very same images to Production after the approval of the
 #                 "production" GitHub environment ("build once, deploy many", section 2.2.4)
 on:
@@ -160,6 +160,29 @@ jobs:
             docker tag "$IMAGE" "$REPOSITORY:$tag"
             docker push "$REPOSITORY:$tag"
           done
+
+      # Docker Hub mirror (section 3.1.4): the same scanned image is published as
+      # docker.io/<DOCKERHUB_NAMESPACE>/minesense-<service>. It turns on once the repository
+      # variable DOCKERHUB_NAMESPACE and the secret DOCKERHUB_TOKEN exist.
+      - name: Log in to Docker Hub
+        if: vars.DOCKERHUB_NAMESPACE != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME || vars.DOCKERHUB_NAMESPACE }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image to Docker Hub
+        if: vars.DOCKERHUB_NAMESPACE != ''
+        env:
+          RELEASE_TAGS: ${{ needs.resolve.outputs.release_tags }}
+          TAG: ${{ needs.resolve.outputs.image_tag }}
+          HUB_REPOSITORY: docker.io/${{ vars.DOCKERHUB_NAMESPACE }}/minesense-${{ matrix.service.name }}
+        run: |
+          for tag in $TAG $RELEASE_TAGS latest; do
+            docker tag "$IMAGE" "$HUB_REPOSITORY:$tag"
+            docker push "$HUB_REPOSITORY:$tag"
+          done
+          echo "Published \`$HUB_REPOSITORY\` ($TAG $RELEASE_TAGS latest)" >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     name: Deploy to ${{ needs.resolve.outputs.environment }}
