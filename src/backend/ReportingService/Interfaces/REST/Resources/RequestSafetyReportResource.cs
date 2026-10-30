@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace ReportingService.Interfaces.REST.Resources;
 
 /// <param name="RequestedBy">
-/// User requesting the report. Optional when the caller is authenticated: the <c>sub</c> claim is
-/// used instead.
+/// User requesting the report, for unauthenticated callers. When the request carries a token its
+/// <c>sub</c> claim is used and this value is ignored.
 /// </param>
 public record RequestSafetyReportResource(
     [property: JsonRequired] DateTimeOffset From,
