@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1060" viewBox="0 0 1600 1060" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #1b2631; }
+      .h { font-size: 17px; font-weight: 700; fill: #1b2631; }
+      .t { font-size: 14px; fill: #263238; }
+      .s { font-size: 12.5px; fill: #455a64; }
+      .lbl { font-size: 12.5px; fill: #37474f; font-style: italic; }
+      .flow { stroke: #37474f; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #37474f; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1060" fill="#ffffff"/>
+  <text x="40" y="46" class="title">MineSense Safety: despliegue en la nube (Amazon EKS, por entorno)</text>
+  <text x="40" y="72" class="s">Staging y Production usan los mismos módulos de Terraform, el mismo chart de Helm y las mismas imágenes; solo cambian tamaño y redundancia.</text>
+
+  <!-- Users -->
+  <rect x="40" y="120" width="220" height="92" rx="10" fill="#e3f2fd" stroke="#1e88e5" stroke-width="2"/>
+  <text x="150" y="152" text-anchor="middle" class="h">Centro de control</text>
+  <text x="150" y="174" text-anchor="middle" class="t">Supervisor / Administrador</text>
+  <text x="150" y="194" text-anchor="middle" class="s">Dashboard React (HTTPS)</text>
+
+  <rect x="40" y="250" width="220" height="92" rx="10" fill="#fff3e0" stroke="#fb8c00" stroke-width="2"/>
+  <text x="150" y="282" text-anchor="middle" class="h">Cabinas (Edge)</text>
+  <text x="150" y="304" text-anchor="middle" class="t">Gateway + cámara + wearable</text>
+  <text x="150" y="324" text-anchor="middle" class="s">MQTTS, certificado X.509</text>
+
+  <!-- GitHub -->
+  <rect x="40" y="640" width="220" height="330" rx="12" fill="#f3e5f5" stroke="#8e24aa" stroke-width="2"/>
+  <text x="150" y="672" text-anchor="middle" class="h">GitHub</text>
+  <rect x="60" y="690" width="180" height="70" rx="8" fill="#ffffff" stroke="#8e24aa"/>
+  <text x="150" y="718" text-anchor="middle" class="t">GitHub Actions</text>
+  <text x="150" y="738" text-anchor="middle" class="s">cd-deploy.yml</text>
+  <rect x="60" y="776" width="180" height="70" rx="8" fill="#ffffff" stroke="#8e24aa"/>
+  <text x="150" y="804" text-anchor="middle" class="t">GHCR</text>
+  <text x="150" y="824" text-anchor="middle" class="s">13 imágenes sha-&lt;commit&gt;</text>
+  <rect x="60" y="862" width="180" height="88" rx="8" fill="#ffffff" stroke="#8e24aa"/>
+  <text x="150" y="888" text-anchor="middle" class="t">Environments</text>
+  <text x="150" y="908" text-anchor="middle" class="s">staging (automático)</text>
+  <text x="150" y="926" text-anchor="middle" class="s">production (aprobación)</text>
+
+  <!-- AWS cloud -->
+  <rect x="300" y="100" width="1260" height="930" rx="16" fill="#fafafa" stroke="#ff9900" stroke-width="3"/>
+  <text x="324" y="132" class="h" fill="#e65100">AWS (us-east-1)</text>
+
+  <!-- VPC -->
+  <rect x="330" y="150" width="860" height="760" rx="14" fill="#f1f8e9" stroke="#7cb342" stroke-width="2"/>
+  <text x="350" y="178" class="h">VPC  ·  Staging 10.20.0.0/16 (2 AZ)  ·  Production 10.30.0.0/16 (3 AZ)</text>
+
+  <!-- Public subnets -->
+  <rect x="350" y="192" width="820" height="108" rx="10" fill="#ffffff" stroke="#9ccc65" stroke-dasharray="6 4"/>
+  <text x="366" y="214" class="s">Subredes públicas</text>
+  <rect x="380" y="224" width="440" height="66" rx="8" fill="#e8f5e9" stroke="#43a047" stroke-width="2"/>
+  <text x="600" y="250" text-anchor="middle" class="t" font-weight="700">Application Load Balancer (Ingress minesense-api)</text>
+  <text x="600" y="272" text-anchor="middle" class="s">HTTPS 443 con certificado ACM · entrada única /api/v1 · WAF opcional</text>
+  <rect x="860" y="224" width="290" height="66" rx="8" fill="#ffffff" stroke="#7cb342"/>
+  <text x="1005" y="252" text-anchor="middle" class="t">NAT Gateway</text>
+  <text x="1005" y="272" text-anchor="middle" class="s">1 en Staging · 1 por AZ en Production</text>
+
+  <!-- Private subnets / EKS -->
+  <rect x="350" y="318" width="820" height="576" rx="10" fill="#ffffff" stroke="#9ccc65" stroke-dasharray="6 4"/>
+  <text x="366" y="340" class="s">Subredes privadas</text>
+  <rect x="370" y="352" width="560" height="526" rx="12" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+  <text x="390" y="380" class="h">Amazon EKS 1.30 · namespace staging | production</text>
+  <text x="390" y="400" class="s">Chart minesense-service: Deployment, Service, HPA, PDB, ServiceAccount (IRSA)</text>
+
+  <g class="t">
+    <rect x="390" y="416" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="441" text-anchor="middle">identity-access-service</text>
+    <rect x="660" y="416" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="441" text-anchor="middle">operations-service</text>
+    <rect x="390" y="466" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="491" text-anchor="middle">device-management-service</text>
+    <rect x="660" y="466" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="491" text-anchor="middle">monitoring-service</text>
+    <rect x="390" y="516" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="541" text-anchor="middle">fatigue-detection-service</text>
+    <rect x="660" y="516" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="541" text-anchor="middle">alert-service</text>
+    <rect x="390" y="566" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="591" text-anchor="middle">fleet-monitoring-service</text>
+    <rect x="660" y="566" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="591" text-anchor="middle">incident-management-service</text>
+    <rect x="390" y="616" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="641" text-anchor="middle">privacy-audit-service</text>
+    <rect x="660" y="616" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="641" text-anchor="middle">reporting-service</text>
+    <rect x="390" y="666" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="691" text-anchor="middle">analytics-service</text>
+    <rect x="660" y="666" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="785" y="691" text-anchor="middle">feedback-reliability-service</text>
+    <rect x="390" y="716" width="250" height="40" rx="6" fill="#ffffff" stroke="#5c6bc0"/><text x="515" y="741" text-anchor="middle">edge-synchronization-service</text>
+  </g>
+  <rect x="660" y="716" width="250" height="40" rx="6" fill="#fffde7" stroke="#f9a825"/>
+  <text x="785" y="741" text-anchor="middle" class="t">aws-load-balancer-controller</text>
+  <text x="390" y="790" class="s">Staging: 1 réplica por servicio · Production: HPA 2–6 réplicas repartidas por AZ</text>
+  <text x="390" y="810" class="s">Probes /health/live y /health/ready · usuario no root (UID 1654) · sistema de archivos de solo lectura</text>
+  <text x="390" y="830" class="s">Nodos: Staging t3.large × 2–3 · Production m6i.large × 3–6</text>
+  <text x="390" y="850" class="s">Pod Security "restricted" · helm upgrade --install --atomic (rollback automático)</text>
+
+  <!-- Data -->
+  <rect x="950" y="352" width="200" height="104" rx="10" fill="#e0f2f1" stroke="#00897b" stroke-width="2"/>
+  <text x="1050" y="380" text-anchor="middle" class="h">RDS PostgreSQL 16</text>
+  <text x="1050" y="402" text-anchor="middle" class="s">Identity, Operations,</text>
+  <text x="1050" y="420" text-anchor="middle" class="s">Device, Monitoring</text>
+  <text x="1050" y="440" text-anchor="middle" class="s">Multi-AZ en Production</text>
+  <rect x="950" y="472" width="200" height="104" rx="10" fill="#e0f2f1" stroke="#00897b" stroke-width="2"/>
+  <text x="1050" y="500" text-anchor="middle" class="h">Amazon DocumentDB</text>
+  <text x="1050" y="522" text-anchor="middle" class="s">Alertas, incidentes,</text>
+  <text x="1050" y="540" text-anchor="middle" class="s">reportes, analítica</text>
+  <text x="1050" y="560" text-anchor="middle" class="s">1 | 2 instancias</text>
+  <rect x="950" y="592" width="200" height="88" rx="10" fill="#e0f2f1" stroke="#00897b" stroke-width="2"/>
+  <text x="1050" y="620" text-anchor="middle" class="h">MSK Serverless</text>
+  <text x="1050" y="642" text-anchor="middle" class="s">Kafka · eventos de dominio</text>
+  <text x="1050" y="660" text-anchor="middle" class="s">autenticación IAM</text>
+  <text x="1050" y="730" text-anchor="middle" class="s">Solo aceptan tráfico del</text>
+  <text x="1050" y="748" text-anchor="middle" class="s">security group de los nodos</text>
+
+  <!-- Managed services outside VPC -->
+  <rect x="1220" y="150" width="320" height="120" rx="10" fill="#fff8e1" stroke="#ff9900" stroke-width="2"/>
+  <text x="1380" y="182" text-anchor="middle" class="h">AWS IoT Core</text>
+  <text x="1380" y="206" text-anchor="middle" class="s">Broker MQTTS de los gateways Edge</text>
+  <text x="1380" y="226" text-anchor="middle" class="s">un thing y un certificado por cabina</text>
+  <text x="1380" y="246" text-anchor="middle" class="s">tópico minesense/&lt;thing&gt;/…</text>
+
+  <rect x="1220" y="300" width="320" height="300" rx="10" fill="#fff8e1" stroke="#ff9900" stroke-width="2"/>
+  <text x="1380" y="330" text-anchor="middle" class="h">Reportes PDF (sección 3.5)</text>
+  <rect x="1250" y="346" width="260" height="56" rx="8" fill="#ffffff" stroke="#ff9900"/>
+  <text x="1380" y="370" text-anchor="middle" class="t">SQS report-requests (+ DLQ)</text>
+  <text x="1380" y="390" text-anchor="middle" class="s">lotes de 5 mensajes</text>
+  <rect x="1250" y="428" width="260" height="56" rx="8" fill="#ffffff" stroke="#ff9900"/>
+  <text x="1380" y="452" text-anchor="middle" class="t">Lambda ReportPdfGenerator</text>
+  <text x="1380" y="472" text-anchor="middle" class="s">.NET 8 · arm64</text>
+  <rect x="1250" y="510" width="260" height="56" rx="8" fill="#ffffff" stroke="#ff9900"/>
+  <text x="1380" y="534" text-anchor="middle" class="t">S3 reports/ (cifrado KMS)</text>
+  <text x="1380" y="554" text-anchor="middle" class="s">descarga vía Reporting</text>
+  <path d="M1380,402 L1380,426" class="flow"/>
+  <path d="M1380,484 L1380,508" class="flow"/>
+
+  <rect x="1220" y="630" width="320" height="110" rx="10" fill="#fce4ec" stroke="#d81b60" stroke-width="2"/>
+  <text x="1380" y="660" text-anchor="middle" class="h">Seguridad e identidad</text>
+  <text x="1380" y="684" text-anchor="middle" class="s">Secrets Manager: clave JWT, cadenas de conexión</text>
+  <text x="1380" y="704" text-anchor="middle" class="s">IAM: rol de despliegue (OIDC de GitHub)</text>
+  <text x="1380" y="724" text-anchor="middle" class="s">IRSA: Reporting, Load Balancer Controller</text>
+
+  <rect x="1220" y="770" width="320" height="100" rx="10" fill="#eceff1" stroke="#546e7a" stroke-width="2"/>
+  <text x="1380" y="800" text-anchor="middle" class="h">Estado de Terraform</text>
+  <text x="1380" y="824" text-anchor="middle" class="s">S3 versionado y cifrado + DynamoDB</text>
+  <text x="1380" y="844" text-anchor="middle" class="s">un estado por entorno (sección 3.3)</text>
+
+  <!-- Flows -->
+  <path d="M260,166 C330,166 330,257 378,257" class="flow"/>
+  <text x="268" y="150" class="lbl">HTTPS</text>
+  <path d="M260,284 L282,284 L282,88 L1380,88 L1380,146" class="flow"/>
+  <text x="900" y="82" class="lbl">MQTTS 8883 (gateways Edge → AWS IoT Core)</text>
+  <path d="M600,290 L600,350" class="flow"/>
+  <text x="608" y="330" class="lbl">target-type ip → pods</text>
+  <path d="M930,620 L948,620" class="flow"/>
+  <path d="M930,500 L948,500" class="flow"/>
+  <path d="M930,410 L948,410" class="flow"/>
+  <path d="M910,646 L940,646 L940,698 L1200,698 L1200,374 L1248,374" class="dash"/>
+  <text x="1010" y="689" class="lbl">SendMessage (IRSA)</text>
+  <path d="M240,724 C300,724 310,610 368,610" class="flow"/>
+  <text x="248" y="748" class="lbl">OIDC + Helm</text>
+  <path d="M240,810 C310,810 320,770 368,770" class="dash"/>
+  <text x="246" y="836" class="lbl">pull de imágenes</text>
+</svg>
