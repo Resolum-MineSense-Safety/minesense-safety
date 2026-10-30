@@ -1,6 +1,7 @@
-import { Activity, LogIn } from 'lucide-react'
+import { LogIn } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import { Logo, LogoMark } from '../components/Logo'
 import { Button } from '../components/ui'
 
 // Demo accounts created by scripts/seed-demo.mjs (admin comes from the Development profile).
@@ -32,12 +33,7 @@ export default function Login() {
   return (
     <div className="grid min-h-svh md:grid-cols-[1.1fr_1fr]">
       <section className="relative hidden overflow-hidden bg-basalt p-12 text-white md:flex md:flex-col md:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-haul">
-            <Activity className="h-6 w-6 text-basalt" strokeWidth={2.5} />
-          </span>
-          <span className="font-cond text-2xl font-semibold">MineSense Safety</span>
-        </div>
+        <Logo size={52} />
 
         {/* Three cab beacons: the states the control center watches */}
         <div className="space-y-5">
@@ -54,7 +50,8 @@ export default function Login() {
           <h1 className="max-w-md pt-6 font-cond text-5xl font-semibold leading-[1.05]">Cada cabina, a la vista.</h1>
         </div>
 
-        <span className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full border-[40px] border-haul/10" />
+        {/* The mark's benches, oversized and faint, as the panel's ground */}
+        <LogoMark variant="bare" size={420} title="" className="pointer-events-none absolute -bottom-28 -right-28 opacity-[0.07]" />
       </section>
 
       <section className="flex items-center justify-center p-6">

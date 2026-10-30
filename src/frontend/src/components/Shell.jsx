@@ -1,9 +1,10 @@
 import {
-  Activity, BarChart3, Bell, Building2, Cpu, FileText, Gauge, LogOut, Radio, Server, ShieldCheck, Siren,
+  BarChart3, Bell, Building2, Cpu, FileText, Gauge, LogOut, Radio, Server, ShieldCheck, Siren,
   ThumbsUp, Truck, Users, Waves,
 } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { Logo, LogoMark } from './Logo'
 import { label } from '../lib/format'
 
 const NAV = [
@@ -43,15 +44,6 @@ const NAV = [
   },
 ]
 
-function Mark() {
-  // Haul-truck yellow plate with a pulse line: the product mark.
-  return (
-    <span className="grid h-10 w-10 place-items-center rounded-xl bg-haul">
-      <Activity className="h-5 w-5 text-basalt" strokeWidth={2.5} />
-    </span>
-  )
-}
-
 export default function Shell() {
   const { user, signOut } = useAuth()
   return (
@@ -59,12 +51,8 @@ export default function Shell() {
       {/* The outer rail stretches with the page; the inner column stays in view while scrolling. */}
       <aside className="hidden w-60 shrink-0 bg-basalt text-white md:block">
        <div className="sticky top-0 flex h-svh flex-col">
-        <div className="flex items-center gap-3 px-5 py-5">
-          <Mark />
-          <div className="leading-tight">
-            <div className="font-cond text-xl font-semibold">MineSense</div>
-            <div className="text-xs text-white/50">Safety</div>
-          </div>
+        <div className="px-5 py-5">
+          <Logo size={40} />
         </div>
         <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
           {NAV.map((section) => (
@@ -108,7 +96,7 @@ export default function Shell() {
       <div className="min-w-0 flex-1">
         {/* Compact top navigation for small screens */}
         <header className="sticky top-0 z-30 flex items-center gap-2 overflow-x-auto bg-basalt px-3 py-2 md:hidden">
-          <Mark />
+          <LogoMark size={36} />
           {NAV.flatMap((section) => section.items)
             .filter((item) => !item.roles || item.roles.includes(user?.role))
             .map((item) => (
