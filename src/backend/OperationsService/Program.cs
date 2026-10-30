@@ -8,6 +8,9 @@ using OperationsService.Infrastructure.Persistence.InMemory;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Operations bounded context (EP08): operational structure and operator assignments

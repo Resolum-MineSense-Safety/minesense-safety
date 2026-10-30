@@ -10,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Controllers, kebab-case routes, domain error handling (HTTP 422) and Swagger
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Reporting bounded context (EP10): versioned indicators, report jobs rendered in process

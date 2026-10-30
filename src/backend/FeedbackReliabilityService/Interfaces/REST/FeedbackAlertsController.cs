@@ -19,7 +19,7 @@ public class FeedbackAlertsController(IFeedbackCommandService commands, Feedback
 {
     /// <summary>Trusted integration registers operational scope; identity/time are verified against Alerts.</summary>
     [HttpPut("{alertId:guid}")]
-    [Authorize(Roles = "Service")]
+    [Authorize(Roles = "Service,Administrator,Supervisor")]
     [ProducesResponseType(typeof(EvaluationResource), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -31,7 +31,7 @@ public class FeedbackAlertsController(IFeedbackCommandService commands, Feedback
 
     /// <summary>US27: paged queue, including alerts that remain pending evaluation.</summary>
     [HttpGet]
-    [Authorize(Roles = "Supervisor,Manager")]
+    [Authorize(Roles = "Supervisor,Manager,SafetyManager")]
     [ProducesResponseType(typeof(EvaluationPageResource), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List([FromQuery] Guid operationId, [FromQuery] DateTimeOffset from,

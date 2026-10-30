@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FeedbackReliabilityService.Interfaces.REST;
 
 [ApiController]
-[Authorize(Roles = "Supervisor,Manager")]
+[Authorize(Roles = "Supervisor,Manager,SafetyManager")]
 [Route("api/v1/analytics/alert-reliability")]
 [Produces("application/json")]
 public class AlertReliabilityController(FeedbackQueryService queries) : ControllerBase
