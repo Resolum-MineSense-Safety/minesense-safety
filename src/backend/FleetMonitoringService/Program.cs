@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddOptions<FleetMonitoringOptions>()
     .Bind(builder.Configuration.GetSection(FleetMonitoringOptions.SectionName))

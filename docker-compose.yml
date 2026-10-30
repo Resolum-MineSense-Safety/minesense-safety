@@ -19,6 +19,8 @@ x-dotnet-service: &dotnet-service
   environment: &dotnet-environment
     ASPNETCORE_ENVIRONMENT: Development
     ASPNETCORE_HTTP_PORTS: "8080"
+    # Every service validates the tokens of Identity & Access (ADR-007). Empty = open APIs.
+    Authentication__IdentityUrl: ${IDENTITY_URL-http://identity-access-service:8080}
 
 services:
   # ---------- Infrastructure ----------
@@ -194,8 +196,7 @@ services:
       <<: *dotnet-environment
       ConnectionStrings__MongoDb: mongodb://mongodb:27017
       MongoDb__Database: minesense_feedback
-      Authentication__Authority: ${FEEDBACK_AUTHORITY:-}
-      Authentication__Audience: minesense-feedback
+      Authentication__Audience: minesense-services
       Services__AlertServiceUrl: ${FEEDBACK_ALERT_SERVICE_URL:-http://alert-service:8080/}
     ports:
       - "5281:8080"

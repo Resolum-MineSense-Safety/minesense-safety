@@ -8,12 +8,14 @@ using PrivacyAuditService.Interfaces.REST.Transform;
 namespace PrivacyAuditService.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/incidents")]
+[Route("api/v1/audit/incidents")]
 [Produces(MediaTypeNames.Application.Json)]
 public class IncidentHistoryController(IPrivacyAuditQueryService queryService) : ControllerBase
 {
     /// <summary>
-    /// Chronological traceability of an incident (US23).
+    /// Chronological traceability of an incident (US23) as seen by the audit log. Lives under the
+    /// Privacy &amp; Audit prefix so it does not collide with Incident Management, which owns
+    /// <c>/api/v1/incidents</c>.
     /// Current slice: steps recorded in the access audit log for this incident id.
     /// Detection/alert/lifecycle steps arrive with Fase 3 (producer events).
     /// </summary>

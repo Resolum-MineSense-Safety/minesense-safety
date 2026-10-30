@@ -2,6 +2,11 @@
 # autoscaling on CPU and a disruption budget so node upgrades never stop a service.
 environment: Production
 
+# Every service validates the access tokens of Identity & Access (ADR-007); maps merge with
+# the env of each service file.
+env:
+  Authentication__IdentityUrl: http://identity-access-service/
+
 resources:
   requests:
     cpu: 250m

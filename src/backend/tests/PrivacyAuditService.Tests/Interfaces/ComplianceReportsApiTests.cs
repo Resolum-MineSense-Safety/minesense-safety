@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace PrivacyAuditService.Tests.Interfaces;
 
-public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class ComplianceReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient client;
 
-    public ReportsApiTests(WebApplicationFactory<Program> factory)
+    public ComplianceReportsApiTests(WebApplicationFactory<Program> factory)
     {
         client = factory.CreateClient();
     }
@@ -27,7 +27,7 @@ public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/v1/reports/safety", body);
+        var response = await client.PostAsJsonAsync("/api/v1/audit/compliance-reports", body);
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -50,7 +50,7 @@ public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/v1/reports/safety", body);
+        var response = await client.PostAsJsonAsync("/api/v1/audit/compliance-reports", body);
 
         // Assert
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
@@ -60,7 +60,7 @@ public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task GetReportById_UnknownId_ReturnsNotFound()
     {
         // Arrange & Act
-        var response = await client.GetAsync($"/api/v1/reports/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"/api/v1/audit/compliance-reports/{Guid.NewGuid()}");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -70,7 +70,7 @@ public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task GetReportById_CreatedReport_ReturnsOk()
     {
         // Arrange
-        var created = await client.PostAsJsonAsync("/api/v1/reports/safety", new
+        var created = await client.PostAsJsonAsync("/api/v1/audit/compliance-reports", new
         {
             from = "2026-10-01T00:00:00Z",
             to = "2026-10-02T00:00:00Z",
@@ -80,7 +80,7 @@ public class ReportsApiTests : IClassFixture<WebApplicationFactory<Program>>
         var resource = await created.Content.ReadFromJsonAsync<Dictionary<string, object>>();
 
         // Act
-        var response = await client.GetAsync($"/api/v1/reports/{resource!["id"]}");
+        var response = await client.GetAsync($"/api/v1/audit/compliance-reports/{resource!["id"]}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -2,6 +2,7 @@ using ReportingService.Application.Internal.CommandServices;
 using ReportingService.Application.Internal.QueryServices;
 using ReportingService.Domain.Model.Commands;
 using ReportingService.Domain.Model.Queries;
+using ReportingService.Infrastructure.Rendering;
 
 namespace ReportingService.Tests.Application;
 
@@ -11,7 +12,8 @@ public class DefinitionServicesTests
     {
         // Arrange
         var definitions = new FakeReportDefinitionRepository();
-        return (new ReportingCommandService(definitions, null!, null!, TimeProvider.System),
+        return (new ReportingCommandService(definitions, null!, null!, new InProcessReportRenderer(),
+                TimeProvider.System),
             new ReportingQueryService(definitions, null!, null!));
     }
 
@@ -64,6 +66,27 @@ public class DefinitionServicesTests
 
         // Assert
         Assert.True(created);
+        Assert.Equal(2, all.Count());
+    }
+
+    [Fact]
+    public async Task DefineIndicator_OlderVersionAgainAfterNewer_ReturnsExisting()
+    {
+        // Arrange
+        var (commands, queries) = CreateServices();
+        var (original, _) = await commands.Handle(new DefineReportIndicatorCommand("fatigue-by-shift",
+            "Fatigue alerts by shift", "v1.0", ["alerts"]));
+        await commands.Handle(new DefineReportIndicatorCommand("fatigue-by-shift",
+            "Fatigue alerts by shift", "v2.0", ["alerts", "incidents"]));
+
+        // Act
+        var (again, created) = await commands.Handle(new DefineReportIndicatorCommand("fatigue-by-shift",
+            "Fatigue alerts by shift", "v1.0", ["alerts"]));
+        var all = await queries.Handle(new GetReportDefinitionsQuery(true));
+
+        // Assert
+        Assert.False(created);
+        Assert.Equal(original.Id, again.Id);
         Assert.Equal(2, all.Count());
     }
 }
