@@ -80,7 +80,11 @@ public static class IdentityAccessAuthenticationExtensions
         var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
             .CreateLogger("IdentityAccessService.AccessAudit");
         logger.LogWarning("Access rejected {StatusCode} {Method} {Path} at {OccurredAt:O} for {User}: {Reason}",
-            statusCode, context.Request.Method, context.Request.Path, DateTimeOffset.UtcNow,
-            context.User.Identity?.Name ?? "anonymous", reason);
+            statusCode, Sanitize(context.Request.Method), Sanitize(context.Request.Path.Value),
+            DateTimeOffset.UtcNow, Sanitize(context.User.Identity?.Name ?? "anonymous"), Sanitize(reason));
     }
+
+    // Request data is user input: line breaks are removed so a request cannot forge audit entries.
+    private static string Sanitize(string? value) =>
+        (value ?? string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
 }
