@@ -12,12 +12,12 @@ public class HttpCurrentActor(IHttpContextAccessor accessor) : ICurrentActor
         ? id : throw new FeedbackForbiddenException();
 
     /// <summary>
-    /// Feedback roles mapped to the roles of Identity &amp; Access: a SafetyManager acts as Manager, and
+    /// Feedback roles mapped to the roles of Identity &amp; Access: a SafetyManager or Administrator reads like a Manager, and
     /// an Administrator or Supervisor may register alerts like the internal Service caller.
     /// </summary>
     public bool IsInRole(string role) => role switch
     {
-        "Manager" => Principal.IsInRole("Manager") || Principal.IsInRole("SafetyManager"),
+        "Manager" => Principal.IsInRole("Manager") || Principal.IsInRole("SafetyManager") || Principal.IsInRole("Administrator"),
         "Service" => Principal.IsInRole("Service") || Principal.IsInRole("Administrator") || Principal.IsInRole("Supervisor"),
         _ => Principal.IsInRole(role)
     };

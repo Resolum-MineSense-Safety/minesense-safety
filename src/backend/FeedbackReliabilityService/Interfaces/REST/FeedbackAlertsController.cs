@@ -31,7 +31,7 @@ public class FeedbackAlertsController(IFeedbackCommandService commands, Feedback
 
     /// <summary>US27: paged queue, including alerts that remain pending evaluation.</summary>
     [HttpGet]
-    [Authorize(Roles = "Supervisor,Manager,SafetyManager")]
+    [Authorize(Roles = "Supervisor,Manager,SafetyManager,Administrator")]
     [ProducesResponseType(typeof(EvaluationPageResource), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List([FromQuery] Guid operationId, [FromQuery] DateTimeOffset from,
