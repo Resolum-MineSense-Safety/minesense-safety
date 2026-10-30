@@ -38,7 +38,7 @@ public class IncidentHistoryApiTests : IClassFixture<WebApplicationFactory<Progr
         });
 
         // Act
-        var response = await client.GetAsync($"/api/v1/incidents/{incidentId}/history");
+        var response = await client.GetAsync($"/api/v1/audit/incidents/{incidentId}/history");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -51,7 +51,7 @@ public class IncidentHistoryApiTests : IClassFixture<WebApplicationFactory<Progr
     public async Task GetIncidentHistory_WithoutSteps_ReturnsEmptyArray()
     {
         // Arrange & Act
-        var response = await client.GetAsync($"/api/v1/incidents/{Guid.NewGuid()}/history");
+        var response = await client.GetAsync($"/api/v1/audit/incidents/{Guid.NewGuid()}/history");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
