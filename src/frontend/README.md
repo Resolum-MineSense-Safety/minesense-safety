@@ -1,16 +1,58 @@
-# React + Vite
+# Supervision Dashboard (MineSense Safety)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Centro de control web de MineSense Safety: React 19, Vite y Tailwind CSS. Consume los 13
+microservicios a través del gateway (`/api/v1`) con el token de Identity & Access.
 
-Currently, two official plugins are available:
+| Pantalla | Ruta | Microservicios |
+|---|---|---|
+| Centro de control | `/` | Fleet Monitoring, Alerts, Incident Management, Device Management, Monitoring, Fatigue Detection |
+| Flota | `/flota` | Fleet Monitoring, Fatigue Detection |
+| Cabina | `/cabina` | Device Management, Monitoring, Fatigue Detection, Alerts, Fleet Monitoring, Analytics, Feedback & Reliability, Incident Management, Privacy & Audit |
+| Alertas | `/alertas` | Alerts, Feedback & Reliability |
+| Incidentes | `/incidentes` | Incident Management, Privacy & Audit |
+| Operaciones | `/operaciones` | Operations |
+| Dispositivos | `/dispositivos` | Device Management |
+| Edge | `/edge` | Edge Synchronization |
+| Tendencias | `/analitica` | Analytics |
+| Fiabilidad | `/fiabilidad` | Feedback & Reliability |
+| Reportes | `/reportes` | Reporting |
+| Privacidad | `/privacidad` | Privacy & Audit |
+| Usuarios | `/usuarios` | Identity & Access |
+| Servicios | `/servicios` | Los 13: una lectura por servicio y su latencia |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Ejecutar en local
 
-## React Compiler
+1. Levantar el backend. Con Docker: `docker compose up --build -d` desde la raíz (gateway en
+   `http://localhost:8080`). Sin Docker: `dotnet run` de cada servicio con
+   `Authentication__IdentityUrl=http://localhost:5150` (puertos de `Properties/launchSettings.json`).
+2. Instalar y arrancar el dashboard:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   ```bash
+   npm ci
+   npm run dev                                  # proxy a los puertos de dotnet run
+   GATEWAY_URL=http://localhost:8080 npm run dev # proxy al gateway de docker compose
+   ```
 
-## Expanding the ESLint configuration
+   El proxy de Vite lee las rutas de `infrastructure/helm/minesense-gateway/values.yaml`, así que
+   en local se enruta igual que el ALB de AWS.
+3. Cargar datos de demostración una sola vez sobre un entorno vacío:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+   ```bash
+   node scripts/seed-demo.mjs
+   ```
+
+   Crea la unidad minera Tambo Real con 8 cabinas, dispositivos, usuarios, consentimientos,
+   alertas, incidentes, feedback, tendencias, reportes y un lote Edge. Cuentas: `admin` /
+   `Admin-Local-2026` (perfil Development), `supervisor` / `Supervisor-2026`,
+   `jefe.seguridad` / `Seguridad-2026`.
+
+## Diseño
+
+- Paleta clara: fondo mineral `#F3F5F4`, tinta basalto `#1F2A2E`, acento amarillo de camión
+  minero `#F2B705` y semáforo de riesgo (verde, ámbar, rojo) que significa lo mismo en todas las
+  pantallas.
+- Tipografía Barlow (interfaz) y Barlow Condensed (cifras y títulos).
+- Poco texto: estados como píldoras de color, cifras grandes, botones en forma de píldora y
+  formularios en paneles laterales.
+- Componentes comunes en `src/components/ui.jsx`; llamadas a la API por bounded context en
+  `src/api/services.js`.
