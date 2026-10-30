@@ -2,7 +2,7 @@
   "profiles": {
     "http": {
       "commandName": "Project", "launchBrowser": true, "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5280",
+      "applicationUrl": "http://localhost:5281",
       "environmentVariables": { "ASPNETCORE_ENVIRONMENT": "Development" }
     }
   }

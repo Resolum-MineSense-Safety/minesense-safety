@@ -62,15 +62,16 @@ dentro del prefijo de otro servicio van primero:
 | `/api/v1/alerts` | alert-service |
 | `/api/v1/fleet-operators`, `/fleet`, `/fleet-monitoring` | fleet-monitoring-service |
 | `/api/v1/incidents` | incident-management-service |
-| `/api/v1/consents`, `/access-log`, `/processing-purposes` | privacy-audit-service |
+| `/api/v1/consents`, `/access-log`, `/processing-purposes`, `/audit` | privacy-audit-service |
 | `/api/v1/report-definitions`, `/reports` | reporting-service |
 | `/api/v1/analytics` | analytics-service |
 | `/api/v1/synchronization-batches` | edge-synchronization-service |
 
-> Rutas duplicadas entre servicios: `POST /api/v1/reports/safety` existe en Reporting y en
-> Privacy & Audit, y `GET /api/v1/incidents/{id}/history` en Incident Management y en Privacy &
-> Audit. El gateway las envía a Reporting e Incident Management, que son los dueños de esos
-> recursos; las de Privacy & Audit solo son accesibles dentro del clúster hasta que se renombren.
+> Cada prefijo tiene un solo dueño. Privacy & Audit publica su reporte de cumplimiento y la
+> traza de accesos de un incidente bajo `/api/v1/audit/compliance-reports` y
+> `/api/v1/audit/incidents/{id}/history`, así no choca con `/api/v1/reports` (Reporting) ni con
+> `/api/v1/incidents` (Incident Management). Las pruebas `GatewayRoutingTests` de cada servicio
+> verifican que todas sus rutas lleguen a él por el gateway.
 
 ## Prerrequisitos (una vez por entorno)
 

@@ -7,14 +7,18 @@ using PrivacyAuditService.Interfaces.REST.Transform;
 
 namespace PrivacyAuditService.Interfaces.REST;
 
+/// <summary>
+/// Evidential compliance report intake (US22, ADR-010). Lives under the Privacy &amp; Audit prefix so
+/// it does not collide with the Reporting Service, which owns <c>/api/v1/reports</c>.
+/// </summary>
 [ApiController]
-[Route("api/v1/reports")]
+[Route("api/v1/audit/compliance-reports")]
 [Produces(MediaTypeNames.Application.Json)]
-public class ReportsController(
+public class ComplianceReportsController(
     IPrivacyAuditCommandService commandService,
     IPrivacyAuditQueryService queryService) : ControllerBase
 {
-    [HttpPost("safety")]
+    [HttpPost]
     [ProducesResponseType(typeof(ReportResource), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> RequestSafetyReport([FromBody] RequestSafetyReportResource resource)

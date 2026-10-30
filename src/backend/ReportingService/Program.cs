@@ -4,6 +4,7 @@ using ReportingService.Application.Internal.QueryServices;
 using ReportingService.Domain.Repositories;
 using ReportingService.Domain.Services;
 using ReportingService.Infrastructure.Persistence.InMemory;
+using ReportingService.Infrastructure.Rendering;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMineSenseWebApi();
 builder.Services.AddSingleton(TimeProvider.System);
 
-// Reporting bounded context (EP10, scaffold: endpoints return 501 until Fase 1)
+// Reporting bounded context (EP10): versioned indicators, report jobs rendered in process
+// (PDF/CSV) and downloadable artifacts; in-memory persistence until the MongoDB adapter
 builder.Services.AddSingleton<IReportDefinitionRepository, InMemoryReportDefinitionRepository>();
 builder.Services.AddSingleton<IReportJobRepository, InMemoryReportJobRepository>();
 builder.Services.AddSingleton<IReportArtifactRepository, InMemoryReportArtifactRepository>();
+builder.Services.AddSingleton<IReportRenderer, InProcessReportRenderer>();
 builder.Services.AddScoped<IReportingCommandService, ReportingCommandService>();
 builder.Services.AddScoped<IReportingQueryService, ReportingQueryService>();
 

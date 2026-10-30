@@ -20,8 +20,10 @@ LABEL org.opencontainers.image.source="https://github.com/Resolum-MineSense-Safe
       org.opencontainers.image.vendor="Resolum"
 
 # Apply the security fixes published after the base image was built, then drop back to non-root.
+# CI passes a new PATCH_STAMP on every run so a cached layer never hides newer Alpine fixes.
+ARG PATCH_STAMP=""
 USER root
-RUN apk upgrade --no-cache
+RUN echo "alpine security patches ${PATCH_STAMP}" && apk upgrade --no-cache
 USER 101
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
