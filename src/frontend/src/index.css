@@ -25,6 +25,28 @@
   .numeral {
     @apply font-cond font-semibold tabular-nums;
   }
+  /* Sidebar: thin dark scrollbar that shows on hover, and soft fades that hint at more items. */
+  .rail-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 20px), transparent 100%);
+  }
+  .rail-scroll:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+  .rail-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .rail-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .rail-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 99px;
+  }
+  .rail-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+  }
   /* Faint contour lines, used only behind the fleet board hero. */
   .contours {
     background-image:
