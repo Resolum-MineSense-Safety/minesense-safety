@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,8 +14,8 @@ namespace MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 /// <summary>
 /// Validates the access tokens issued by Identity &amp; Access (RS256, ADR-007) in every other
 /// microservice. Enforcement is switched on by <c>Authentication:IdentityUrl</c>: when it is set,
-/// every endpoint requires a valid token (health probes and Swagger stay public because they run
-/// before authentication); when it is empty the service stays open, which keeps the in-process
+/// every REST controller requires a valid token (health probes and Swagger stay public); when it is
+/// empty the service stays open, which keeps the in-process
 /// API tests and a bare <c>dotnet run</c> working without Identity &amp; Access.
 /// </summary>
 public static class MineSenseAuthenticationExtensions
@@ -33,8 +35,10 @@ public static class MineSenseAuthenticationExtensions
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<ILoggerFactory>((options, loggers) => ConfigureIdentityTokens(options, configuration,
                 identityUrl, loggers.CreateLogger<JwksSigningKeyResolver>()));
-        services.AddAuthorization(options =>
-            options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        // Only the REST controllers require the token; Swagger and the health probes stay public.
+        services.AddAuthorization();
+        services.Configure<MvcOptions>(options =>
+            options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())));
         return services;
     }
 
