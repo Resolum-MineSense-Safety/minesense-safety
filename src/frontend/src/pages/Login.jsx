@@ -4,11 +4,12 @@ import { useAuth } from '../auth/AuthContext'
 import { Logo, LogoMark } from '../components/Logo'
 import { Button } from '../components/ui'
 
-// Demo accounts created by scripts/seed-demo.mjs (admin comes from the Development profile).
+// Demo accounts created by scripts/seed-demo.mjs. Only the username is filled in: passwords are
+// never shipped with the dashboard.
 const DEMO = [
-  { username: 'admin', password: 'Admin-Local-2026', role: 'Administrador' },
-  { username: 'supervisor', password: 'Supervisor-2026', role: 'Supervisor' },
-  { username: 'jefe.seguridad', password: 'Seguridad-2026', role: 'Jefe de seguridad' },
+  { username: 'admin', role: 'Administrador' },
+  { username: 'supervisor', role: 'Supervisor' },
+  { username: 'jefe.seguridad', role: 'Jefe de seguridad' },
 ]
 
 export default function Login() {
@@ -66,6 +67,7 @@ export default function Login() {
           />
           <input
             className="field h-12"
+            id="login-password"
             type="password"
             placeholder="Contraseña"
             autoComplete="current-password"
@@ -84,7 +86,10 @@ export default function Login() {
                 <button
                   key={account.username}
                   type="button"
-                  onClick={() => setForm({ username: account.username, password: account.password })}
+                  onClick={() => {
+                    setForm({ username: account.username, password: '' })
+                    document.getElementById('login-password')?.focus()
+                  }}
                   className="rounded-full border border-line bg-white px-3 py-1.5 text-sm font-medium hover:border-basalt-mute"
                 >
                   {account.role}

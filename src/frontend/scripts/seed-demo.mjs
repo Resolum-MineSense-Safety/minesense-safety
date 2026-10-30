@@ -6,8 +6,16 @@
 //
 //   node scripts/seed-demo.mjs                       # through the Vite dev proxy (npm run dev)
 //   BASE_URL=http://localhost:8080 node scripts/seed-demo.mjs   # through the docker-compose gateway
+//
+// DEMO_PASSWORD sets the password of the demo users (supervisor, jefe.seguridad, operador.rosa);
+// it is never stored in the repository. ADMIN_PASSWORD defaults to the Development profile value.
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:5173'
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD
+if (!DEMO_PASSWORD || DEMO_PASSWORD.length < 8) {
+  console.error('Set DEMO_PASSWORD (8+ characters) for the demo users, e.g. DEMO_PASSWORD=... node scripts/seed-demo.mjs')
+  process.exit(1)
+}
 const ADMIN = { username: process.env.ADMIN_USER ?? 'admin', password: process.env.ADMIN_PASSWORD ?? 'Admin-Local-2026' }
 
 let token = null
@@ -76,9 +84,9 @@ async function main() {
 
   // ---------- Identity & Access (EP08) ----------
   const people = [
-    { username: 'supervisor', fullName: 'Ana Villanueva', password: 'Supervisor-2026', role: 'Supervisor' },
-    { username: 'jefe.seguridad', fullName: 'Carlos Medina', password: 'Seguridad-2026', role: 'SafetyManager' },
-    { username: 'operador.rosa', fullName: 'Rosa Quispe', password: 'Operador-2026', role: 'Operator' },
+    { username: 'supervisor', fullName: 'Ana Villanueva', password: DEMO_PASSWORD, role: 'Supervisor' },
+    { username: 'jefe.seguridad', fullName: 'Carlos Medina', password: DEMO_PASSWORD, role: 'SafetyManager' },
+    { username: 'operador.rosa', fullName: 'Rosa Quispe', password: DEMO_PASSWORD, role: 'Operator' },
   ]
   const users = {}
   for (const person of people) {
@@ -164,7 +172,7 @@ async function main() {
   log(`Detección: ${raised.length} alertas, ${raised.filter((r) => r.incident).length} incidentes`)
 
   // Supervisor work: acknowledge, escalate, handle incidents, feedback.
-  const supervisor = await signIn('supervisor', 'Supervisor-2026')
+  const supervisor = await signIn('supervisor', DEMO_PASSWORD)
   const asSupervisor = { as: supervisor.accessToken }
   const warnings = raised.filter((r) => r.alert.severity === 'Warning')
   if (warnings[0]) await post(`/api/v1/alerts/${warnings[0].alert.id}/acknowledgements`)

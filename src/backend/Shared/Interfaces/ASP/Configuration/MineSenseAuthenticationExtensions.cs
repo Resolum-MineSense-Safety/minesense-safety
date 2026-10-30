@@ -87,7 +87,11 @@ public static class MineSenseAuthenticationExtensions
         var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
             .CreateLogger("MineSenseSafety.AccessAudit");
         logger.LogWarning("Access rejected {StatusCode} {Method} {Path} at {OccurredAt:O} for {User}: {Reason}",
-            statusCode, context.Request.Method, context.Request.Path, DateTimeOffset.UtcNow,
-            context.User.Identity?.Name ?? "anonymous", reason);
+            statusCode, Clean(context.Request.Method), Clean(context.Request.Path.Value), DateTimeOffset.UtcNow,
+            Clean(context.User.Identity?.Name ?? "anonymous"), Clean(reason));
     }
+
+    /// <summary>Removes line breaks so a request value cannot forge extra log entries.</summary>
+    private static string Clean(string? value) =>
+        (value ?? string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
 }

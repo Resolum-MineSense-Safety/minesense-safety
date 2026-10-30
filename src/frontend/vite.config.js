@@ -41,7 +41,9 @@ function gatewayProxy() {
     if (line.startsWith('- path:')) path = line.slice('- path:'.length).trim()
     else if (line.startsWith('service:') && path) {
       const service = line.slice('service:'.length).trim()
-      const pattern = '^' + path.replace(/\./g, '\\.').replace(/\*/g, '[^/]+') + '(/.*)?(\\?.*)?$'
+      // Escape every regex metacharacter of the path; "*" is the one-segment wildcard of the ALB rules.
+      const literal = path.split('*').map((part) => part.replace(/[\\^$.+?()[\]{}|]/g, '\\$&'))
+      const pattern = '^' + literal.join('[^/]+') + '(/.*)?(\\?.*)?$'
       const target = process.env.GATEWAY_URL || `http://localhost:${SERVICE_PORTS[service]}`
       proxy[pattern] = { target, changeOrigin: true }
       path = null

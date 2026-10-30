@@ -38,13 +38,13 @@ microservicios a través del gateway (`/api/v1`) con el token de Identity & Acce
 3. Cargar datos de demostración una sola vez sobre un entorno vacío:
 
    ```bash
-   node scripts/seed-demo.mjs
+   DEMO_PASSWORD=<contraseña-de-demo> node scripts/seed-demo.mjs
    ```
 
    Crea la unidad minera Tambo Real con 8 cabinas, dispositivos, usuarios, consentimientos,
-   alertas, incidentes, feedback, tendencias, reportes y un lote Edge. Cuentas: `admin` /
-   `Admin-Local-2026` (perfil Development), `supervisor` / `Supervisor-2026`,
-   `jefe.seguridad` / `Seguridad-2026`.
+   alertas, incidentes, feedback, tendencias, reportes y un lote Edge. Cuentas: `admin` (contraseña
+   del perfil Development) y `supervisor`, `jefe.seguridad` y `operador.rosa` con la contraseña de
+   `DEMO_PASSWORD`, que nunca se guarda en el repositorio.
 
 ## Diseño
 
