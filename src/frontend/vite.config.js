@@ -27,8 +27,14 @@ const SERVICE_PORTS = {
  * rule to one gateway instead (for example http://localhost:8080 with docker compose).
  */
 function gatewayProxy() {
-  const values = readFileSync(
-    fileURLToPath(new URL('../../infrastructure/helm/minesense-gateway/values.yaml', import.meta.url)), 'utf8')
+  let values
+  try {
+    values = readFileSync(
+      fileURLToPath(new URL('../../infrastructure/helm/minesense-gateway/values.yaml', import.meta.url)), 'utf8')
+  } catch {
+    // Outside the monorepo (e.g. the Docker build context) there is no dev server to proxy.
+    return {}
+  }
   const proxy = {}
   let path = null
   for (const line of values.split(/\r?\n/).map((l) => l.trim())) {
