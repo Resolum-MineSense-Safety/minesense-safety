@@ -5,6 +5,7 @@ using PrivacyAuditService.Application.Internal.QueryServices;
 using PrivacyAuditService.Domain.Repositories;
 using PrivacyAuditService.Domain.Services;
 using PrivacyAuditService.Infrastructure.Persistence.InMemory;
+using PrivacyAuditService.Infrastructure.Persistence.MongoDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,16 +20,28 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddMineSenseEvents(builder.Configuration, "privacy-audit-service");
 
 // Privacy & Audit bounded context (EP09/EP10, scaffold: endpoints return 501 until Fase 1)
-builder.Services.AddSingleton<IProcessingConsentRepository, InMemoryProcessingConsentRepository>();
-builder.Services.AddSingleton<IAccessAuditRepository, InMemoryAccessAuditRepository>();
-builder.Services.AddSingleton<IComplianceReportRepository, InMemoryComplianceReportRepository>();
+// Persistence (ADR-005): MongoDB when ConnectionStrings:MongoDb is set, in memory otherwise
+if (builder.Services.AddMineSenseMongo(builder.Configuration, "minesense_privacy"))
+{
+    builder.Services.AddMongoRepository<IProcessingConsentRepository, MongoProcessingConsentRepository>();
+    builder.Services.AddMongoRepository<IAccessAuditRepository, MongoAccessAuditRepository>();
+    builder.Services.AddMongoRepository<IComplianceReportRepository, MongoComplianceReportRepository>();
+    builder.Services.AddMongoRepository<IIncidentLifecycleRepository, MongoIncidentLifecycleRepository>();
+}
+else
+{
+    builder.Services.AddSingleton<IProcessingConsentRepository, InMemoryProcessingConsentRepository>();
+    builder.Services.AddSingleton<IAccessAuditRepository, InMemoryAccessAuditRepository>();
+    builder.Services.AddSingleton<IComplianceReportRepository, InMemoryComplianceReportRepository>();
+    builder.Services.AddSingleton<IIncidentLifecycleRepository, InMemoryIncidentLifecycleRepository>();
+}
 builder.Services.AddScoped<IPrivacyAuditCommandService, PrivacyAuditCommandService>();
 builder.Services.AddScoped<IPrivacyAuditQueryService, PrivacyAuditQueryService>();
-builder.Services.AddSingleton<IIncidentLifecycleRepository, InMemoryIncidentLifecycleRepository>();
 builder.Services.AddIntegrationEventHandler<IncidentOpenedEventHandler>();
 builder.Services.AddIntegrationEventHandler<IncidentClosedEventHandler>();
 
 var app = builder.Build();
+await app.Services.InitializeMongoCollectionsAsync(app.Lifetime.ApplicationStopping);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
