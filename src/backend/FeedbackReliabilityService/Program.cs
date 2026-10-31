@@ -1,5 +1,6 @@
 using MineSenseSafety.Shared.Infrastructure.Security;
 using FeedbackReliabilityService.Application.Internal.CommandServices;
+using FeedbackReliabilityService.Application.Internal.EventHandlers;
 using FeedbackReliabilityService.Application.Internal.OutboundServices;
 using FeedbackReliabilityService.Application.Internal.QueryServices;
 using FeedbackReliabilityService.Domain.Repositories;
@@ -23,6 +24,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentActor, HttpCurrentActor>();
 builder.Services.AddScoped<IFeedbackCommandService, FeedbackCommandService>();
 builder.Services.AddScoped<FeedbackQueryService>();
+
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set: issued alerts are
+// tracked under the operation that Fleet Monitoring reports for their operator.
+builder.Services.AddMineSenseEvents(builder.Configuration, "feedback-reliability-service");
+builder.Services.AddSingleton<IOperatorOperationDirectory, InMemoryOperatorOperationDirectory>();
+builder.Services.AddIntegrationEventHandler<FleetOperatorUpdatedEventHandler>();
+builder.Services.AddIntegrationEventHandler<AlertIssuedEventHandler>();
 builder.Services.AddOptions<ReliabilityOptions>().BindConfiguration("Reliability")
     .Validate(options => options.MinimumSampleSize > 0, "MinimumSampleSize must be positive.").ValidateOnStart();
 
