@@ -24,8 +24,26 @@ public sealed class KafkaIntegrationEventConsumer(
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
         // Consume() blocks, so the loop runs on its own thread and never delays the host start.
-        Task.Factory.StartNew(() => RunAsync(stoppingToken), stoppingToken,
+        Task.Factory.StartNew(() => RunSafelyAsync(stoppingToken), stoppingToken,
             TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+    /// <summary>A broken consumer is logged and restarted; it never stops the REST API of the service.</summary>
+    private async Task RunSafelyAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await RunAsync(stoppingToken);
+                return;
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                logger.LogError(exception, "Kafka consumer stopped; restarting in {Delay}", ReconnectDelay);
+                await Task.Delay(ReconnectDelay, stoppingToken);
+            }
+        }
+    }
 
     private async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -70,7 +88,17 @@ public sealed class KafkaIntegrationEventConsumer(
 
                 if (result?.Message is null) continue;
                 await HandleAsync(result, stoppingToken);
-                consumer.Commit(result);
+                try
+                {
+                    consumer.Commit(result);
+                }
+                catch (KafkaException exception)
+                {
+                    // E.g. a rebalance moved the partition: the next owner redelivers and the
+                    // handlers absorb it through their idempotent business keys.
+                    logger.LogWarning("Offset {TopicPartitionOffset} not committed: {Reason}",
+                        result.TopicPartitionOffset, exception.Error.Reason);
+                }
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
