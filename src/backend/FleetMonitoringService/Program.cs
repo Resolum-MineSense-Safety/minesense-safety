@@ -5,6 +5,7 @@ using FleetMonitoringService.Application.Internal.QueryServices;
 using FleetMonitoringService.Domain.Repositories;
 using FleetMonitoringService.Domain.Services;
 using FleetMonitoringService.Infrastructure.Persistence.InMemory;
+using FleetMonitoringService.Infrastructure.Persistence.MongoDb;
 using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,12 +27,17 @@ builder.Services.AddOptions<FleetMonitoringOptions>()
     .ValidateOnStart();
 
 // Fleet Monitoring bounded context (EP04)
-builder.Services.AddSingleton<IMonitoredOperatorRepository, InMemoryMonitoredOperatorRepository>();
+// Persistence (ADR-005): MongoDB when ConnectionStrings:MongoDb is set, in memory otherwise
+if (builder.Services.AddMineSenseMongo(builder.Configuration, "minesense_fleet"))
+    builder.Services.AddMongoRepository<IMonitoredOperatorRepository, MongoMonitoredOperatorRepository>();
+else
+    builder.Services.AddSingleton<IMonitoredOperatorRepository, InMemoryMonitoredOperatorRepository>();
 builder.Services.AddScoped<IMonitoredOperatorCommandService, MonitoredOperatorCommandService>();
 builder.Services.AddScoped<IMonitoredOperatorQueryService, MonitoredOperatorQueryService>();
 builder.Services.AddIntegrationEventHandler<FatigueAssessedEventHandler>();
 
 var app = builder.Build();
+await app.Services.InitializeMongoCollectionsAsync(app.Lifetime.ApplicationStopping);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
