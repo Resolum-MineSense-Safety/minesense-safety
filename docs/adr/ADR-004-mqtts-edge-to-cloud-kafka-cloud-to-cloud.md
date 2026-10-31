@@ -61,8 +61,9 @@ La parte cloud-to-cloud de esta decisión ya está en el código. El tramo MQTT 
 - Infraestructura: `docker-compose.yml` levanta Kafka en modo KRaft (sin ZooKeeper); en EKS los
   servicios usan MSK Serverless con IAM (`Kafka__Authentication=AwsMskIam`) y `deploy.sh` toma los
   brokers de la salida Terraform `kafka_bootstrap_brokers`.
-- Pendiente: outbox transaccional y almacén persistente de ids procesados (hoy en memoria, como los
-  repositorios), y el permiso IAM `kafka-cluster:*` para el rol de cada pod.
+- Ids procesados: con `ConnectionStrings:MongoDb` cada servicio documental los guarda en la colección
+  `processed_events` de su base (índice TTL de 30 días, ADR-005); sin MongoDB siguen en memoria.
+- Pendiente: outbox transaccional y el permiso IAM `kafka-cluster:*` para el rol de cada pod.
 
 ---
 
