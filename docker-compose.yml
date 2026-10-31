@@ -140,6 +140,13 @@ services:
       dockerfile: FatigueDetectionService/Dockerfile
     image: minesense/fatigue-detection-service:local
     container_name: minesense_fatigue_detection
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_fatigue
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5205:8080"
 
@@ -150,6 +157,13 @@ services:
       dockerfile: AlertService/Dockerfile
     image: minesense/alert-service:local
     container_name: minesense_alert
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_alerts
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5206:8080"
 
@@ -160,6 +174,13 @@ services:
       dockerfile: FleetMonitoringService/Dockerfile
     image: minesense/fleet-monitoring-service:local
     container_name: minesense_fleet_monitoring
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_fleet
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5207:8080"
 
@@ -170,6 +191,13 @@ services:
       dockerfile: IncidentManagementService/Dockerfile
     image: minesense/incident-management-service:local
     container_name: minesense_incident_management
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_incidents
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5208:8080"
 
@@ -181,6 +209,13 @@ services:
       dockerfile: EdgeSynchronizationService/Dockerfile
     image: minesense/edge-synchronization-service:local
     container_name: minesense_edge_synchronization
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_edge_sync
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5280:8080"
 
@@ -191,6 +226,13 @@ services:
       dockerfile: PrivacyAuditService/Dockerfile
     image: minesense/privacy-audit-service:local
     container_name: minesense_privacy_audit
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_privacy
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5260:8080"
 
@@ -201,6 +243,13 @@ services:
       dockerfile: ReportingService/Dockerfile
     image: minesense/reporting-service:local
     container_name: minesense_reporting
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_reporting
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5270:8080"
 
@@ -211,6 +260,13 @@ services:
       dockerfile: AnalyticsService/Dockerfile
     image: minesense/analytics-service:local
     container_name: minesense_analytics
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__MongoDb: mongodb://mongodb:27017
+      MongoDb__Database: minesense_analytics
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - "5209:8080"
 
