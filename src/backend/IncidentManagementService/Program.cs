@@ -5,6 +5,7 @@ using IncidentManagementService.Application.Internal.Scheduling;
 using IncidentManagementService.Domain.Repositories;
 using IncidentManagementService.Domain.Services;
 using IncidentManagementService.Infrastructure.Persistence.InMemory;
+using IncidentManagementService.Infrastructure.Persistence.MongoDb;
 using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,13 +21,18 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddMineSenseEvents(builder.Configuration, "incident-management-service");
 
 // Incident Management bounded context (EP05)
-builder.Services.AddSingleton<IIncidentRepository, InMemoryIncidentRepository>();
+// Persistence (ADR-005): MongoDB when ConnectionStrings:MongoDb is set, in memory otherwise
+if (builder.Services.AddMineSenseMongo(builder.Configuration, "minesense_incidents"))
+    builder.Services.AddMongoRepository<IIncidentRepository, MongoIncidentRepository>();
+else
+    builder.Services.AddSingleton<IIncidentRepository, InMemoryIncidentRepository>();
 builder.Services.AddScoped<IIncidentCommandService, IncidentCommandService>();
 builder.Services.AddScoped<IIncidentQueryService, IncidentQueryService>();
 builder.Services.AddHostedService<IncidentEscalationWorker>();
 builder.Services.AddIntegrationEventHandler<AlertIssuedEventHandler>();
 
 var app = builder.Build();
+await app.Services.InitializeMongoCollectionsAsync(app.Lifetime.ApplicationStopping);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
