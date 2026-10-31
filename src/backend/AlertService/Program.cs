@@ -1,4 +1,5 @@
 using AlertService.Application.Internal.CommandServices;
+using AlertService.Application.Internal.EventHandlers;
 using AlertService.Application.Internal.QueryServices;
 using AlertService.Domain.Repositories;
 using AlertService.Domain.Services;
@@ -14,10 +15,14 @@ builder.Services.AddMineSenseWebApi();
 builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set
+builder.Services.AddMineSenseEvents(builder.Configuration, "alert-service");
+
 // Alerts bounded context (EP03)
 builder.Services.AddSingleton<IAlertRepository, InMemoryAlertRepository>();
 builder.Services.AddScoped<IAlertCommandService, AlertCommandService>();
 builder.Services.AddScoped<IAlertQueryService, AlertQueryService>();
+builder.Services.AddIntegrationEventHandler<FatigueAssessedEventHandler>();
 
 var app = builder.Build();
 
