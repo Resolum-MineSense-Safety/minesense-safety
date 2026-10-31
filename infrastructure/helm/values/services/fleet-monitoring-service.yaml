@@ -3,4 +3,8 @@ name: fleet-monitoring-service
 image:
   repository: fleet-monitoring-service
 env:
+  MongoDb__Database: minesense_fleet
   FleetMonitoring__StaleAfterMinutes: "5"
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager; without the secret the service runs in memory.
+optionalSecrets:
+  - fleet-monitoring-secrets

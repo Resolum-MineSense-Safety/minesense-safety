@@ -26,6 +26,9 @@ env: {}
 # Names of Kubernetes Secrets loaded as environment variables (synced from AWS Secrets Manager).
 envFromSecrets: []
 
+# Secrets the service can start without: until they exist the service keeps its data in memory.
+optionalSecrets: []
+
 serviceAccount:
   create: true
   # IAM role for the pod (IRSA), e.g. the Reporting Service role created by Terraform.

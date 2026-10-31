@@ -1,6 +1,8 @@
 @ReportingService_HostAddress = http://localhost:5270
 
-# Scaffold: every endpoint below returns 501 until Fase 1 (US22 definitions) and Fase 2 (generation).
+@requestedBy = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+# Copy the "id" returned by POST /reports/safety into @reportJobId to query and download it.
+@reportJobId = 7c9e6679-7425-40de-944b-e07fc1f90ae7
 
 GET {{ReportingService_HostAddress}}/api/v1/report-definitions?onlyActive=true
 Accept: application/json
@@ -28,7 +30,8 @@ Content-Type: application/json
   "siteId": "site-north",
   "fleetId": "fleet-a",
   "definitionCode": "fatigue-by-shift",
-  "format": "Pdf"
+  "format": "Pdf",
+  "requestedBy": "{{requestedBy}}"
 }
 
 ###
@@ -38,12 +41,12 @@ Accept: application/json
 
 ###
 
-GET {{ReportingService_HostAddress}}/api/v1/reports/7c9e6679-7425-40de-944b-e07fc1f90ae7
+GET {{ReportingService_HostAddress}}/api/v1/reports/{{reportJobId}}
 Accept: application/json
 
 ###
 
-GET {{ReportingService_HostAddress}}/api/v1/reports/7c9e6679-7425-40de-944b-e07fc1f90ae7/download
-Accept: application/json
+GET {{ReportingService_HostAddress}}/api/v1/reports/{{reportJobId}}/download
+Accept: application/pdf
 
 ###

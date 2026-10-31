@@ -11,5 +11,6 @@ public static class PreShiftAvailabilityResourceFromResultAssembler
             result.Recommendation.ToString(),
             result.EvaluatedDevices
                 .Select(DeviceResourceFromEntityAssembler.ToResourceFromEntity)
-                .ToList());
+                .ToList(),
+            result.MissingDeviceTypes);
 }
