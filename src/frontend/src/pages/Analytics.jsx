@@ -19,6 +19,7 @@ import { analytics } from '../api/services'
 import { useToast } from '../components/Toasts'
 import { Button, Drawer, Empty, Field, Input, PageHeader, Panel, Pill, Segmented, Spinner, Stat } from '../components/ui'
 import { useAuth } from '../auth/AuthContext'
+import { useDirectory } from '../lib/directory'
 import { dateTime, daysAgo, label } from '../lib/format'
 import { useAction, useAsync } from '../lib/hooks'
 
@@ -53,6 +54,8 @@ const SCOPE = [
 
 const EMPTY_FORM = { name: '', measureType: 'PreventivePause', description: '', appliedAt: '', shift: '', mineSite: '', location: '', fleet: '' }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 function localNow() {
   const now = new Date()
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
@@ -66,8 +69,11 @@ function TrendsPanel() {
     [days, groupBy],
   )
 
+  const { unitName } = useDirectory()
+  // Observations recorded from Kafka events carry the mining unit id as mine site.
+  const groupName = (key) => (groupBy === 'MineSite' && UUID.test(key) ? unitName(key) : label(key))
   const groups = (data?.groups ?? []).map((group) => ({
-    name: label(group.key),
+    name: groupName(group.key),
     alerts: group.alerts - group.criticalAlerts,
     critical: group.criticalAlerts,
   }))

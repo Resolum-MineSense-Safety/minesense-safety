@@ -46,6 +46,27 @@ microservicios a través del gateway (`/api/v1`) con el token de Identity & Acce
    del perfil Development) y `supervisor`, `jefe.seguridad` y `operador.rosa` con la contraseña de
    `DEMO_PASSWORD`, que nunca se guarda en el repositorio.
 
+## Cadena de detección con eventos (`VITE_EVENT_DRIVEN`)
+
+La pantalla Cabina envía una lectura y muestra la cadena evaluación → riesgo en flota → alerta →
+feedback → incidente (`src/lib/flow.js`). Hay dos modos, elegidos al compilar:
+
+| `VITE_EVENT_DRIVEN` | Quién encadena | Qué hace el dashboard |
+|---|---|---|
+| `false` (por defecto) | El dashboard | Llama a cada servicio (Fleet, Alerts, Analytics, Feedback, Incidents). Sirve para la demo local sin Kafka. |
+| `true` | El backend, con los eventos Kafka del ADR-004 | Solo publica la evaluación y consulta durante unos segundos la alerta, el riesgo, el feedback y el incidente que crearon los servicios. |
+
+```bash
+VITE_EVENT_DRIVEN=true npm run dev     # backend con Kafka__BootstrapServers configurado
+VITE_EVENT_DRIVEN=true npm run build
+```
+
+`docker compose` construye la imagen con `VITE_EVENT_DRIVEN=true` porque levanta Kafka; la imagen
+del pipeline usa `false` mientras los servicios del clúster no tengan `Kafka__BootstrapServers`. En
+modo eventos no se muestra el paso "Tendencia registrada": Analytics registra la observación, pero
+no expone una consulta por alerta. Si el backend tiene Kafka y el dashboard no, nada se duplica:
+alerta, incidente, observación y feedback son idempotentes por evaluación o por alerta.
+
 ## Diseño
 
 - Paleta clara: fondo mineral `#F3F5F4`, tinta basalto `#1F2A2E`, acento amarillo de camión
