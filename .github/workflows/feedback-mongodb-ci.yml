@@ -1,10 +1,29 @@
-name: Feedback MongoDB Integration
+name: MongoDB Integration
 on:
   pull_request:
     branches: [main, develop]
     paths:
       - 'src/backend/FeedbackReliabilityService/**'
       - 'src/backend/tests/FeedbackReliabilityService.Tests/**'
+      - 'src/backend/Shared/**'
+      - 'src/backend/AlertService/**'
+      - 'src/backend/IncidentManagementService/**'
+      - 'src/backend/FatigueDetectionService/**'
+      - 'src/backend/FleetMonitoringService/**'
+      - 'src/backend/AnalyticsService/**'
+      - 'src/backend/ReportingService/**'
+      - 'src/backend/PrivacyAuditService/**'
+      - 'src/backend/EdgeSynchronizationService/**'
+      - 'src/backend/tests/TestSupport/**'
+      - 'src/backend/tests/MineSenseSafety.Shared.Tests/**'
+      - 'src/backend/tests/AlertService.Tests/**'
+      - 'src/backend/tests/IncidentManagementService.Tests/**'
+      - 'src/backend/tests/FatigueDetectionService.Tests/**'
+      - 'src/backend/tests/FleetMonitoringService.Tests/**'
+      - 'src/backend/tests/AnalyticsService.Tests/**'
+      - 'src/backend/tests/ReportingService.Tests/**'
+      - 'src/backend/tests/PrivacyAuditService.Tests/**'
+      - 'src/backend/tests/EdgeSynchronizationService.Tests/**'
       - 'src/backend/.dockerignore'
       - '.github/workflows/feedback-mongodb-ci.yml'
   push:
@@ -12,6 +31,25 @@ on:
     paths:
       - 'src/backend/FeedbackReliabilityService/**'
       - 'src/backend/tests/FeedbackReliabilityService.Tests/**'
+      - 'src/backend/Shared/**'
+      - 'src/backend/AlertService/**'
+      - 'src/backend/IncidentManagementService/**'
+      - 'src/backend/FatigueDetectionService/**'
+      - 'src/backend/FleetMonitoringService/**'
+      - 'src/backend/AnalyticsService/**'
+      - 'src/backend/ReportingService/**'
+      - 'src/backend/PrivacyAuditService/**'
+      - 'src/backend/EdgeSynchronizationService/**'
+      - 'src/backend/tests/TestSupport/**'
+      - 'src/backend/tests/MineSenseSafety.Shared.Tests/**'
+      - 'src/backend/tests/AlertService.Tests/**'
+      - 'src/backend/tests/IncidentManagementService.Tests/**'
+      - 'src/backend/tests/FatigueDetectionService.Tests/**'
+      - 'src/backend/tests/FleetMonitoringService.Tests/**'
+      - 'src/backend/tests/AnalyticsService.Tests/**'
+      - 'src/backend/tests/ReportingService.Tests/**'
+      - 'src/backend/tests/PrivacyAuditService.Tests/**'
+      - 'src/backend/tests/EdgeSynchronizationService.Tests/**'
       - 'src/backend/.dockerignore'
       - '.github/workflows/feedback-mongodb-ci.yml'
 permissions:
@@ -36,6 +74,14 @@ jobs:
         env:
           FEEDBACK_TEST_MONGODB: mongodb://localhost:27017
         run: dotnet test src/backend/tests/FeedbackReliabilityService.Tests/FeedbackReliabilityService.Tests.csproj --configuration Release
+      - name: Test document services with real persistence (ADR-005)
+        env:
+          MINESENSE_TEST_MONGODB: mongodb://localhost:27017
+        run: |
+          for project in MineSenseSafety.Shared AlertService IncidentManagementService FatigueDetectionService \
+              FleetMonitoringService AnalyticsService ReportingService PrivacyAuditService EdgeSynchronizationService; do
+            dotnet test "src/backend/tests/$project.Tests/$project.Tests.csproj" --configuration Release
+          done
       - name: Build service container
         run: docker build -f src/backend/FeedbackReliabilityService/Dockerfile -t minesense-feedback:ci src/backend
       - name: Check running service and Swagger
