@@ -1,4 +1,5 @@
 using IncidentManagementService.Application.Internal.CommandServices;
+using IncidentManagementService.Application.Internal.EventHandlers;
 using IncidentManagementService.Application.Internal.QueryServices;
 using IncidentManagementService.Application.Internal.Scheduling;
 using IncidentManagementService.Domain.Repositories;
@@ -15,11 +16,15 @@ builder.Services.AddMineSenseWebApi();
 builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set
+builder.Services.AddMineSenseEvents(builder.Configuration, "incident-management-service");
+
 // Incident Management bounded context (EP05)
 builder.Services.AddSingleton<IIncidentRepository, InMemoryIncidentRepository>();
 builder.Services.AddScoped<IIncidentCommandService, IncidentCommandService>();
 builder.Services.AddScoped<IIncidentQueryService, IncidentQueryService>();
 builder.Services.AddHostedService<IncidentEscalationWorker>();
+builder.Services.AddIntegrationEventHandler<AlertIssuedEventHandler>();
 
 var app = builder.Build();
 
