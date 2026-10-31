@@ -10,7 +10,8 @@ namespace PrivacyAuditService.Application.Internal.QueryServices;
 public class PrivacyAuditQueryService(
     IProcessingConsentRepository consentRepository,
     IAccessAuditRepository accessAuditRepository,
-    IComplianceReportRepository reportRepository)
+    IComplianceReportRepository reportRepository,
+    IIncidentLifecycleRepository lifecycleRepository)
     : IPrivacyAuditQueryService
 {
     public async Task<ProcessingConsent?> Handle(GetCurrentConsentByOperatorIdQuery query) =>
@@ -50,14 +51,18 @@ public class PrivacyAuditQueryService(
     {
         var entries = await accessAuditRepository.ListAsync();
 
-        return entries
+        var accessSteps = entries
             .Where(e => e.ResourceId == query.IncidentId)
-            .OrderBy(e => e.AccessedAt)
             .Select(e => new IncidentHistoryEntry(
                 e.AccessedAt,
                 e.Decision == AccessDecision.Granted ? "AccessGranted" : "AccessDenied",
                 e.UserId,
-                $"{e.Purpose} on {e.ResourceType} [{string.Join(",", e.Fields)}]"))
+                $"{e.Purpose} on {e.ResourceType} [{string.Join(",", e.Fields)}]"));
+
+        // Opening and closure arrive as Incident Management events (ADR-004).
+        var lifecycleSteps = await lifecycleRepository.FindByIncidentIdAsync(query.IncidentId);
+        return accessSteps.Concat(lifecycleSteps)
+            .OrderBy(step => step.OccurredAt)
             .ToList();
     }
 }
