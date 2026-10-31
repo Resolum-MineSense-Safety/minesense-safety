@@ -10,6 +10,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
 COPY . .
+# true when the backend chains the detection through Kafka events (ADR-004), see README.
+ARG VITE_EVENT_DRIVEN=false
+ENV VITE_EVENT_DRIVEN=$VITE_EVENT_DRIVEN
 RUN npm run build
 
 # nginx-unprivileged runs as a non-root user and listens on 8080.
