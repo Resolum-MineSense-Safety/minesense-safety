@@ -69,7 +69,7 @@ public abstract class MongoRepository<TAggregate, TDocument>(IMongoDatabase data
 
     public async Task<IEnumerable<TAggregate>> ListAsync() => await ToEntitiesAsync(Collection.Find(Filter.Empty));
 
-    public async Task UpdateAsync(TAggregate aggregate)
+    public virtual async Task UpdateAsync(TAggregate aggregate)
     {
         try
         {
