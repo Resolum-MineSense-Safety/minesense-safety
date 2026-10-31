@@ -4,6 +4,6 @@ image:
   repository: privacy-audit-service
 env:
   MongoDb__Database: minesense_privacy
-# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
-envFromSecrets:
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager; without the secret the service runs in memory.
+optionalSecrets:
   - privacy-audit-secrets

@@ -5,6 +5,6 @@ image:
 env:
   MongoDb__Database: minesense_fleet
   FleetMonitoring__StaleAfterMinutes: "5"
-# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
-envFromSecrets:
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager; without the secret the service runs in memory.
+optionalSecrets:
   - fleet-monitoring-secrets

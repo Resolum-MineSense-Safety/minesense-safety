@@ -111,6 +111,10 @@ dentro del prefijo de otro servicio van primero:
    done
    ```
 
+   Los secretos de los contextos documentales son opcionales (`optionalSecrets`): mientras no
+   existan, esos pods arrancan y guardan los datos en memoria. Los de Identity & Access y Feedback
+   son obligatorios.
+
    Todas las réplicas de Identity & Access deben compartir la misma clave privada; si no, un
    token emitido por un pod no es válido en otro.
 
