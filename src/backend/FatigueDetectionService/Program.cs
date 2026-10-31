@@ -9,7 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Controllers, kebab-case routes, domain error handling (HTTP 422) and Swagger
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
+
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set
+builder.Services.AddMineSenseEvents(builder.Configuration, "fatigue-detection-service");
 
 // Fatigue Detection bounded context (EP02)
 builder.Services.AddSingleton<IFatigueAssessmentRepository, InMemoryFatigueAssessmentRepository>();

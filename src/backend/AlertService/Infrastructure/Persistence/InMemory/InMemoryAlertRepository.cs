@@ -13,6 +13,9 @@ public class InMemoryAlertRepository : InMemoryRepository<Alert>, IAlertReposito
                 .OrderByDescending(alert => alert.IssuedAt)
                 .ToList());
 
+    public Task<Alert?> FindByAssessmentIdAsync(Guid assessmentId) =>
+        Task.FromResult(Store.Values.FirstOrDefault(alert => alert.AssessmentId == assessmentId));
+
     public Task<IEnumerable<Alert>> FindByStatusAsync(AlertStatus status) =>
         Task.FromResult<IEnumerable<Alert>>(
             Store.Values.Where(alert => alert.Status == status)

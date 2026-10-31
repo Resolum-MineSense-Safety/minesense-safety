@@ -19,6 +19,10 @@ x-dotnet-service: &dotnet-service
   environment: &dotnet-environment
     ASPNETCORE_ENVIRONMENT: Development
     ASPNETCORE_HTTP_PORTS: "8080"
+    # Every service validates the tokens of Identity & Access (ADR-007). Empty = open APIs.
+    Authentication__IdentityUrl: ${IDENTITY_URL-http://identity-access-service:8080}
+    # Domain events between services (ADR-004). Empty = events are only logged, no consumers.
+    Kafka__BootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS-kafka:9092}
 
 services:
   # ---------- Infrastructure ----------
@@ -46,6 +50,33 @@ services:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 })"]
       interval: 10s
       timeout: 5s
+      retries: 10
+
+  # Cloud-to-cloud domain events (ADR-004): single KRaft node, no ZooKeeper. Port 19092 is for
+  # clients on the host (dotnet run with Kafka__BootstrapServers=localhost:19092).
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: minesense_kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "19092:19092"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
       retries: 10
 
   mosquitto:
@@ -194,8 +225,7 @@ services:
       <<: *dotnet-environment
       ConnectionStrings__MongoDb: mongodb://mongodb:27017
       MongoDb__Database: minesense_feedback
-      Authentication__Authority: ${FEEDBACK_AUTHORITY:-}
-      Authentication__Audience: minesense-feedback
+      Authentication__Audience: minesense-services
       Services__AlertServiceUrl: ${FEEDBACK_ALERT_SERVICE_URL:-http://alert-service:8080/}
     ports:
       - "5281:8080"
@@ -209,6 +239,9 @@ services:
   supervision-dashboard:
     build:
       context: ./src/frontend
+      args:
+        # With Kafka the backend chains assessment -> alert -> incident; the cabin only follows it.
+        VITE_EVENT_DRIVEN: ${VITE_EVENT_DRIVEN:-true}
     image: minesense/supervision-dashboard:local
     container_name: minesense_dashboard
     restart: unless-stopped

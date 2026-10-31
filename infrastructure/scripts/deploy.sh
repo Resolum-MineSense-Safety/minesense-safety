@@ -10,6 +10,7 @@
 #   LB_CONTROLLER_ROLE_ARN      IAM role of the AWS Load Balancer Controller (installs/updates it)
 #   EKS_CLUSTER_NAME, AWS_REGION, VPC_ID   needed together with LB_CONTROLLER_ROLE_ARN
 #   REPORTING_SERVICE_ROLE_ARN  IRSA role of the Reporting Service (Terraform output)
+#   KAFKA_BOOTSTRAP_SERVERS     MSK Serverless IAM brokers (Terraform output kafka_bootstrap_brokers)
 #   API_HOST, ACM_CERTIFICATE_ARN  public host and HTTPS certificate of the gateway
 set -euo pipefail
 
@@ -45,6 +46,9 @@ for service in $SERVICES; do
   extra=()
   if [[ "$service" == "reporting-service" && -n "${REPORTING_SERVICE_ROLE_ARN:-}" ]]; then
     extra+=(--set-string "serviceAccount.roleArn=$REPORTING_SERVICE_ROLE_ARN")
+  fi
+  if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
+    extra+=(--set-string "env.Kafka__BootstrapServers=$KAFKA_BOOTSTRAP_SERVERS")
   fi
   # --atomic rolls the release back automatically if the new pods never become ready.
   helm upgrade --install "$service" "$HELM_DIR/minesense-service" \

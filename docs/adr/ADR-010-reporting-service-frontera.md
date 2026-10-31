@@ -21,6 +21,11 @@ los PDFs pesados a Lambda; ADR-004/Kafka lo declara consumidor vital de eventos.
 - Migración total de `/api/v1/reports/*` a Reporting Service queda como deuda registrada,
   a evaluar cuando ambos servicios tengan persistencia real.
 
+> [!note] Actualizado
+> La deuda se cerró: el intake evidencial de PrivacyAuditService pasó a
+> `/api/v1/audit/compliance-reports` y `/api/v1/reports/*` es solo de Reporting Service, que ya
+> genera el artefacto en memoria y lo entrega en `GET /api/v1/reports/{id}/download`.
+
 ## Alternativas consideradas
 
 - Migrar ya las rutas TS-21 (rechazada: rework prematuro, rompe evidencia de PrivacyAudit).

@@ -14,12 +14,13 @@ public class IncidentServicesTests
     private static readonly Guid Supervisor = Guid.NewGuid();
     private readonly FakeIncidentRepository _repository = new();
     private readonly FakeTimeProvider _clock = new(Start);
+    private readonly FakeIntegrationEventPublisher _publisher = new();
     private readonly IncidentCommandService _commandService;
     private readonly IncidentQueryService _queryService;
 
     public IncidentServicesTests()
     {
-        _commandService = new IncidentCommandService(_repository, _clock);
+        _commandService = new IncidentCommandService(_repository, _clock, _publisher);
         _queryService = new IncidentQueryService(_repository);
     }
 
