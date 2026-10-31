@@ -14,6 +14,9 @@ builder.Services.AddMineSenseWebApi();
 builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set
+builder.Services.AddMineSenseEvents(builder.Configuration, "fatigue-detection-service");
+
 // Fatigue Detection bounded context (EP02)
 builder.Services.AddSingleton<IFatigueAssessmentRepository, InMemoryFatigueAssessmentRepository>();
 builder.Services.AddScoped<IFatigueAssessmentCommandService, FatigueAssessmentCommandService>();
