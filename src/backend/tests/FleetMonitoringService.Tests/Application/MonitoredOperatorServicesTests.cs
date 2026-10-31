@@ -11,12 +11,13 @@ namespace FleetMonitoringService.Tests.Application;
 public class MonitoredOperatorServicesTests
 {
     private readonly InMemoryMonitoredOperatorRepository _repository = new();
+    private readonly FakeIntegrationEventPublisher _publisher = new();
     private readonly MonitoredOperatorCommandService _commandService;
     private readonly MonitoredOperatorQueryService _queryService;
 
     public MonitoredOperatorServicesTests()
     {
-        _commandService = new MonitoredOperatorCommandService(_repository, TimeProvider.System);
+        _commandService = new MonitoredOperatorCommandService(_repository, TimeProvider.System, _publisher);
         _queryService = new MonitoredOperatorQueryService(_repository);
     }
 
