@@ -2,3 +2,8 @@
 name: privacy-audit-service
 image:
   repository: privacy-audit-service
+env:
+  MongoDb__Database: minesense_privacy
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - privacy-audit-secrets

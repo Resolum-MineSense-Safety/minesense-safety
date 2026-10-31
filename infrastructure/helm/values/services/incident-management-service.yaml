@@ -2,3 +2,8 @@
 name: incident-management-service
 image:
   repository: incident-management-service
+env:
+  MongoDb__Database: minesense_incidents
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - incident-management-secrets

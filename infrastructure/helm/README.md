@@ -102,6 +102,13 @@ dentro del prefijo de otro servicio van primero:
      --from-literal=IdentityAccess__BootstrapAdministrator__Password='<contraseña>'
    kubectl -n staging create secret generic feedback-reliability-secrets \
      --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   # Contextos documentales (ADR-005): la misma cadena de DocumentDB; cada servicio usa su
+   # propia base (MongoDb__Database en sus values: minesense_alerts, minesense_incidents...).
+   for secret in alert incident-management fatigue-detection fleet-monitoring analytics \
+       reporting privacy-audit edge-synchronization; do
+     kubectl -n staging create secret generic "$secret-secrets" \
+       --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   done
    ```
 
    Todas las réplicas de Identity & Access deben compartir la misma clave privada; si no, un

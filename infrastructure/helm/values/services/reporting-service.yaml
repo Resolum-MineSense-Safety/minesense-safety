@@ -7,3 +7,8 @@ image:
 serviceAccount:
   create: true
   roleArn: ""
+env:
+  MongoDb__Database: minesense_reporting
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - reporting-secrets

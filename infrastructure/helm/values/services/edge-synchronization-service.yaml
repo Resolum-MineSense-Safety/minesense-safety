@@ -2,3 +2,8 @@
 name: edge-synchronization-service
 image:
   repository: edge-synchronization-service
+env:
+  MongoDb__Database: minesense_edge_sync
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - edge-synchronization-secrets

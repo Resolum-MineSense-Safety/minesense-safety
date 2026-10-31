@@ -2,3 +2,8 @@
 name: analytics-service
 image:
   repository: analytics-service
+env:
+  MongoDb__Database: minesense_analytics
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - analytics-secrets
