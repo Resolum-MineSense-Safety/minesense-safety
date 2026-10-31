@@ -88,6 +88,7 @@ dentro del prefijo de otro servicio van primero:
    | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` |
    | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
    | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
+   | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 
    Y la variable de repositorio `EKS_DEPLOY_ENABLED=true` para activar los despliegues.

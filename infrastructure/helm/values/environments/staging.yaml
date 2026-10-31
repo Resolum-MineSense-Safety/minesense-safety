@@ -5,6 +5,12 @@ environment: Staging
 # the env of each service file.
 env:
   Authentication__IdentityUrl: http://identity-access-service/
+  # Domain events on MSK Serverless (ADR-004), signed with the pod's IAM role. deploy.sh sets
+  # Kafka__BootstrapServers from KAFKA_BOOTSTRAP_SERVERS (Terraform output kafka_bootstrap_brokers);
+  # while it is empty the services only log their events and start no consumers.
+  Kafka__BootstrapServers: ""
+  Kafka__Authentication: AwsMskIam
+  Kafka__AwsRegion: us-east-1
 
 replicaCount: 1
 
