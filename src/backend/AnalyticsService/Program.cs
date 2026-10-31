@@ -1,4 +1,5 @@
 using AnalyticsService.Application.Internal.CommandServices;
+using AnalyticsService.Application.Internal.EventHandlers;
 using AnalyticsService.Application.Internal.QueryServices;
 using AnalyticsService.Domain.Repositories;
 using AnalyticsService.Domain.Services;
@@ -14,12 +15,18 @@ builder.Services.AddMineSenseWebApi();
 builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
+// Domain events over Kafka (ADR-004), enabled when Kafka:BootstrapServers is set
+builder.Services.AddMineSenseEvents(builder.Configuration, "analytics-service");
+
 // Analytics bounded context (EP11)
 builder.Services.AddSingleton<IFatigueMetricRepository, InMemoryFatigueMetricRepository>();
 builder.Services.AddSingleton<IPreventiveMeasureRepository, InMemoryPreventiveMeasureRepository>();
 builder.Services.AddScoped<IFatigueMetricCommandService, FatigueMetricCommandService>();
 builder.Services.AddScoped<IPreventiveMeasureCommandService, PreventiveMeasureCommandService>();
 builder.Services.AddScoped<IAnalyticsQueryService, AnalyticsQueryService>();
+builder.Services.AddSingleton<IOperatorContextRepository, InMemoryOperatorContextRepository>();
+builder.Services.AddIntegrationEventHandler<FleetOperatorUpdatedEventHandler>();
+builder.Services.AddIntegrationEventHandler<AlertIssuedEventHandler>();
 
 var app = builder.Build();
 
