@@ -7,4 +7,6 @@ public record AlertResource(
     string Severity,
     string Status,
     DateTimeOffset IssuedAt,
-    DateTimeOffset? AcknowledgedAt);
+    DateTimeOffset? AcknowledgedAt,
+    string Origin = "Live",
+    DateTimeOffset? SyncedAt = null);

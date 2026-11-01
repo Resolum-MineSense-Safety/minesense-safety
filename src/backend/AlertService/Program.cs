@@ -28,6 +28,7 @@ else
 builder.Services.AddScoped<IAlertCommandService, AlertCommandService>();
 builder.Services.AddScoped<IAlertQueryService, AlertQueryService>();
 builder.Services.AddIntegrationEventHandler<FatigueAssessedEventHandler>();
+builder.Services.AddIntegrationEventHandler<CabinWarningSynchronizedEventHandler>();
 
 var app = builder.Build();
 await app.Services.InitializeMongoCollectionsAsync(app.Lifetime.ApplicationStopping);
