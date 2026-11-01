@@ -3,6 +3,7 @@ using IdentityAccessService.Domain.Model.ValueObjects;
 using IdentityAccessService.Domain.Repositories;
 using IdentityAccessService.Domain.Services;
 using Microsoft.Extensions.Options;
+using MineSenseSafety.Shared.Domain.Model;
 
 namespace IdentityAccessService.Infrastructure.Seeding;
 
@@ -22,9 +23,17 @@ public class BootstrapAdministratorSeeder(
         if (await userRepository.ExistsByUsernameAsync(administrator.Username)) return;
 
         var userCommandService = scope.ServiceProvider.GetRequiredService<IUserCommandService>();
-        await userCommandService.Handle(new SignUpCommand(administrator.Username, administrator.FullName,
-            administrator.Password, UserRole.Administrator));
-        logger.LogInformation("Bootstrap administrator '{Username}' created.", administrator.Username);
+        try
+        {
+            await userCommandService.Handle(new SignUpCommand(administrator.Username, administrator.FullName,
+                administrator.Password, UserRole.Administrator));
+            logger.LogInformation("Bootstrap administrator '{Username}' created.", administrator.Username);
+        }
+        catch (DomainConflictException)
+        {
+            // With PostgreSQL several replicas start together: another one created it first.
+            logger.LogInformation("Bootstrap administrator '{Username}' already exists.", administrator.Username);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
