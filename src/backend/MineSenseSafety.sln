@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringService", "Monito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringService.Tests", "tests\MonitoringService.Tests\MonitoringService.Tests.csproj", "{CAC2562E-7498-4B71-8060-EE2CE8A92B5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MineSenseSafety.Shared.Tests", "tests\MineSenseSafety.Shared.Tests\MineSenseSafety.Shared.Tests.csproj", "{2704DD3F-7FD3-44E7-84A7-658473C2638A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -411,6 +413,18 @@ Global
 		{CAC2562E-7498-4B71-8060-EE2CE8A92B5A}.Release|x64.Build.0 = Release|Any CPU
 		{CAC2562E-7498-4B71-8060-EE2CE8A92B5A}.Release|x86.ActiveCfg = Release|Any CPU
 		{CAC2562E-7498-4B71-8060-EE2CE8A92B5A}.Release|x86.Build.0 = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|x64.Build.0 = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Debug|x86.Build.0 = Debug|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x64.ActiveCfg = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x64.Build.0 = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x86.ActiveCfg = Release|Any CPU
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -431,5 +445,6 @@ Global
 		{0F38A335-983F-4F1C-B33F-A1F455F02928} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 		{09198A6A-4EF9-4769-B9A8-A1DF74DD26C3} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 		{CAC2562E-7498-4B71-8060-EE2CE8A92B5A} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
+		{2704DD3F-7FD3-44E7-84A7-658473C2638A} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 	EndGlobalSection
 EndGlobal

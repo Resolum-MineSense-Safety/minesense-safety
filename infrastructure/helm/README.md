@@ -62,15 +62,16 @@ dentro del prefijo de otro servicio van primero:
 | `/api/v1/alerts` | alert-service |
 | `/api/v1/fleet-operators`, `/fleet`, `/fleet-monitoring` | fleet-monitoring-service |
 | `/api/v1/incidents` | incident-management-service |
-| `/api/v1/consents`, `/access-log`, `/processing-purposes` | privacy-audit-service |
+| `/api/v1/consents`, `/access-log`, `/processing-purposes`, `/audit` | privacy-audit-service |
 | `/api/v1/report-definitions`, `/reports` | reporting-service |
 | `/api/v1/analytics` | analytics-service |
 | `/api/v1/synchronization-batches` | edge-synchronization-service |
 
-> Rutas duplicadas entre servicios: `POST /api/v1/reports/safety` existe en Reporting y en
-> Privacy & Audit, y `GET /api/v1/incidents/{id}/history` en Incident Management y en Privacy &
-> Audit. El gateway las envía a Reporting e Incident Management, que son los dueños de esos
-> recursos; las de Privacy & Audit solo son accesibles dentro del clúster hasta que se renombren.
+> Cada prefijo tiene un solo dueño. Privacy & Audit publica su reporte de cumplimiento y la
+> traza de accesos de un incidente bajo `/api/v1/audit/compliance-reports` y
+> `/api/v1/audit/incidents/{id}/history`, así no choca con `/api/v1/reports` (Reporting) ni con
+> `/api/v1/incidents` (Incident Management). Las pruebas `GatewayRoutingTests` de cada servicio
+> verifican que todas sus rutas lleguen a él por el gateway.
 
 ## Prerrequisitos (una vez por entorno)
 
@@ -87,6 +88,7 @@ dentro del prefijo de otro servicio van primero:
    | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` |
    | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
    | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
+   | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 
    Y la variable de repositorio `EKS_DEPLOY_ENABLED=true` para activar los despliegues.
@@ -100,7 +102,49 @@ dentro del prefijo de otro servicio van primero:
      --from-literal=IdentityAccess__BootstrapAdministrator__Password='<contraseña>'
    kubectl -n staging create secret generic feedback-reliability-secrets \
      --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   # Contextos documentales (ADR-005): la misma cadena de DocumentDB; cada servicio usa su
+   # propia base (MongoDb__Database en sus values: minesense_alerts, minesense_incidents...).
+   for secret in alert incident-management fatigue-detection fleet-monitoring analytics \
+       reporting privacy-audit edge-synchronization; do
+     kubectl -n staging create secret generic "$secret-secrets" \
+       --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   done
    ```
+
+   Los contextos relacionales (ADR-005) usan la instancia de Amazon RDS for PostgreSQL 16 que crea
+   Terraform (`postgres_endpoint`; la contraseña del usuario maestro está en el secreto
+   `postgres_secret_arn` que administra RDS). Cada servicio tiene su propia base, indicada en su
+   cadena de conexión (`ConnectionStrings__PostgreSql`); si no existe, el servicio la crea al
+   arrancar (el usuario necesita el privilegio `CREATEDB`) junto con sus tablas e índices:
+
+   ```bash
+   PG='Host=<postgres_endpoint sin puerto>;Port=5432;Username=minesense_admin;Password=<contraseña>;SSL Mode=Require'
+   # Identity & Access: la clave va en su secreto obligatorio (se vuelve a aplicar con la clave nueva).
+   kubectl -n staging create secret generic identity-access-secrets \
+     --from-file=IdentityAccess__Jwt__PrivateKeyPem=jwt-private.pem \
+     --from-literal=IdentityAccess__BootstrapAdministrator__Username=admin \
+     --from-literal=IdentityAccess__BootstrapAdministrator__Password='<contraseña>' \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_identity" \
+     --dry-run=client -o yaml | kubectl apply -f -
+   kubectl -n staging create secret generic operations-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_operations"
+   kubectl -n staging create secret generic device-management-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_devices"
+   kubectl -n staging create secret generic monitoring-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_monitoring"
+   ```
+
+   | Servicio | Base | Tablas (índices únicos) |
+   | --- | --- | --- |
+   | identity-access-service | `minesense_identity` | `users` (`username`), `sessions` (`refresh_token_hash`) |
+   | operations-service | `minesense_operations` | `mining_units` (`business_code`), `fleets` (`mining_unit_id` + nombre), `vehicles` (`code`), `operators` (`employee_code`), `operator_assignments` |
+   | device-management-service | `minesense_devices` | `devices` (`device_code`) |
+   | monitoring-service | `minesense_monitoring` | `monitoring_sessions` (una sesión abierta por operador) |
+
+   Los secretos de los contextos documentales y de Operations, Device Management y Monitoring son
+   opcionales (`optionalSecrets`): mientras no existan, esos pods arrancan y guardan los datos en
+   memoria. Los de Identity & Access y Feedback son obligatorios (en Identity & Access la clave
+   `ConnectionStrings__PostgreSql` sí es opcional: sin ella usuarios y sesiones quedan en memoria).
 
    Todas las réplicas de Identity & Access deben compartir la misma clave privada; si no, un
    token emitido por un pod no es válido en otro.

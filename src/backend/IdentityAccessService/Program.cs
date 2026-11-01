@@ -5,6 +5,7 @@ using IdentityAccessService.Domain.Repositories;
 using IdentityAccessService.Domain.Services;
 using IdentityAccessService.Infrastructure.Hashing;
 using IdentityAccessService.Infrastructure.Persistence.InMemory;
+using IdentityAccessService.Infrastructure.Persistence.PostgreSql;
 using IdentityAccessService.Infrastructure.Seeding;
 using IdentityAccessService.Infrastructure.Tokens;
 using IdentityAccessService.Interfaces.ASP.Configuration;
@@ -20,8 +21,17 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddIdentityAccessAuthentication(builder.Configuration);
 
 // Identity & Access bounded context (EP08)
-builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddSingleton<ISessionRepository, InMemorySessionRepository>();
+// Persistence (ADR-005): PostgreSQL when ConnectionStrings:PostgreSql is set, in memory otherwise
+if (builder.Services.AddMineSensePostgres(builder.Configuration))
+{
+    builder.Services.AddPostgresRepository<IUserRepository, PostgresUserRepository>();
+    builder.Services.AddPostgresRepository<ISessionRepository, PostgresSessionRepository>();
+}
+else
+{
+    builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+    builder.Services.AddSingleton<ISessionRepository, InMemorySessionRepository>();
+}
 builder.Services.AddSingleton<IHashingService, Pbkdf2HashingService>();
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
@@ -33,6 +43,7 @@ builder.Services.Configure<BootstrapAdministratorOptions>(
 builder.Services.AddHostedService<BootstrapAdministratorSeeder>();
 
 var app = builder.Build();
+await app.Services.InitializePostgresTablesAsync(app.Lifetime.ApplicationStopping);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
