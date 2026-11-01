@@ -31,7 +31,7 @@ SERVICE_TIMEOUT="${SERVICE_TIMEOUT:-6m}"
 # identity-access first: the other services validate tokens against its JWKS.
 SERVICES="${SERVICES:-identity-access-service $(ls "$HELM_DIR/values/services" | tr -d '\r' | sed 's/\.yaml$//' | grep -v '^identity-access-service$' | tr '\n' ' ')}"
 # The services that call AddMineSenseEvents; the same list as modules/messaging in Terraform.
-KAFKA_CLIENTS=" alert-service analytics-service fatigue-detection-service feedback-reliability-service fleet-monitoring-service incident-management-service privacy-audit-service "
+KAFKA_CLIENTS=" alert-service analytics-service edge-synchronization-service fatigue-detection-service feedback-reliability-service fleet-monitoring-service incident-management-service privacy-audit-service "
 default_edge=false; [[ "$ENVIRONMENT" == staging ]] && default_edge=true
 EDGE_SIMULATOR="${EDGE_SIMULATOR:-$default_edge}"
 

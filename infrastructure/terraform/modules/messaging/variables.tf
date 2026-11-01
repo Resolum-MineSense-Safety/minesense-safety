@@ -33,6 +33,7 @@ variable "client_service_accounts" {
   default = [
     "alert-service",
     "analytics-service",
+    "edge-synchronization-service",
     "fatigue-detection-service",
     "feedback-reliability-service",
     "fleet-monitoring-service",

@@ -119,6 +119,8 @@ EKS_CLUSTER_NAME="$CLUSTER_NAME" \
   VPC_ID="$(tf_output "$STACK" vpc_id)" \
   LB_CONTROLLER_ROLE_ARN="$(tf_output "$STACK" load_balancer_controller_role_arn)" \
   REPORTING_SERVICE_ROLE_ARN="$(tf_output "$STACK" reporting_service_role_arn)" \
+  REPORT_REQUESTS_QUEUE_URL="$(tf_output "$STACK" report_requests_queue_url)" \
+  REPORTS_BUCKET="$(tf_output "$STACK" reports_bucket)" \
   KAFKA_BOOTSTRAP_SERVERS="$(tf_output "$STACK" kafka_bootstrap_brokers)" \
   KAFKA_CLIENT_ROLE_ARN="$(tf_output "$STACK" kafka_client_role_arn)" \
   bash "$SCRIPTS/deploy.sh" "$ENVIRONMENT" "$IMAGE_TAG"
