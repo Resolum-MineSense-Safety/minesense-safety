@@ -42,7 +42,11 @@ alerts refer to these resources by id (logical references, no cross-service fore
   `startsAt`/`endsAt` (ISO 8601) instead; only their date part is kept.
 - The shift is sent by name (`Day`, `Night`) instead of a `shiftId`, because shifts are a value
   object of the context and not a separate resource.
-- Persistence is in memory for now; the report assigns PostgreSQL with EF Core to this context.
+- Persistence is PostgreSQL (ADR-005, database `minesense_operations`) when
+  `ConnectionStrings:PostgreSql` is set, in memory otherwise. It uses Npgsql instead of EF Core:
+  each aggregate is a row with typed query columns plus its exact JSON snapshot (`jsonb`), the same
+  snapshot the MongoDB contexts store, so the domain classes need no ORM mapping. Unique indexes
+  protect business codes, vehicle codes, employee codes and fleet names per mining unit.
 
 ## Verification
 
