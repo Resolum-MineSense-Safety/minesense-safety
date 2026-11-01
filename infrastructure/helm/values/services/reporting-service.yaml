@@ -1,9 +1,11 @@
-# Reporting (EP10): report definitions and jobs; publishes to the PDF Lambda queue.
+# Reporting (EP10): report definitions and jobs. Serverless PDFs (ADR-008): deploy.sh adds
+# env.Reporting__SqsQueueUrl and env.Reporting__S3Bucket from the Terraform outputs; without them
+# the service renders every report in process.
 name: reporting-service
 image:
   repository: reporting-service
-# IAM role created by the Terraform reporting module (IRSA): SendMessage on the queue and
-# GetObject on reports/. The pipeline sets serviceAccount.roleArn from the Terraform output.
+# IAM role created by the Terraform reporting module (IRSA): SendMessage on the queue, GetObject on
+# reports/ and ListBucket on the bucket. The pipeline sets serviceAccount.roleArn from the Terraform output.
 serviceAccount:
   create: true
   roleArn: ""
