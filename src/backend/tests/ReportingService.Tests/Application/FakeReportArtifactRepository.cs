@@ -7,7 +7,7 @@ public class FakeReportArtifactRepository : IReportArtifactRepository
 {
     private readonly List<ReportArtifact> store = new();
 
-    public Task AddAsync(ReportArtifact aggregate)
+    public virtual Task AddAsync(ReportArtifact aggregate)
     {
         store.Add(aggregate);
         return Task.CompletedTask;

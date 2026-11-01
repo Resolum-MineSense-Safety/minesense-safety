@@ -1,6 +1,7 @@
 using MineSenseSafety.Shared.Infrastructure.Persistence.MongoDb;
 using MongoDB.Driver;
 using ReportingService.Domain.Model.Aggregates;
+using ReportingService.Domain.Model.ValueObjects;
 using ReportingService.Domain.Repositories;
 using ReportingService.Domain.Services;
 
@@ -19,7 +20,7 @@ public class ReportJobDocument : MongoAggregateDocument
     public DateTime RequestedAt { get; set; }
 }
 
-/// <summary>The rendered bytes travel in the payload until object storage (S3, ADR-008) is wired in.</summary>
+/// <summary>Bytes rendered in process travel in the payload; Lambda PDFs stay in S3 (ADR-008).</summary>
 public class ReportArtifactDocument : MongoAggregateDocument
 {
     public string ReportJobId { get; set; } = string.Empty;
@@ -71,7 +72,13 @@ public class MongoReportJobRepository(IMongoDatabase database)
     };
 
     protected override IEnumerable<CreateIndexModel<ReportJobDocument>> Indexes() =>
-        [new(Keys.Descending(item => item.RequestedAt))];
+        [new(Keys.Descending(item => item.RequestedAt)), new(Keys.Ascending(item => item.Status))];
+
+    public async Task<IEnumerable<ReportJob>> FindByStatusAsync(ReportJobStatus status)
+    {
+        var name = status.ToString();
+        return await ToEntitiesAsync(Collection.Find(item => item.Status == name));
+    }
 }
 
 /// <summary>Downloadable artifacts in MongoDB (ADR-005), one per report job.</summary>

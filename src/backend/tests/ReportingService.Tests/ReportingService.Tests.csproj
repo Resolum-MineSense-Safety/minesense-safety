@@ -17,6 +17,10 @@
 
   <ItemGroup>
     <Compile Include="..\TestSupport\MongoIntegration.cs" Link="Infrastructure\MongoIntegration.cs" />
+    <!-- The Lambda's own contract, so the tests check the message against what it really validates. -->
+    <Compile Include="..\..\..\serverless\ReportPdfGenerator\Model\ReportRequest.cs" Link="Application\LambdaContract\ReportRequest.cs" />
+    <Compile Include="..\..\..\serverless\ReportPdfGenerator\Model\ReportRequestValidator.cs" Link="Application\LambdaContract\ReportRequestValidator.cs" />
+    <Compile Include="..\..\..\serverless\ReportPdfGenerator\Storage\ReportObjectKey.cs" Link="Application\LambdaContract\ReportObjectKey.cs" />
   </ItemGroup>
 
   <ItemGroup>

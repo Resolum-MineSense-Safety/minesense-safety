@@ -6,8 +6,8 @@ namespace ReportingService.Domain.Model.Aggregates;
 
 /// <summary>
 /// Async safety report generation job (US22, TS-21).
-/// Lifecycle: Requested -> Rendering -> Ready | Failed. Heavy PDF rendering is delegated to
-/// Lambda in the cloud (ADR-008); locally the job is rendered in process.
+/// Lifecycle: Requested -> Rendering -> Ready | Failed. When the serverless flow is configured PDFs
+/// stay in Rendering until the Lambda stores them (ADR-008); otherwise the job is rendered in process.
 /// </summary>
 public class ReportJob : AggregateRoot
 {
