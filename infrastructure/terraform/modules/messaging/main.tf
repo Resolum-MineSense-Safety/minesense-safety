@@ -41,3 +41,72 @@ resource "aws_msk_serverless_cluster" "events" {
 data "aws_msk_bootstrap_brokers" "events" {
   cluster_arn = aws_msk_serverless_cluster.events.arn
 }
+
+# ---------- IAM role of the services that use Kafka (IRSA) ----------
+# MSK Serverless only accepts SASL/IAM: without this role every producer and consumer fails to
+# authenticate. One shared role because all of them need the same data-plane actions on one cluster.
+data "aws_iam_policy_document" "kafka_client_assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [var.oidc_provider_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${var.oidc_provider}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${var.oidc_provider}:sub"
+      values   = [for account in var.client_service_accounts : "system:serviceaccount:${var.kubernetes_namespace}:${account}"]
+    }
+  }
+}
+
+resource "aws_iam_role" "kafka_client" {
+  name               = "${var.name}-kafka-client"
+  assume_role_policy = data.aws_iam_policy_document.kafka_client_assume.json
+  tags               = var.tags
+}
+
+data "aws_iam_policy_document" "kafka_client_access" {
+  statement {
+    sid = "Cluster"
+    actions = [
+      "kafka-cluster:Connect",
+      "kafka-cluster:DescribeCluster",
+      # The producers run with enable.idempotence.
+      "kafka-cluster:WriteDataIdempotently",
+    ]
+    resources = [aws_msk_serverless_cluster.events.arn]
+  }
+
+  statement {
+    sid = "Topics"
+    actions = [
+      # The consumers create their topics: MSK Serverless has no auto-creation.
+      "kafka-cluster:CreateTopic",
+      "kafka-cluster:DescribeTopic",
+      "kafka-cluster:WriteData",
+      "kafka-cluster:ReadData",
+    ]
+    resources = ["${replace(aws_msk_serverless_cluster.events.arn, ":cluster/", ":topic/")}/*"]
+  }
+
+  statement {
+    sid       = "ConsumerGroups"
+    actions   = ["kafka-cluster:AlterGroup", "kafka-cluster:DescribeGroup"]
+    resources = ["${replace(aws_msk_serverless_cluster.events.arn, ":cluster/", ":group/")}/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "kafka_client_access" {
+  name   = "kafka-data-plane"
+  role   = aws_iam_role.kafka_client.id
+  policy = data.aws_iam_policy_document.kafka_client_access.json
+}

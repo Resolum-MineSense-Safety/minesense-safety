@@ -99,8 +99,10 @@ resource "aws_secretsmanager_secret_version" "documents" {
 }
 
 resource "aws_docdb_cluster" "documents" {
-  cluster_identifier      = "${var.name}-documents"
-  engine                  = "docdb"
+  cluster_identifier = "${var.name}-documents"
+  engine             = "docdb"
+  # The .NET driver 3.x does not talk to the 3.6 wire protocol; pinned so a new default cannot surprise.
+  engine_version          = var.documentdb_engine_version
   master_username         = "minesense_admin"
   master_password         = random_password.documents.result
   db_subnet_group_name    = aws_docdb_subnet_group.documents.name
