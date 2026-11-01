@@ -71,6 +71,18 @@ def test_us13_unavailable_warning_channel_does_not_stop_the_warning(make_agent):
     assert any("no disponible: buzzer" in n for n in harness.notices)
 
 
+def test_warning_names_the_reading_it_came_from(make_agent):
+    harness = make_agent(closed_port_url(), profile="microsleep")
+
+    harness.agent.tick()
+
+    warning, reading = harness.buffer.pending_events()
+    assert warning.event_type == WARNING_EVENT
+    assert reading.event_type == READING_EVENT
+    assert warning.payload["readingEventId"] == reading.event_id
+    assert warning.occurred_at == reading.occurred_at
+
+
 # ---------- US14: Recuperación del historial pendiente ----------
 def test_us14_pending_events_are_synced_in_order_after_reconnection(cloud, make_agent):
     harness = make_agent(cloud.url, profile="cycle", batch_size=3)
