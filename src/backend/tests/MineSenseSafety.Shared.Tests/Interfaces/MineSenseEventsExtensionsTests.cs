@@ -28,6 +28,7 @@ public class MineSenseEventsExtensionsTests
         // Assert
         using var provider = services.BuildServiceProvider();
         Assert.IsType<LoggingIntegrationEventPublisher>(provider.GetRequiredService<IIntegrationEventPublisher>());
+        Assert.IsType<LoggingIntegrationEventPublisher>(provider.GetRequiredService<IConfirmedIntegrationEventPublisher>());
         Assert.DoesNotContain(services, descriptor => descriptor.ImplementationType == typeof(KafkaIntegrationEventConsumer));
     }
 

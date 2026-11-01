@@ -9,7 +9,8 @@ import { useDirectory } from '../lib/directory'
 import { ago, dateTime, label, shortId } from '../lib/format'
 import { useAction, useAsync } from '../lib/hooks'
 
-const STATUSES = ['Issued', 'Escalated', 'Acknowledged']
+const STATUSES = ['Issued', 'Escalated', 'Acknowledged', 'RecordedFromEdge']
+const TAB_LABELS = { RecordedFromEdge: 'Dadas en cabina' }
 const CLASSES = [
   { value: 'CONFIRMED', icon: CheckCircle2, idle: 'border-risk-normal text-risk-normal hover:bg-risk-normalWash', active: 'bg-risk-normal text-white' },
   { value: 'FALSE_ALARM', icon: XCircle, idle: 'border-risk-critical text-risk-critical hover:bg-risk-criticalWash', active: 'bg-risk-critical text-white' },
@@ -18,8 +19,8 @@ const CLASSES = [
 const SEVERITY_BAR = { Critical: 'bg-risk-critical', Warning: 'bg-risk-warning' }
 
 async function loadAlerts() {
-  const [Issued, Escalated, Acknowledged] = await Promise.all(STATUSES.map((status) => alerts.byStatus(status)))
-  return { Issued, Escalated, Acknowledged }
+  const [Issued, Escalated, Acknowledged, RecordedFromEdge] = await Promise.all(STATUSES.map((status) => alerts.byStatus(status)))
+  return { Issued, Escalated, Acknowledged, RecordedFromEdge }
 }
 
 async function loadFeedback(alertId) {
@@ -186,7 +187,7 @@ function AlertRow({ alert, busy, onOpen, onAcknowledge, onEscalate }) {
   return (
     <li className="flex items-center gap-3 rounded-xl border border-line bg-white p-2 pr-3 hover:border-basalt-mute">
       <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left">
-        <span className={`h-11 w-1.5 shrink-0 rounded-full ${SEVERITY_BAR[alert.severity] ?? 'bg-line'} ${alert.severity === 'Critical' && alert.status !== 'Acknowledged' ? 'animate-beacon' : ''}`} />
+        <span className={`h-11 w-1.5 shrink-0 rounded-full ${SEVERITY_BAR[alert.severity] ?? 'bg-line'} ${alert.severity === 'Critical' && alert.status !== 'Acknowledged' && alert.status !== 'RecordedFromEdge' ? 'animate-beacon' : ''}`} />
         <div className="min-w-0 flex-1">
           <div className="truncate text-[15px] font-semibold">{operatorName(alert.operatorId)}</div>
           <div className="flex items-center gap-1 text-[13px] text-basalt-mute"><Clock className="h-3.5 w-3.5" />hace {ago(alert.issuedAt)}</div>
@@ -254,7 +255,7 @@ export default function Alerts() {
           <Segmented
             value={tab}
             onChange={setTab}
-            options={STATUSES.map((status) => ({ value: status, label: `${label(status)}s`, count: data?.[status].length }))}
+            options={STATUSES.map((status) => ({ value: status, label: TAB_LABELS[status] ?? `${label(status)}s`, count: data?.[status].length }))}
           />
         }
         bodyClass="p-3"

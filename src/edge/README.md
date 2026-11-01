@@ -28,6 +28,22 @@ sensor sintético -> clasificador local -> advertencia en cabina (pantalla, buzz
 | US14 E2: envío interrumpido | Un lote se sella (BatchId fijo) antes de enviarse; si el envío falla, se reintenta el mismo lote con backoff exponencial. |
 | US14 E3: sin duplicados | Reenviar un BatchId ya guardado devuelve `200 OK` (duplicado) en el servicio; el agente lo da por entregado. |
 
+## Qué pasa después de sincronizar
+
+Con Kafka configurado (`Kafka:BootstrapServers`), el Edge Synchronization Service publica el contenido
+de cada lote nuevo, en orden de captura y con las horas originales. Un reintento del mismo lote no publica
+nada, y si Kafka está caído el lote queda pendiente y se reintenta. Sin Kafka los lotes solo se guardan.
+
+| Evento en cabina | Dónde termina | Qué no ocurre |
+|---|---|---|
+| `FatigueReadingClassified` | Historial de Fatigue Detection, como evaluación `Origin = Edge` con la hora de captura. | No publica `FatigueAssessed`: no genera una alerta nueva ni cambia el riesgo actual en Fleet Monitoring. |
+| `CabinWarningIssued` | Alerts, como alerta `RecordedFromEdge` con la hora de la advertencia. Analytics y Feedback la registran, y si es `Critical` abre un incidente en el centro de control. | No se le vuelve a advertir al operador y no vence ni se escala por falta de confirmación. |
+
+La advertencia lleva `readingEventId`, el `eventId` de su lectura: la nube usa ese id para la evaluación
+y para la alerta, y así una lectura nunca genera dos alertas. Las decisiones y lo que falta están en
+[ADR-004](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/adr/ADR-004-mqtts-edge-to-cloud-kafka-cloud-to-cloud.md).
+**Pendiente:** el riesgo actual del panel de flota todavía no se actualiza con estas lecturas.
+
 Un lote rechazado por inválido (400/422) pasa a la tabla `dead_letters` en lugar de perderse. Un
 401/403 (token vencido o credenciales erróneas) **no** descarta eventos: se trata como falta de
 conexión.

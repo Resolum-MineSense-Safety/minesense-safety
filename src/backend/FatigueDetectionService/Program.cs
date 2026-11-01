@@ -1,4 +1,5 @@
 using FatigueDetectionService.Application.Internal.CommandServices;
+using FatigueDetectionService.Application.Internal.EventHandlers;
 using FatigueDetectionService.Application.Internal.QueryServices;
 using FatigueDetectionService.Domain.Repositories;
 using FatigueDetectionService.Domain.Services;
@@ -26,6 +27,7 @@ else
     builder.Services.AddSingleton<IFatigueAssessmentRepository, InMemoryFatigueAssessmentRepository>();
 builder.Services.AddScoped<IFatigueAssessmentCommandService, FatigueAssessmentCommandService>();
 builder.Services.AddScoped<IFatigueAssessmentQueryService, FatigueAssessmentQueryService>();
+builder.Services.AddIntegrationEventHandler<FatigueReadingSynchronizedEventHandler>();
 
 var app = builder.Build();
 await app.Services.InitializeMongoCollectionsAsync(app.Lifetime.ApplicationStopping);

@@ -4,7 +4,7 @@ export const LABELS = {
   // risk / severity
   Normal: 'Normal', Warning: 'Advertencia', Critical: 'Crítico',
   // alerts
-  Issued: 'Emitida', Acknowledged: 'Atendida', Escalated: 'Escalada',
+  Issued: 'Emitida', Acknowledged: 'Atendida', Escalated: 'Escalada', RecordedFromEdge: 'Dada en cabina',
   // incidents
   Pending: 'Pendiente', Assigned: 'Asignado', Closed: 'Cerrado',
   // monitoring

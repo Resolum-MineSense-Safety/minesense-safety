@@ -46,7 +46,7 @@ public class AlertsController(
         return Ok(alerts.Select(AlertResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
-    /// <summary>Supervisor queue: alerts in a given status (Issued, Acknowledged or Escalated).</summary>
+    /// <summary>Supervisor queue: alerts in a given status (Issued, Acknowledged, Escalated or RecordedFromEdge).</summary>
     [HttpGet("status/{status}")]
     [ProducesResponseType(typeof(IEnumerable<AlertResource>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]

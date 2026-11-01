@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+import uuid
 from typing import Callable
 
 from .buffer import OfflineBuffer
@@ -69,6 +70,8 @@ class EdgeAgent:
                     reading.perclos, reading.blink_rate_per_minute,
                     reading.heart_rate_variability_ms, risk.value, " (offline)" if offline else "")
 
+        # The warning names its reading: the cloud uses that id for the assessment and for the alert.
+        reading_event_id = str(uuid.uuid4())
         if risk is not RiskLevel.NORMAL:
             result = self._dispatcher.dispatch(CabinWarning(
                 severity=risk.value, message=WARNING_MESSAGES[risk], perclos=reading.perclos,
@@ -82,6 +85,7 @@ class EdgeAgent:
                 "deliveredChannels": result.delivered,
                 "unavailableChannels": result.unavailable,
                 "issuedOffline": offline,
+                "readingEventId": reading_event_id,
             }, occurred_at=reading.captured_at, priority=PRIORITY[risk])
 
         self._buffer.append(READING_EVENT, {
@@ -92,7 +96,7 @@ class EdgeAgent:
             "heartRateVariabilityMs": reading.heart_rate_variability_ms,
             "riskLevel": risk.value,
             "classifiedOffline": offline,
-        }, occurred_at=reading.captured_at, priority=PRIORITY[risk])
+        }, occurred_at=reading.captured_at, priority=PRIORITY[risk], event_id=reading_event_id)
 
         if self._publisher is not None:
             self._publisher.publish({**reading.to_dict(), "riskLevel": risk.value,

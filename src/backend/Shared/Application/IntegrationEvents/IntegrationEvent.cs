@@ -21,11 +21,11 @@ public sealed record IntegrationEvent(
     public static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static IntegrationEvent Create<TPayload>(string type, string source, Guid aggregateId, TPayload payload,
-        DateTimeOffset occurredAt, Guid? correlationId = null, int version = 1)
+        DateTimeOffset occurredAt, Guid? correlationId = null, int version = 1, Guid? eventId = null)
     {
-        var eventId = Guid.NewGuid();
-        return new IntegrationEvent(eventId, type, occurredAt, version, source,
-            correlationId ?? IntegrationEventContext.CorrelationId ?? eventId, aggregateId.ToString(),
+        var id = eventId ?? Guid.NewGuid();
+        return new IntegrationEvent(id, type, occurredAt, version, source,
+            correlationId ?? IntegrationEventContext.CorrelationId ?? id, aggregateId.ToString(),
             JsonSerializer.SerializeToElement(payload, SerializerOptions));
     }
 

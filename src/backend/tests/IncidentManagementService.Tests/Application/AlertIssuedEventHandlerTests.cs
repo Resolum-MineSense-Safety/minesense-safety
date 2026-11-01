@@ -47,6 +47,27 @@ public class AlertIssuedEventHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_CriticalAlertFromTheEdge_OpensIncidentAtReceptionAndKeepsTheCabinTime()
+    {
+        // Arrange
+        var alertId = Guid.NewGuid();
+        var warnedAt = Start.AddHours(-3);
+        var integrationEvent = IntegrationEvent.Create("AlertIssued", "alert-service", alertId,
+            new { alertId, operatorId = Guid.NewGuid(), severity = "Critical", issuedAt = warnedAt, origin = "Edge" },
+            warnedAt);
+
+        // Act
+        await _handler.HandleAsync(integrationEvent, CancellationToken.None);
+        await _handler.HandleAsync(integrationEvent, CancellationToken.None);
+
+        // Assert
+        var incident = Assert.Single(await _repository.FindAsync(null, null));
+        Assert.Equal(Start, incident.OpenedAt);
+        Assert.Contains(warnedAt.ToString("O"), incident.History[0].Detail);
+        Assert.False(incident.IsEscalationDue(Start));
+    }
+
+    [Fact]
     public async Task HandleAsync_WarningAlert_OpensNoIncident()
     {
         // Act

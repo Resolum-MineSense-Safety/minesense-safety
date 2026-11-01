@@ -1,7 +1,13 @@
 namespace AlertService.Application.Internal.IntegrationEvents;
 
 /// <summary>Published on <c>minesense.alerts.issued</c> when a new alert is delivered in the cabin.</summary>
-public record AlertIssuedEvent(Guid AlertId, Guid OperatorId, Guid AssessmentId, string Severity, DateTimeOffset IssuedAt)
+public record AlertIssuedEvent(
+    Guid AlertId,
+    Guid OperatorId,
+    Guid AssessmentId,
+    string Severity,
+    DateTimeOffset IssuedAt,
+    string Origin = "Live")
 {
     public const string Type = "AlertIssued";
 }
@@ -23,3 +29,9 @@ public record AlertEscalatedEvent(Guid AlertId, Guid OperatorId, string Severity
 /// contexts do not share event types.
 /// </summary>
 public record FatigueAssessedEvent(Guid AssessmentId, Guid OperatorId, string RiskLevel, bool RequiresAlert);
+
+/// <summary>Fields of <c>CabinWarningSynchronized</c> (Edge Synchronization) that Alerts needs.</summary>
+public record CabinWarningSynchronizedEvent(Guid EdgeEventId, DateTimeOffset CapturedAt, CabinWarningData Data);
+
+/// <summary>Payload the cabin wrote for a <c>CabinWarningIssued</c> event.</summary>
+public record CabinWarningData(Guid OperatorId, string Severity, Guid? ReadingEventId);

@@ -5,6 +5,7 @@ using AlertService.Domain.Model.ValueObjects;
 using AlertService.Domain.Repositories;
 using AlertService.Domain.Services;
 using MineSenseSafety.Shared.Application.IntegrationEvents;
+using MineSenseSafety.Shared.Domain.Model;
 
 namespace AlertService.Application.Internal.CommandServices;
 
@@ -30,6 +31,33 @@ public class AlertCommandService(
         await PublishAsync(IntegrationEventTopics.AlertIssued, AlertIssuedEvent.Type, alert,
             new AlertIssuedEvent(alert.Id, alert.OperatorId, alert.AssessmentId, alert.Severity.ToString(),
                 alert.IssuedAt), alert.IssuedAt);
+        return alert;
+    }
+
+    /// <summary>
+    /// One reading produces at most one alert, also here. AlertIssued still goes out with the original
+    /// time, so Analytics and Feedback count the warning and a critical one opens its incident; the
+    /// cabin already warned, and nothing in this flow goes back to the operator (ADR-004).
+    /// </summary>
+    public async Task<Alert> Handle(RecordCabinWarningCommand command)
+    {
+        if (await alertRepository.FindByAssessmentIdAsync(command.AssessmentId) is { } existing)
+            return existing;
+
+        var alert = new Alert(command, timeProvider.GetUtcNow());
+        try
+        {
+            await alertRepository.AddAsync(alert);
+        }
+        catch (DomainConflictException)
+        {
+            // Another consumer recorded the same warning first, and that one publishes it.
+            return (await alertRepository.FindByAssessmentIdAsync(command.AssessmentId))!;
+        }
+
+        await PublishAsync(IntegrationEventTopics.AlertIssued, AlertIssuedEvent.Type, alert,
+            new AlertIssuedEvent(alert.Id, alert.OperatorId, alert.AssessmentId, alert.Severity.ToString(),
+                alert.IssuedAt, alert.Origin.ToString()), alert.IssuedAt);
         return alert;
     }
 
