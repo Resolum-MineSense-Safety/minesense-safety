@@ -1,0 +1,6 @@
+apiVersion: v2
+name: minesense-edge-simulator
+description: MineSense Safety Edge agent running as a cabin simulator in the cluster, sending batches to the Edge Synchronization Service.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

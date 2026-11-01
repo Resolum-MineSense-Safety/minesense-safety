@@ -11,6 +11,11 @@ env:
   Kafka__BootstrapServers: ""
   Kafka__Authentication: AwsMskIam
   Kafka__AwsRegion: us-east-1
+  # Amazon DocumentDB certificates are signed by the Amazon RDS CAs (create-k8s-secrets.sh creates the ConfigMap).
+  MongoDb__TlsCaFile: /etc/minesense/ca/global-bundle.pem
+
+trustBundle:
+  configMap: documentdb-ca
 
 replicaCount: 1
 

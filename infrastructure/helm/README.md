@@ -14,10 +14,11 @@ infrastructure/
 ├── helm/
 │   ├── minesense-service/        # Chart genérico de un microservicio .NET 8
 │   │   └── templates/            # Deployment, Service, ConfigMap, ServiceAccount, HPA, PDB
-│   ├── minesense-gateway/        # Ingress único /api/v1 (AWS Application Load Balancer)
+│   ├── minesense-gateway/        # Ingress único: dashboard en / y API en /api/v1 (AWS Application Load Balancer)
+│   ├── minesense-edge-simulator/ # Agente Edge como simulador de cabina (Staging)
 │   └── values/
 │       ├── environments/         # staging.yaml, production.yaml
-│       └── services/             # un archivo por microservicio (13)
+│       └── services/             # un archivo por microservicio (13) y el dashboard
 ├── k8s/namespaces.yaml           # namespaces staging y production con Pod Security "restricted"
 └── scripts/deploy.sh             # despliega todo un entorno (pipeline o manual)
 ```
@@ -30,7 +31,7 @@ orden: `minesense-service/values.yaml` (base), `values/environments/<entorno>.ya
 
 | Objeto | Detalle |
 | --- | --- |
-| Deployment | Rolling update con `maxUnavailable: 0`; probes `/health/live` y `/health/ready`; usuario no root (UID 1654), sin escalamiento de privilegios, capabilities eliminadas y sistema de archivos de solo lectura (solo `/tmp` es escribible). |
+| Deployment | Rolling update con `maxUnavailable: 0`; startup/liveness `/health/live` y readiness `/health/ready`; usuario no root (UID 1654), sin escalamiento de privilegios, capabilities eliminadas y sistema de archivos de solo lectura (solo `/tmp` es escribible). |
 | Service | `ClusterIP` en el puerto 80 hacia el 8080 del contenedor. |
 | ConfigMap | `ASPNETCORE_ENVIRONMENT` y la configuración no sensible (`Section__Key`). |
 | ServiceAccount | Con la anotación `eks.amazonaws.com/role-arn` cuando el servicio necesita AWS (IRSA). |
@@ -52,6 +53,7 @@ dentro del prefijo de otro servicio van primero:
 
 | Ruta | Servicio |
 | --- | --- |
+| `/` (última regla, lo demás) | supervision-dashboard (mismo origen que la API; el ALB lo revisa en `/healthz`) |
 | `/api/v1/operators/*/status` | fleet-monitoring-service (antes que `/api/v1/operators` de Operations) |
 | `/api/v1/alerts/*/feedback`, `/api/v1/analytics/alert-reliability` | feedback-reliability-service |
 | `/api/v1/auth`, `/authentication`, `/users`, `/.well-known/jwks.json` | identity-access-service |
@@ -87,13 +89,15 @@ dentro del prefijo de otro servicio van primero:
    | `VPC_ID` | VPC del entorno |
    | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` |
    | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
+   | `KAFKA_CLIENT_ROLE_ARN` | `kafka_client_role_arn` (IRSA de los 7 servicios con eventos; MSK Serverless solo acepta SASL/IAM) |
    | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
    | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 
    Y la variable de repositorio `EKS_DEPLOY_ENABLED=true` para activar los despliegues.
-3. Crear los secretos de los servicios que los necesitan (en Secrets Manager y sincronizados al
-   namespace, por ejemplo con External Secrets Operator, o a mano):
+3. Crear los secretos de los servicios que los necesitan. `infrastructure/scripts/create-k8s-secrets.sh`
+   lo hace de forma idempotente desde las salidas de Terraform y Secrets Manager (también lo llama
+   `deploy-all.sh`). Equivalente a mano:
 
    ```bash
    kubectl -n staging create secret generic identity-access-secrets \
@@ -155,13 +159,13 @@ dentro del prefijo de otro servicio van primero:
 
 | Disparador | Qué hace |
 | --- | --- |
-| push a `release/*` | Construye las 13 imágenes una sola vez (`sha-<commit>`), las escanea con Trivy (CRITICAL/HIGH), las publica en GHCR, despliega en Staging y abre el PR `release/* → main`. |
+| push a `release/*` | Construye las 15 imágenes (13 servicios, dashboard y agente Edge) una sola vez (`sha-<commit>`), las escanea con Trivy (CRITICAL/HIGH), las publica en GHCR, despliega en Staging y abre el PR `release/* → main`. |
 | push a `main` | Toma el último commit de la rama release integrada (segundo padre del merge) y, tras la aprobación del environment `production`, despliega **las mismas imágenes** en Production. |
 | `workflow_dispatch` | Despliega a mano un tag existente en Staging o Production (también sirve para volver a un tag anterior). |
 
 Cada pull request que toca `infrastructure/helm` o `infrastructure/k8s` ejecuta
-`helm-validate.yml`: `helm lint --strict` de los 13 servicios en ambos entornos y validación
-de los manifiestos generados con kubeconform contra Kubernetes 1.30.
+`helm-validate.yml`: `helm lint --strict` de los servicios en ambos entornos y validación
+de los manifiestos generados con kubeconform.
 
 ## Despliegue y rollback manual
 
@@ -177,8 +181,13 @@ helm history operations-service -n staging
 helm rollback operations-service <revisión> -n staging
 ```
 
-`helm upgrade --atomic` revierte automáticamente un release si sus pods no pasan
-`/health/ready` en 5 minutos, de modo que un despliegue fallido no deja el entorno a medias.
+Si los pods de un servicio no pasan `/health/ready` en `SERVICE_TIMEOUT` (6 minutos por defecto),
+`deploy.sh` imprime sus eventos y logs, vuelve a la revisión anterior si existía, sigue con los demás
+y termina con error indicando cuáles fallaron. No usa `--atomic` porque borraría los pods antes de poder
+leer sus logs.
+
+El despliegue completo de Staging en un solo comando, con costos y pasos, está en
+[docs/deploy/aws-staging.md](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/deploy/aws-staging.md).
 
 ## Verificación local de las imágenes
 
