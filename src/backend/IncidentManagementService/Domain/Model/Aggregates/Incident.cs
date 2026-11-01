@@ -44,7 +44,9 @@ public class Incident : AggregateRoot
         Status = IncidentStatus.Pending;
         OpenedAt = openedAt;
         _history.Add(new IncidentEvent(IncidentEventType.Opened, null, openedAt,
-            $"{Severity} incident received from alert {AlertId}."));
+            $"{Severity} incident received from alert {AlertId}." + (command.CabinWarningIssuedAt is { } warnedAt
+                ? $" Synchronized from the Edge: the cabin warned the operator at {warnedAt:O}."
+                : string.Empty)));
     }
 
     /// <summary>Time between the incident reception and its closure.</summary>

@@ -21,4 +21,4 @@ public record IncidentClosedEvent(
 }
 
 /// <summary>Fields of <c>AlertIssued</c> (Alerts) that Incident Management needs.</summary>
-public record AlertIssuedEvent(Guid AlertId, Guid OperatorId, string Severity, DateTimeOffset IssuedAt);
+public record AlertIssuedEvent(Guid AlertId, Guid OperatorId, string Severity, DateTimeOffset IssuedAt, string? Origin = null);
