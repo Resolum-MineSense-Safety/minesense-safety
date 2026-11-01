@@ -11,7 +11,8 @@ namespace MineSenseSafety.Shared.Infrastructure.Messaging.Kafka;
 /// one aggregate keep their order in a partition. Sending is asynchronous: the REST answer of a
 /// use case never waits for the broker and delivery failures are logged.
 /// </summary>
-public sealed class KafkaIntegrationEventPublisher : IIntegrationEventPublisher, IDisposable
+public sealed class KafkaIntegrationEventPublisher
+    : IIntegrationEventPublisher, IConfirmedIntegrationEventPublisher, IDisposable
 {
     private readonly IProducer<string, string> _producer;
     private readonly ILogger<KafkaIntegrationEventPublisher> _logger;
@@ -37,16 +38,7 @@ public sealed class KafkaIntegrationEventPublisher : IIntegrationEventPublisher,
 
     public Task PublishAsync(string topic, IntegrationEvent integrationEvent, string? partitionKey = null)
     {
-        var message = new Message<string, string>
-        {
-            Key = partitionKey ?? integrationEvent.AggregateId,
-            Value = integrationEvent.Serialize(),
-            Headers = new Headers
-            {
-                { "event-type", Encoding.UTF8.GetBytes(integrationEvent.Type) },
-                { "event-id", Encoding.UTF8.GetBytes(integrationEvent.EventId.ToString()) }
-            }
-        };
+        var message = ToMessage(integrationEvent, partitionKey);
 
         try
         {
@@ -68,6 +60,34 @@ public sealed class KafkaIntegrationEventPublisher : IIntegrationEventPublisher,
 
         return Task.CompletedTask;
     }
+
+    public async Task PublishConfirmedAsync(string topic, IntegrationEvent integrationEvent, string? partitionKey,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _producer.ProduceAsync(topic, ToMessage(integrationEvent, partitionKey), cancellationToken);
+            _logger.LogInformation("Event {EventId} ({Type}) delivered to {TopicPartitionOffset}",
+                integrationEvent.EventId, integrationEvent.Type, report.TopicPartitionOffset);
+        }
+        catch (ProduceException<string, string> exception) when (exception.Error.Code == ErrorCode.MsgSizeTooLarge)
+        {
+            // No retry can ever deliver it, and retrying would block every event queued behind it.
+            _logger.LogError("Event {EventId} ({Type}) is too large for {Topic} and was dropped",
+                integrationEvent.EventId, integrationEvent.Type, topic);
+        }
+    }
+
+    private static Message<string, string> ToMessage(IntegrationEvent integrationEvent, string? partitionKey) => new()
+    {
+        Key = partitionKey ?? integrationEvent.AggregateId,
+        Value = integrationEvent.Serialize(),
+        Headers = new Headers
+        {
+            { "event-type", Encoding.UTF8.GetBytes(integrationEvent.Type) },
+            { "event-id", Encoding.UTF8.GetBytes(integrationEvent.EventId.ToString()) }
+        }
+    };
 
     public void Dispose()
     {

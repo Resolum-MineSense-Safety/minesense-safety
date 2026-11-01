@@ -16,9 +16,15 @@ public static class IntegrationEventTopics
     /// <summary>Snapshot of a monitored operator (shift, fleet, location, mining unit, risk level).</summary>
     public const string FleetOperatorUpdated = "minesense.fleet.operator-updated";
 
+    /// <summary>Fatigue readings a cabin classified itself, synchronized later in a batch from the Edge.</summary>
+    public const string EdgeFatigueReadings = "minesense.edge.fatigue-readings";
+
+    /// <summary>Warnings a cabin already gave its operator, synchronized later in a batch from the Edge.</summary>
+    public const string EdgeCabinWarnings = "minesense.edge.cabin-warnings";
+
     public static readonly IReadOnlyList<string> All =
     [
         FatigueAssessed, AlertIssued, AlertAcknowledged, AlertEscalated, IncidentOpened, IncidentClosed,
-        FleetOperatorUpdated
+        FleetOperatorUpdated, EdgeFatigueReadings, EdgeCabinWarnings
     ];
 }

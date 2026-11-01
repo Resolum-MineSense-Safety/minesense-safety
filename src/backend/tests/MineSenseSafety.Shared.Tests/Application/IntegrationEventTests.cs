@@ -10,6 +10,21 @@ public class IntegrationEventTests
     private record SamplePayload(Guid AlertId, string Severity, bool RequiresAlert);
 
     [Fact]
+    public void Create_WithAnExplicitEventId_KeepsIt()
+    {
+        // Arrange
+        var eventId = Guid.NewGuid();
+
+        // Act
+        var integrationEvent = IntegrationEvent.Create("Happened", "test", Guid.NewGuid(), new { value = 1 },
+            DateTimeOffset.UtcNow, eventId: eventId);
+
+        // Assert
+        Assert.Equal(eventId, integrationEvent.EventId);
+        Assert.Equal(eventId, integrationEvent.CorrelationId);
+    }
+
+    [Fact]
     public void SerializeAndDeserialize_KeepsEnvelopeAndPayload()
     {
         // Arrange

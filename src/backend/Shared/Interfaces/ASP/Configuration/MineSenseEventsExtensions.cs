@@ -29,6 +29,8 @@ public static class MineSenseEventsExtensions
             services.TryAddSingleton<IIntegrationEventPublisher, KafkaIntegrationEventPublisher>();
         else
             services.TryAddSingleton<IIntegrationEventPublisher, LoggingIntegrationEventPublisher>();
+        services.TryAddSingleton(provider =>
+            (IConfirmedIntegrationEventPublisher)provider.GetRequiredService<IIntegrationEventPublisher>());
 
         services.TryAddSingleton<IProcessedEventStore, InMemoryProcessedEventStore>();
         services.TryAddSingleton(provider =>
