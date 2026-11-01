@@ -47,7 +47,9 @@ public class MongoAlertRepository(IMongoDatabase database)
 
     public async Task<Alert?> FindByAssessmentIdAsync(Guid assessmentId)
     {
-        var document = await Collection.Find(item => item.AssessmentId == assessmentId.ToString()).FirstOrDefaultAsync();
+        // $exists: Amazon DocumentDB only uses a sparse index when the query asks for it.
+        var document = await Collection.Find(Filter.Exists(item => item.AssessmentId)
+            & Filter.Eq(item => item.AssessmentId, assessmentId.ToString())).FirstOrDefaultAsync();
         return document is null ? null : ToEntity(document);
     }
 

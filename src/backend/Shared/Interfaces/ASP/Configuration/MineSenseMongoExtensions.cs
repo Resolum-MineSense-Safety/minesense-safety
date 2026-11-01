@@ -29,7 +29,7 @@ public static class MineSenseMongoExtensions
         var connection = configuration.GetConnectionString(ConnectionStringName);
         if (string.IsNullOrWhiteSpace(connection)) return false;
 
-        services.AddSingleton<IMongoClient>(_ => new MongoClient(connection));
+        services.AddSingleton(_ => MongoClientFactory.Create(connection, configuration[MongoClientFactory.TlsCaFileKey]));
         services.AddSingleton(provider => provider.GetRequiredService<IMongoClient>()
             .GetDatabase(configuration[DatabaseKey] ?? defaultDatabase));
         services.AddSingleton<MongoProcessedEventStore>();

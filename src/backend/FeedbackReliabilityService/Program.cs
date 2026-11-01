@@ -13,6 +13,7 @@ using FeedbackReliabilityService.Interfaces.REST;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MineSenseSafety.Shared.Infrastructure.Persistence.MongoDb;
 using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 using MongoDB.Driver;
 
@@ -91,7 +92,7 @@ builder.Services.AddHttpClient<IAlertSource, HttpAlertSource>(client =>
 var mongoConnection = builder.Configuration.GetConnectionString("MongoDb");
 if (!string.IsNullOrWhiteSpace(mongoConnection))
 {
-    builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnection));
+    builder.Services.AddSingleton(MongoClientFactory.Create(mongoConnection, builder.Configuration[MongoClientFactory.TlsCaFileKey]));
     builder.Services.AddSingleton(provider => provider.GetRequiredService<IMongoClient>()
         .GetDatabase(builder.Configuration["MongoDb:Database"] ?? "minesense_feedback"));
     builder.Services.AddSingleton<MongoAlertEvaluationRepository>();

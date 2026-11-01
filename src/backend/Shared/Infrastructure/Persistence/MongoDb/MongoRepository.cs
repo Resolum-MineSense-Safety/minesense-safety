@@ -44,9 +44,9 @@ public abstract class MongoRepository<TAggregate, TDocument>(IMongoDatabase data
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        var indexes = Indexes().ToList();
-        if (indexes.Count > 0)
-            await Collection.Indexes.CreateManyAsync(indexes, cancellationToken);
+        // One at a time: Amazon DocumentDB allows a single index build per collection.
+        foreach (var index in Indexes())
+            await Collection.Indexes.CreateOneAsync(index, cancellationToken: cancellationToken);
     }
 
     public async Task AddAsync(TAggregate aggregate)
