@@ -1,15 +1,21 @@
+using IncidentManagementService.Application.Internal.IntegrationEvents;
 using IncidentManagementService.Domain.Model.Aggregates;
 using IncidentManagementService.Domain.Model.Commands;
 using IncidentManagementService.Domain.Model.Entities;
 using IncidentManagementService.Domain.Model.ValueObjects;
 using IncidentManagementService.Domain.Repositories;
 using IncidentManagementService.Domain.Services;
+using MineSenseSafety.Shared.Application.IntegrationEvents;
 
 namespace IncidentManagementService.Application.Internal.CommandServices;
 
-public class IncidentCommandService(IIncidentRepository incidentRepository, TimeProvider timeProvider)
-    : IIncidentCommandService
+public class IncidentCommandService(
+    IIncidentRepository incidentRepository,
+    TimeProvider timeProvider,
+    IIntegrationEventPublisher eventPublisher) : IIncidentCommandService
 {
+    private const string Source = "incident-management-service";
+
     /// <summary>
     /// Opens the incident for an alert. Opening is idempotent per alert so a
     /// resent event (e.g. after an Edge reconnection) does not duplicate it.
@@ -21,6 +27,10 @@ public class IncidentCommandService(IIncidentRepository incidentRepository, Time
 
         var incident = new Incident(command, timeProvider.GetUtcNow());
         await incidentRepository.AddAsync(incident);
+        await eventPublisher.PublishAsync(IntegrationEventTopics.IncidentOpened,
+            IntegrationEvent.Create(IncidentOpenedEvent.Type, Source, incident.Id,
+                new IncidentOpenedEvent(incident.Id, incident.OperatorId, incident.AlertId, incident.Severity.ToString(),
+                    incident.OpenedAt), incident.OpenedAt));
         return incident;
     }
 
@@ -52,6 +62,11 @@ public class IncidentCommandService(IIncidentRepository incidentRepository, Time
 
         incident.Close(command.Resolution, command.ClosedAt ?? timeProvider.GetUtcNow());
         await incidentRepository.UpdateAsync(incident);
+        await eventPublisher.PublishAsync(IntegrationEventTopics.IncidentClosed,
+            IntegrationEvent.Create(IncidentClosedEvent.Type, Source, incident.Id,
+                new IncidentClosedEvent(incident.Id, incident.OperatorId, incident.AlertId, incident.Severity.ToString(),
+                    incident.AssigneeId, incident.Resolution!, incident.Actions.Count, incident.ClosedAt!.Value),
+                incident.ClosedAt.Value));
         return incident;
     }
 

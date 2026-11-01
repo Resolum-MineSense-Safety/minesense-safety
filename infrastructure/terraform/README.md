@@ -60,7 +60,10 @@ terraform apply tfplan
 - **Red privada**: bases de datos, Kafka y nodos EKS viven en subredes privadas y solo aceptan
   tráfico del security group de los nodos.
 - **Mínimo privilegio**: la Lambda solo puede leer su cola y escribir en `reports/`; el
-  Reporting Service obtiene su rol IAM vía IRSA (ServiceAccount `reporting-service`).
+  Reporting Service obtiene su rol IAM vía IRSA (ServiceAccount `reporting-service`): enviar a la
+  cola, leer `reports/` y listar el bucket (sin `s3:ListBucket`, S3 responde 403 en vez de 404
+  mientras el PDF no existe). `deploy.sh` le pasa la cola y el bucket desde las salidas
+  `report_requests_queue_url` y `reports_bucket`.
 - **Gateways Edge**: cada cabina es un *thing* de IoT Core con certificado X.509 propio y
   solo puede publicar bajo `minesense/<thingName>/…`.
 - `*.tfvars` y `*.tfstate` están en `.gitignore`; los valores por defecto viven en `variables.tf`.

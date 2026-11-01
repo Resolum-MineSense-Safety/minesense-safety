@@ -21,6 +21,16 @@ los PDFs pesados a Lambda; ADR-004/Kafka lo declara consumidor vital de eventos.
 - Migración total de `/api/v1/reports/*` a Reporting Service queda como deuda registrada,
   a evaluar cuando ambos servicios tengan persistencia real.
 
+> [!note] Actualizado
+> La deuda se cerró: el intake evidencial de PrivacyAuditService pasó a
+> `/api/v1/audit/compliance-reports` y `/api/v1/reports/*` es solo de Reporting Service, que ya
+> genera el artefacto en memoria y lo entrega en `GET /api/v1/reports/{id}/download`.
+
+> [!note] Actualizado
+> El flujo serverless de ADR-008 ya está conectado y es opcional: con `Reporting:SqsQueueUrl` y
+> `Reporting:S3Bucket` los PDF van por SQS, Lambda y S3; sin ellos se generan en proceso. Detalle en
+> [docs/services/reporting.md](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/services/reporting.md).
+
 ## Alternativas consideradas
 
 - Migrar ya las rutas TS-21 (rechazada: rework prematuro, rompe evidencia de PrivacyAudit).
