@@ -9,7 +9,7 @@ ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 COPY requirements.txt .
 RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip install --upgrade pip \
-    && /opt/venv/bin/pip install -r requirements.txt
+    && /opt/venv/bin/pip install -r requirements.txt     && /opt/venv/bin/pip uninstall -y pip
 
 FROM python:3.13-slim AS runtime
 
@@ -17,13 +17,14 @@ LABEL org.opencontainers.image.source="https://github.com/Resolum-MineSense-Safe
       org.opencontainers.image.title="edge-agent" \
       org.opencontainers.image.vendor="Resolum"
 
-# Apply the Debian security fixes published after the base image was built.
+# Apply the Debian security fixes published after the base image was built and remove pip:
+# nothing is installed at runtime, and pip's vendored libraries only add vulnerabilities.
 # CI passes a new PATCH_STAMP on every run so a cached layer never hides newer fixes.
 ARG PATCH_STAMP=""
 RUN echo "debian security patches ${PATCH_STAMP}" \
     && apt-get update && apt-get upgrade -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
-    && python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip uninstall -y pip     && rm -rf /usr/local/lib/python3.13/ensurepip \
     && groupadd --system --gid 10001 edge \
     && useradd --system --uid 10001 --gid edge --home-dir /app --shell /usr/sbin/nologin edge \
     && mkdir -p /app/data && chown edge:edge /app/data
