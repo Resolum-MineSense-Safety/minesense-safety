@@ -219,6 +219,39 @@ services:
     ports:
       - "5280:8080"
 
+  # EP06 (US13, US14): cabin gateway simulator. Opt-in profile:
+  #   docker compose --profile simulator up --build -d edge-agent
+  # Sign up an Operator user in Identity & Access and put EDGE_USERNAME / EDGE_PASSWORD in .env;
+  # without them the batches are refused (401) and stay safely in the offline buffer.
+  edge-agent:
+    build:
+      context: ./src/edge
+    image: minesense/edge-agent:local
+    container_name: minesense_edge_agent
+    profiles: ["simulator"]
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      EDGE_SYNC_SERVICE_URL: http://edge-synchronization-service:8080
+      IDENTITY_URL: ${IDENTITY_URL-http://identity-access-service:8080}
+      EDGE_USERNAME: ${EDGE_USERNAME:-}
+      EDGE_PASSWORD: ${EDGE_PASSWORD:-}
+      EDGE_PROFILE: ${EDGE_PROFILE:-cycle}
+      EDGE_INTERVAL_SECONDS: ${EDGE_INTERVAL_SECONDS:-2}
+      EDGE_UNAVAILABLE_WARNING_CHANNELS: ${EDGE_UNAVAILABLE_WARNING_CHANNELS:-}
+      MQTT_HOST: mosquitto
+    volumes:
+      - edge-buffer:/app/data
+    depends_on:
+      - edge-synchronization-service
+      - mosquitto
+
   privacy-audit-service:
     <<: *dotnet-service
     build:
@@ -327,3 +360,7 @@ services:
       - "8080:8080"
     depends_on:
       - supervision-dashboard
+
+volumes:
+  # Offline buffer of the Edge agent: pending events survive container restarts.
+  edge-buffer:
