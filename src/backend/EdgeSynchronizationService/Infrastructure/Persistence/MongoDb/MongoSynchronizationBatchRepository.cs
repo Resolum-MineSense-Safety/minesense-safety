@@ -13,6 +13,7 @@ public class SynchronizationBatchDocument : MongoAggregateDocument
     public string DeviceId { get; set; } = string.Empty;
     public long SequenceNumber { get; set; }
     public DateTime ReceivedAt { get; set; }
+    public bool PublicationPending { get; set; }
 }
 
 /// <summary>
@@ -30,13 +31,15 @@ public class MongoSynchronizationBatchRepository(IMongoDatabase database)
         EdgeNodeId = batch.EdgeNodeId.ToString(),
         DeviceId = batch.DeviceId.ToString(),
         SequenceNumber = batch.SequenceNumber,
-        ReceivedAt = Utc(batch.ReceivedAt)
+        ReceivedAt = Utc(batch.ReceivedAt),
+        PublicationPending = batch.PublicationPending
     };
 
     protected override IEnumerable<CreateIndexModel<SynchronizationBatchDocument>> Indexes() =>
     [
         new(Keys.Ascending(item => item.BatchId), new CreateIndexOptions { Unique = true }),
-        new(Keys.Ascending(item => item.EdgeNodeId).Ascending(item => item.DeviceId).Ascending(item => item.SequenceNumber))
+        new(Keys.Ascending(item => item.EdgeNodeId).Ascending(item => item.DeviceId).Ascending(item => item.SequenceNumber)),
+        new(Keys.Ascending(item => item.PublicationPending).Ascending(item => item.ReceivedAt).Ascending(item => item.SequenceNumber))
     ];
 
     public async Task<SynchronizationBatch?> FindByBatchIdAsync(Guid batchId)
@@ -44,6 +47,10 @@ public class MongoSynchronizationBatchRepository(IMongoDatabase database)
         var document = await Collection.Find(item => item.BatchId == batchId.ToString()).FirstOrDefaultAsync();
         return document is null ? null : ToEntity(document);
     }
+
+    public async Task<IReadOnlyList<SynchronizationBatch>> FindPendingPublicationAsync(int limit) =>
+        await ToEntitiesAsync(Collection.Find(item => item.PublicationPending)
+            .SortBy(item => item.ReceivedAt).ThenBy(item => item.SequenceNumber).Limit(limit));
 
     public async Task<bool> TryAddAsync(SynchronizationBatch batch)
     {

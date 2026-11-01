@@ -34,6 +34,47 @@ public class MongoSynchronizationBatchRepositoryTests
         Assert.Equal(batch.SequenceNumber, restored.SequenceNumber);
     }
 
+    [Fact]
+    public void Snapshot_RoundTrip_KeepsThePublicationState()
+    {
+        // Arrange
+        var pending = Batch(Guid.NewGuid());
+        var published = Batch(Guid.NewGuid());
+        published.MarkPublished(Now);
+
+        // Act
+        var restoredPending = AggregateSnapshot.Deserialize<SynchronizationBatch>(AggregateSnapshot.Serialize(pending));
+        var restoredPublished = AggregateSnapshot.Deserialize<SynchronizationBatch>(AggregateSnapshot.Serialize(published));
+
+        // Assert
+        Assert.True(restoredPending.PublicationPending);
+        Assert.Null(restoredPending.PublishedAt);
+        Assert.False(restoredPublished.PublicationPending);
+        Assert.Equal(Now, restoredPublished.PublishedAt);
+    }
+
+    [MongoFact]
+    public async Task Mongo_RealServer_PendingBatchesSurviveARestartUntilPublished()
+    {
+        // Arrange
+        await using var mongo = new MongoTestDatabase("edge_tests");
+        var repository = new MongoSynchronizationBatchRepository(mongo.Database);
+        await repository.InitializeAsync(CancellationToken.None);
+        var batch = Batch(Guid.NewGuid());
+        await repository.TryAddAsync(batch);
+
+        // Act
+        var restarted = new MongoSynchronizationBatchRepository(mongo.Reopen());
+        var pending = await restarted.FindPendingPublicationAsync(10);
+        pending[0].MarkPublished(Now);
+        await restarted.UpdateAsync(pending[0]);
+
+        // Assert
+        Assert.Equal(batch.BatchId, Assert.Single(pending).BatchId);
+        Assert.Empty(await restarted.FindPendingPublicationAsync(10));
+        Assert.Equal(Now, (await restarted.FindByBatchIdAsync(batch.BatchId))!.PublishedAt);
+    }
+
     [MongoFact]
     public async Task Mongo_RealServer_ResubmittedBatchIsIdempotentAcrossRestarts()
     {
