@@ -9,6 +9,8 @@ on:
     branches: [ "release/**", "main" ]
     paths:
       - "src/backend/**"
+      - "src/frontend/**"
+      - "src/edge/**"
       - "infrastructure/helm/**"
       - "infrastructure/k8s/**"
       - "infrastructure/scripts/**"
@@ -92,19 +94,21 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - { name: identity-access-service, project: IdentityAccessService }
-          - { name: operations-service, project: OperationsService }
-          - { name: device-management-service, project: DeviceManagementService }
-          - { name: monitoring-service, project: MonitoringService }
-          - { name: fatigue-detection-service, project: FatigueDetectionService }
-          - { name: alert-service, project: AlertService }
-          - { name: fleet-monitoring-service, project: FleetMonitoringService }
-          - { name: incident-management-service, project: IncidentManagementService }
-          - { name: privacy-audit-service, project: PrivacyAuditService }
-          - { name: reporting-service, project: ReportingService }
-          - { name: analytics-service, project: AnalyticsService }
-          - { name: feedback-reliability-service, project: FeedbackReliabilityService }
-          - { name: edge-synchronization-service, project: EdgeSynchronizationService }
+          - { name: identity-access-service, context: src/backend, dockerfile: src/backend/IdentityAccessService/Dockerfile }
+          - { name: operations-service, context: src/backend, dockerfile: src/backend/OperationsService/Dockerfile }
+          - { name: device-management-service, context: src/backend, dockerfile: src/backend/DeviceManagementService/Dockerfile }
+          - { name: monitoring-service, context: src/backend, dockerfile: src/backend/MonitoringService/Dockerfile }
+          - { name: fatigue-detection-service, context: src/backend, dockerfile: src/backend/FatigueDetectionService/Dockerfile }
+          - { name: alert-service, context: src/backend, dockerfile: src/backend/AlertService/Dockerfile }
+          - { name: fleet-monitoring-service, context: src/backend, dockerfile: src/backend/FleetMonitoringService/Dockerfile }
+          - { name: incident-management-service, context: src/backend, dockerfile: src/backend/IncidentManagementService/Dockerfile }
+          - { name: privacy-audit-service, context: src/backend, dockerfile: src/backend/PrivacyAuditService/Dockerfile }
+          - { name: reporting-service, context: src/backend, dockerfile: src/backend/ReportingService/Dockerfile }
+          - { name: analytics-service, context: src/backend, dockerfile: src/backend/AnalyticsService/Dockerfile }
+          - { name: feedback-reliability-service, context: src/backend, dockerfile: src/backend/FeedbackReliabilityService/Dockerfile }
+          - { name: edge-synchronization-service, context: src/backend, dockerfile: src/backend/EdgeSynchronizationService/Dockerfile }
+          - { name: supervision-dashboard, context: src/frontend, dockerfile: src/frontend/Dockerfile }
+          - { name: edge-agent, context: src/edge, dockerfile: src/edge/Dockerfile }
     env:
       IMAGE: ghcr.io/resolum-minesense-safety/${{ matrix.service.name }}:${{ needs.resolve.outputs.image_tag }}
     steps:
@@ -117,9 +121,14 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          context: src/backend
-          file: src/backend/${{ matrix.service.project }}/Dockerfile
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
           tags: ${{ env.IMAGE }}
+          # PATCH_STAMP refreshes the OS patch layer of the dashboard and the edge agent. The cloud
+          # environments run Kafka, so the dashboard follows the event chain of the backend (ADR-004).
+          build-args: |
+            PATCH_STAMP=${{ github.run_id }}
+            VITE_EVENT_DRIVEN=true
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -181,12 +190,15 @@ jobs:
 
       - name: Deploy with Helm
         id: deploy
+        # bash with pipefail: otherwise "tee" hides a failed deploy.
+        shell: bash
         env:
           EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           VPC_ID: ${{ vars.VPC_ID }}
           LB_CONTROLLER_ROLE_ARN: ${{ vars.AWS_LB_CONTROLLER_ROLE_ARN }}
           REPORTING_SERVICE_ROLE_ARN: ${{ vars.REPORTING_SERVICE_ROLE_ARN }}
+          KAFKA_CLIENT_ROLE_ARN: ${{ vars.KAFKA_CLIENT_ROLE_ARN }}
           KAFKA_BOOTSTRAP_SERVERS: ${{ vars.KAFKA_BOOTSTRAP_SERVERS }}
           API_HOST: ${{ vars.API_HOST }}
           ACM_CERTIFICATE_ARN: ${{ vars.ACM_CERTIFICATE_ARN }}
