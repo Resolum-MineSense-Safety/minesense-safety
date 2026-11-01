@@ -12,12 +12,13 @@ public class AlertServicesTests
     private static readonly DateTimeOffset Start = new(2026, 10, 6, 8, 0, 0, TimeSpan.Zero);
     private readonly FakeAlertRepository _repository = new();
     private readonly FakeTimeProvider _clock = new(Start);
+    private readonly FakeIntegrationEventPublisher _publisher = new();
     private readonly AlertCommandService _commandService;
     private readonly AlertQueryService _queryService;
 
     public AlertServicesTests()
     {
-        _commandService = new AlertCommandService(_repository, _clock);
+        _commandService = new AlertCommandService(_repository, _clock, _publisher);
         _queryService = new AlertQueryService(_repository);
     }
 

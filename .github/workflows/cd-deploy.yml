@@ -187,6 +187,7 @@ jobs:
           VPC_ID: ${{ vars.VPC_ID }}
           LB_CONTROLLER_ROLE_ARN: ${{ vars.AWS_LB_CONTROLLER_ROLE_ARN }}
           REPORTING_SERVICE_ROLE_ARN: ${{ vars.REPORTING_SERVICE_ROLE_ARN }}
+          KAFKA_BOOTSTRAP_SERVERS: ${{ vars.KAFKA_BOOTSTRAP_SERVERS }}
           API_HOST: ${{ vars.API_HOST }}
           ACM_CERTIFICATE_ARN: ${{ vars.ACM_CERTIFICATE_ARN }}
         run: |

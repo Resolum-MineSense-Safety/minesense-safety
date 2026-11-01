@@ -2,3 +2,8 @@
 name: alert-service
 image:
   repository: alert-service
+env:
+  MongoDb__Database: minesense_alerts
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager; without the secret the service runs in memory.
+optionalSecrets:
+  - alert-secrets
