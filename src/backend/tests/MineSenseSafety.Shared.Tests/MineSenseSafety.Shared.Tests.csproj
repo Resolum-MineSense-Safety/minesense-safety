@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Compile Include="..\TestSupport\MongoIntegration.cs" Link="Infrastructure\MongoIntegration.cs" />
+    <Compile Include="..\TestSupport\PostgresIntegration.cs" Link="Infrastructure\PostgresIntegration.cs" />
   </ItemGroup>
 
   <ItemGroup>
