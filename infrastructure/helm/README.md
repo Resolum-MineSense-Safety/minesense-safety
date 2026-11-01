@@ -91,6 +91,8 @@ dentro del prefijo de otro servicio van primero:
    | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
    | `KAFKA_CLIENT_ROLE_ARN` | `kafka_client_role_arn` (IRSA de los 7 servicios con eventos; MSK Serverless solo acepta SASL/IAM) |
    | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
+   | `REPORT_REQUESTS_QUEUE_URL` | `report_requests_queue_url` (PDF serverless, ADR-008; va junto con `REPORTS_BUCKET`, vacías = PDF en proceso) |
+   | `REPORTS_BUCKET` | `reports_bucket` |
    | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 

@@ -35,6 +35,37 @@ public class MongoReportingRepositoriesTests
         Assert.Equal(artifact.ExpiresAt, restored.ExpiresAt);
     }
 
+    [Fact]
+    public void Snapshot_RoundTrip_KeepsStoredArtifactKeyAndChecksum()
+    {
+        // Arrange
+        var artifact = ReportArtifact.Stored(Guid.NewGuid(), "/api/v1/reports/x/download", "report.pdf",
+            "application/pdf", "reports/2026/10/x.pdf", [0xAB, 0xCD], Now.AddDays(7));
+
+        // Act
+        var restored = AggregateSnapshot.Deserialize<ReportArtifact>(AggregateSnapshot.Serialize(artifact));
+
+        // Assert
+        Assert.Equal("reports/2026/10/x.pdf", restored.StorageKey);
+        Assert.Equal("sha256:abcd", restored.Checksum);
+        Assert.True(restored.Content.IsEmpty);
+    }
+
+    [Fact]
+    public void Snapshot_ArtifactStoredBeforeTheKeyExisted_HasNoStorageKey()
+    {
+        // Arrange
+        var artifact = new ReportArtifact(Guid.NewGuid(), "/download", "report.csv", "text/csv", [1], Now.AddDays(7));
+
+        // Act
+        var restored = AggregateSnapshot.Deserialize<ReportArtifact>(
+            AggregateSnapshot.Serialize(artifact).Replace("\"StorageKey\":null,", string.Empty));
+
+        // Assert
+        Assert.Null(restored.StorageKey);
+        Assert.Equal([1], restored.Content.ToArray());
+    }
+
     [MongoFact]
     public async Task Mongo_RealServer_DefinitionsJobsAndArtifactsSurviveRestart()
     {
@@ -67,6 +98,8 @@ public class MongoReportingRepositoriesTests
         Assert.NotNull(await new MongoReportDefinitionRepository(database).FindByCodeAndVersionAsync("fatigue-by-shift", "V1.2"));
         Assert.Null(await new MongoReportDefinitionRepository(database).FindByCodeAsync("missing"));
         Assert.Equal(job.Status, (await new MongoReportJobRepository(database).FindByIdAsync(job.Id))!.Status);
+        Assert.Equal(job.Id, Assert.Single(await new MongoReportJobRepository(database).FindByStatusAsync(ReportJobStatus.Rendering)).Id);
+        Assert.Empty(await new MongoReportJobRepository(database).FindByStatusAsync(ReportJobStatus.Ready));
         var stored = await new MongoReportArtifactRepository(database).FindByReportJobIdAsync(job.Id);
         Assert.Equal("ABC"u8.ToArray(), stored!.Content.ToArray());
     }

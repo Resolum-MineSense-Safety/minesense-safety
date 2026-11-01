@@ -8,7 +8,8 @@ namespace ReportingService.Application.Internal.QueryServices;
 public class ReportingQueryService(
     IReportDefinitionRepository definitionRepository,
     IReportJobRepository jobRepository,
-    IReportArtifactRepository artifactRepository) : IReportingQueryService
+    IReportArtifactRepository artifactRepository,
+    IReportObjectStore? objectStore = null) : IReportingQueryService
 {
     public async Task<IEnumerable<ReportDefinition>> Handle(GetReportDefinitionsQuery query)
     {
@@ -44,4 +45,9 @@ public class ReportingQueryService(
 
     public Task<ReportArtifact?> FindArtifactByJobIdAsync(Guid reportJobId) =>
         artifactRepository.FindByReportJobIdAsync(reportJobId);
+
+    public async Task<Stream?> OpenStoredArtifactAsync(ReportArtifact artifact, CancellationToken cancellationToken) =>
+        objectStore is null || artifact.StorageKey is null
+            ? null
+            : await objectStore.OpenReadAsync(artifact.StorageKey, cancellationToken);
 }

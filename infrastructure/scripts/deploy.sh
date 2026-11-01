@@ -11,6 +11,8 @@
 #   LB_CONTROLLER_ROLE_ARN      IAM role of the AWS Load Balancer Controller (installs/updates it)
 #   EKS_CLUSTER_NAME, AWS_REGION, VPC_ID   needed together with LB_CONTROLLER_ROLE_ARN
 #   REPORTING_SERVICE_ROLE_ARN  IRSA role of the Reporting Service (Terraform output)
+#   REPORT_REQUESTS_QUEUE_URL, REPORTS_BUCKET  serverless PDFs, both or neither (Terraform outputs
+#                               report_requests_queue_url, reports_bucket); else Reporting renders in process
 #   KAFKA_BOOTSTRAP_SERVERS     MSK Serverless IAM brokers (Terraform output kafka_bootstrap_brokers)
 #   KAFKA_CLIENT_ROLE_ARN       IRSA role of the services with domain events (kafka_client_role_arn)
 #   API_HOST, ACM_CERTIFICATE_ARN  public host and HTTPS certificate; without them the ALB is HTTP only
@@ -99,6 +101,12 @@ for service in $SERVICES; do
   extra=("${pull_secret[@]}")
   if [[ "$service" == "reporting-service" && -n "${REPORTING_SERVICE_ROLE_ARN:-}" ]]; then
     extra+=(--set-string "serviceAccount.roleArn=$REPORTING_SERVICE_ROLE_ARN")
+  fi
+  if [[ "$service" == "reporting-service" && -n "${REPORT_REQUESTS_QUEUE_URL:-}" ]]; then
+    extra+=(--set-string "env.Reporting__SqsQueueUrl=$REPORT_REQUESTS_QUEUE_URL")
+  fi
+  if [[ "$service" == "reporting-service" && -n "${REPORTS_BUCKET:-}" ]]; then
+    extra+=(--set-string "env.Reporting__S3Bucket=$REPORTS_BUCKET")
   fi
   if [[ "$KAFKA_CLIENTS" == *" $service "* && -n "${KAFKA_CLIENT_ROLE_ARN:-}" ]]; then
     extra+=(--set-string "serviceAccount.roleArn=$KAFKA_CLIENT_ROLE_ARN")

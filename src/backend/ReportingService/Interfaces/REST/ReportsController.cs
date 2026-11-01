@@ -62,7 +62,7 @@ public class ReportsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status410Gone)]
-    public async Task<IActionResult> DownloadReportArtifact(Guid reportJobId)
+    public async Task<IActionResult> DownloadReportArtifact(Guid reportJobId, CancellationToken cancellationToken)
     {
         var job = await queryService.Handle(new GetReportJobByIdQuery(reportJobId));
         if (job is null) return NotFound();
@@ -73,8 +73,20 @@ public class ReportsController(
         if (artifact.IsExpired(timeProvider.GetUtcNow()))
             return StatusCode(StatusCodes.Status410Gone, new { message = "The report artifact has expired." });
 
+        if (artifact.StorageKey is null)
+        {
+            Response.Headers["X-Checksum"] = artifact.Checksum;
+            return File(artifact.Content.ToArray(), artifact.ContentType, artifact.FileName);
+        }
+
+        // Streamed instead of redirecting to a presigned URL: the dashboard fetches this route with its
+        // token and the bucket has no CORS, so the browser could not follow a redirect to S3.
+        var content = await queryService.OpenStoredArtifactAsync(artifact, cancellationToken);
+        if (content is null)
+            return StatusCode(StatusCodes.Status410Gone, new { message = "The report object is no longer available." });
+
         Response.Headers["X-Checksum"] = artifact.Checksum;
-        return File(artifact.Content.ToArray(), artifact.ContentType, artifact.FileName);
+        return File(content, artifact.ContentType, artifact.FileName);
     }
 
     /// <summary>The <c>sub</c> claim of the caller's token, when the request is authenticated.</summary>
