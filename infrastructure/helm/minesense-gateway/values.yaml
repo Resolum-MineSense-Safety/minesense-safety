@@ -75,6 +75,8 @@ routes:
     service: privacy-audit-service
   - path: /api/v1/processing-purposes
     service: privacy-audit-service
+  - path: /api/v1/audit
+    service: privacy-audit-service
   # Reporting and Analytics
   - path: /api/v1/report-definitions
     service: reporting-service

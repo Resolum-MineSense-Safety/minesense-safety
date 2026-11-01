@@ -58,6 +58,11 @@ spec:
             - secretRef:
                 name: {{ . }}
             {{- end }}
+            {{- range .Values.optionalSecrets }}
+            - secretRef:
+                name: {{ . }}
+                optional: true
+            {{- end }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}

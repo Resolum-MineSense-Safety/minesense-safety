@@ -8,6 +8,9 @@ using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton<IDeviceRepository, InMemoryDeviceRepository>();
 builder.Services.AddScoped<IDeviceCommandService, DeviceCommandService>();
 builder.Services.AddScoped<IDeviceQueryService, DeviceQueryService>();

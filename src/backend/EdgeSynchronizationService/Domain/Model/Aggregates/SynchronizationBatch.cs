@@ -15,6 +15,14 @@ public sealed class SynchronizationBatch : AggregateRoot
     public DateTimeOffset CapturedAt { get; private set; }
     public DateTimeOffset ReceivedAt { get; private set; }
     public SynchronizationStatus Status { get; private set; }
+
+    /// <summary>
+    /// True until every event of the batch was confirmed by Kafka. It is stored in the same document
+    /// as the batch, so accepting a batch and queueing its publication are one atomic write.
+    /// </summary>
+    public bool PublicationPending { get; private set; }
+
+    public DateTimeOffset? PublishedAt { get; private set; }
     public IReadOnlyCollection<SynchronizationEvent> Events => _events.AsReadOnly();
 
     public SynchronizationBatch(SubmitSynchronizationBatchCommand command, DateTimeOffset receivedAt)
@@ -43,6 +51,13 @@ public sealed class SynchronizationBatch : AggregateRoot
         CapturedAt = command.CapturedAt;
         ReceivedAt = receivedAt;
         Status = SynchronizationStatus.Accepted;
+        PublicationPending = true;
         _events.AddRange(command.Events);
+    }
+
+    public void MarkPublished(DateTimeOffset publishedAt)
+    {
+        PublicationPending = false;
+        PublishedAt = publishedAt;
     }
 }

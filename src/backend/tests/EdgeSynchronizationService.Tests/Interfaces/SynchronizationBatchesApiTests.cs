@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using EdgeSynchronizationService.Interfaces.REST.Resources;
+using EdgeSynchronizationService.Infrastructure.Messaging;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace EdgeSynchronizationService.Tests.Interfaces;
 
@@ -43,6 +46,21 @@ public sealed class SynchronizationBatchesApiTests(WebApplicationFactory<Program
         Assert.Equal(HttpStatusCode.OK, second.StatusCode);
         var stored = await second.Content.ReadFromJsonAsync<SynchronizationBatchResource>();
         Assert.Equal(resource.SequenceNumber, stored!.SequenceNumber);
+    }
+
+    [Fact]
+    public async Task SubmitBatch_WithoutKafka_IsStoredAsBeforeAndNothingPublishes()
+    {
+        // Act
+        var response = await _client.PostAsJsonAsync(Route, CreateResource());
+        var stored = await response.Content.ReadFromJsonAsync<SynchronizationBatchResource>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal("Accepted", stored!.Status);
+        Assert.True(stored.PublicationPending);
+        Assert.Null(stored.PublishedAt);
+        Assert.DoesNotContain(factory.Services.GetServices<IHostedService>(), service => service is EdgeEventPublicationWorker);
     }
 
     [Fact]

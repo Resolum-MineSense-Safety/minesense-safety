@@ -14,6 +14,10 @@ output "kafka_cluster_arn" {
   value = module.messaging.kafka_cluster_arn
 }
 
+output "kafka_bootstrap_brokers" {
+  value = module.messaging.kafka_bootstrap_brokers
+}
+
 output "mqtt_endpoint" {
   value = module.iot.mqtt_endpoint
 }

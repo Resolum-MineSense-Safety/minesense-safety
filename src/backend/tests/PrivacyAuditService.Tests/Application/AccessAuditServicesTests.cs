@@ -1,5 +1,6 @@
 using PrivacyAuditService.Application.Internal.CommandServices;
 using PrivacyAuditService.Application.Internal.QueryServices;
+using PrivacyAuditService.Infrastructure.Persistence.InMemory;
 using PrivacyAuditService.Domain.Model.Commands;
 using PrivacyAuditService.Domain.Model.Queries;
 using PrivacyAuditService.Domain.Model.ValueObjects;
@@ -17,7 +18,7 @@ public class AccessAuditServicesTests
         return (new PrivacyAuditCommandService(new FakeProcessingConsentRepository(), audits,
                 new FakeComplianceReportRepository(), TimeProvider.System),
             new PrivacyAuditQueryService(new FakeProcessingConsentRepository(), audits,
-                new FakeComplianceReportRepository()));
+                new FakeComplianceReportRepository(), new InMemoryIncidentLifecycleRepository()));
     }
 
     private static RegisterAccessAttemptCommand AttemptCommand(

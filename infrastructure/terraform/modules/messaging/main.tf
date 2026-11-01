@@ -36,3 +36,8 @@ resource "aws_msk_serverless_cluster" "events" {
 
   tags = var.tags
 }
+
+# SASL/IAM endpoint (port 9098) the services receive as Kafka__BootstrapServers (ADR-004).
+data "aws_msk_bootstrap_brokers" "events" {
+  cluster_arn = aws_msk_serverless_cluster.events.arn
+}
