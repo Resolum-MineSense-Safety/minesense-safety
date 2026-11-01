@@ -26,6 +26,9 @@ x-dotnet-service: &dotnet-service
 
 services:
   # ---------- Infrastructure ----------
+  # Relational contexts (ADR-005): Identity & Access, Operations, Device Management and Monitoring
+  # each use their own database on this server (minesense_identity, minesense_operations,
+  # minesense_devices, minesense_monitoring); the service creates it and its tables on first start.
   postgres:
     image: postgres:16-alpine
     container_name: minesense_postgres
@@ -93,6 +96,12 @@ services:
       dockerfile: IdentityAccessService/Dockerfile
     image: minesense/identity-access-service:local
     container_name: minesense_identity_access
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=minesense_identity;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-minesense-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "5202:8080"
 
@@ -103,6 +112,12 @@ services:
       dockerfile: OperationsService/Dockerfile
     image: minesense/operations-service:local
     container_name: minesense_operations
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=minesense_operations;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-minesense-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "5203:8080"
 
@@ -114,6 +129,12 @@ services:
       dockerfile: DeviceManagementService/Dockerfile
     image: minesense/device-management-service:local
     container_name: minesense_device_management
+    environment:
+      <<: *dotnet-environment
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=minesense_devices;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-minesense-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "5204:8080"
 
@@ -126,11 +147,15 @@ services:
     container_name: minesense_monitoring
     environment:
       <<: *dotnet-environment
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=minesense_monitoring;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-minesense-local}
       Services__DeviceManagementServiceUrl: ${MONITORING_DEVICE_SERVICE_URL:-http://device-management-service:8080/}
     ports:
       - "5201:8080"
     depends_on:
-      - device-management-service
+      postgres:
+        condition: service_healthy
+      device-management-service:
+        condition: service_started
 
   # ---------- EP02 to EP05: detection, alerts, fleet and incidents ----------
   fatigue-detection-service:
