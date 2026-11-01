@@ -19,16 +19,19 @@ Integrated microservices and IoT system for the preventive detection and mitigat
 
 ## Edge Synchronization Service
 
-El servicio recibe lotes desde el agente de cabina y conserva el lote completo para
-su posterior procesamiento por los bounded contexts analíticos. El `batchId` funciona
-como clave de idempotencia: el primer envío responde `202 Accepted` y un reintento
+El servicio recibe lotes desde el agente de cabina y conserva el lote completo. El `batchId`
+funciona como clave de idempotencia: el primer envío responde `202 Accepted` y un reintento
 del mismo lote responde `200 OK` sin sobrescribir el contenido original.
+
+Con `Kafka:BootstrapServers` configurado, un servicio en segundo plano publica el contenido de cada lote
+nuevo en orden de captura y con las horas originales: las lecturas llegan al historial de Fatigue Detection
+y las advertencias a Alerts, sin volver a advertir al operador. Si Kafka está caído, el lote queda
+pendiente (`publicationPending`) y se reintenta. Sin Kafka solo se guarda. Las decisiones están en
+[ADR-004](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/adr/ADR-004-mqtts-edge-to-cloud-kafka-cloud-to-cloud.md).
 
 - `POST /api/v1/synchronization-batches`: registra un lote con entre 1 y 500 eventos.
 - `GET /api/v1/synchronization-batches/{batchId}`: consulta el lote aceptado.
 - Swagger local: `http://localhost:5280/swagger`.
 
 Cada evento contiene `eventId`, `occurredAt`, `eventType` y un `payload` JSON libre.
-La persistencia actual es en memoria, igual que los servicios que aún están en fase
-de scaffold; el repositorio queda aislado detrás de `ISynchronizationBatchRepository`
-para sustituirlo por PostgreSQL/MongoDB sin cambiar el contrato REST.
+Los lotes se guardan en MongoDB con `ConnectionStrings:MongoDb`, y en memoria si no está configurado.
