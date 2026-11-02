@@ -41,7 +41,7 @@ public static class MongoClientFactory
         var roots = bundle.Where(certificate => certificate.SubjectName.RawData.SequenceEqual(certificate.IssuerName.RawData)).ToArray();
         var intermediates = bundle.Except(roots).ToArray();
 
-        return (_, certificate, _, errors) =>
+        return (_, certificate, presented, errors) =>
         {
             if (certificate is null || errors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch)) return false;
 
@@ -49,6 +49,9 @@ public static class MongoClientFactory
             chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
             chain.ChainPolicy.CustomTrustStore.AddRange(roots);
             chain.ChainPolicy.ExtraStore.AddRange(intermediates);
+            // Subordinate CAs may arrive only in the handshake. They help to build the path but are never trust anchors.
+            if (presented is not null)
+                chain.ChainPolicy.ExtraStore.AddRange(presented.ChainPolicy.ExtraStore);
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             return chain.Build(certificate as X509Certificate2 ?? new X509Certificate2(certificate));
         };

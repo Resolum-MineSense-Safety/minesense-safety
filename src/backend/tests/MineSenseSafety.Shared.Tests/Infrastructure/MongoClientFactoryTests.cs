@@ -27,6 +27,52 @@ public sealed class MongoClientFactoryTests : IDisposable
         return request.Create(authority, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(10), serial);
     }
 
+    private static X509Certificate2 CreateIntermediate(X509Certificate2 authority, string name)
+    {
+        using var key = RSA.Create(2048);
+        var request = new CertificateRequest($"CN={name}", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, false, 0, true));
+        var serial = RandomNumberGenerator.GetBytes(8);
+        using var issued = request.Create(authority, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(20), serial);
+        return issued.CopyWithPrivateKey(key);
+    }
+
+    [Fact]
+    public void Validator_AcceptsIntermediatePresentedByTheServer()
+    {
+        // Arrange: the bundle has the root only, as with the Amazon subordinate CAs sent in the handshake.
+        using var root = CreateAuthority("Bundle CA");
+        File.WriteAllText(_bundlePath, root.ExportCertificatePem());
+        using var intermediate = CreateIntermediate(root, "Subordinate CA");
+        using var server = CreateServerCertificate(intermediate);
+        using var presented = new X509Chain();
+        presented.ChainPolicy.ExtraStore.Add(intermediate);
+
+        // Act
+        var accepted = MongoClientFactory.CreateCertificateValidator(_bundlePath)(this, server, presented, SslPolicyErrors.RemoteCertificateChainErrors);
+
+        // Assert
+        Assert.True(accepted);
+    }
+
+    [Fact]
+    public void Validator_RejectsRootPresentedByTheServer()
+    {
+        // Arrange: a server cannot become trusted by sending its own authority.
+        using var trusted = CreateAuthority("Bundle CA");
+        using var other = CreateAuthority("Other CA");
+        File.WriteAllText(_bundlePath, trusted.ExportCertificatePem());
+        using var server = CreateServerCertificate(other);
+        using var presented = new X509Chain();
+        presented.ChainPolicy.ExtraStore.Add(other);
+
+        // Act
+        var accepted = MongoClientFactory.CreateCertificateValidator(_bundlePath)(this, server, presented, SslPolicyErrors.RemoteCertificateChainErrors);
+
+        // Assert
+        Assert.False(accepted);
+    }
+
     [Fact]
     public void Validator_AcceptsCertificateSignedByTheBundle()
     {
