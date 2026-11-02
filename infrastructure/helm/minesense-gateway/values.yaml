@@ -12,6 +12,11 @@ loadBalancer:
   healthCheckPath: /health/ready
   idleTimeoutSeconds: 60
 
+# Everything the API routes below do not match goes to the dashboard, same origin as /api/v1.
+dashboard:
+  enabled: true
+  service: supervision-dashboard
+
 # Path -> service. The ALB evaluates the rules in this order, so the specific paths that
 # overlap a broader prefix of another service go first (for example
 # /api/v1/operators/*/status belongs to Fleet Monitoring while /api/v1/operators to Operations).
@@ -74,6 +79,8 @@ routes:
   - path: /api/v1/access-log
     service: privacy-audit-service
   - path: /api/v1/processing-purposes
+    service: privacy-audit-service
+  - path: /api/v1/audit
     service: privacy-audit-service
   # Reporting and Analytics
   - path: /api/v1/report-definitions

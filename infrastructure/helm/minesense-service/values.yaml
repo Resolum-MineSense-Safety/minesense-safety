@@ -26,6 +26,19 @@ env: {}
 # Names of Kubernetes Secrets loaded as environment variables (synced from AWS Secrets Manager).
 envFromSecrets: []
 
+# Secrets the service can start without: until they exist the service keeps its data in memory.
+optionalSecrets: []
+
+# ConfigMap with extra CA certificates (Amazon DocumentDB bundle), mounted read-only. It is optional:
+# without the ConfigMap the directory is empty and only MongoDb__TlsCaFile would notice.
+trustBundle:
+  configMap: ""
+  mountPath: /etc/minesense/ca
+
+service:
+  # e.g. alb.ingress.kubernetes.io/healthcheck-path for a service without /health/ready.
+  annotations: {}
+
 serviceAccount:
   create: true
   # IAM role for the pod (IRSA), e.g. the Reporting Service role created by Terraform.
@@ -49,6 +62,10 @@ podDisruptionBudget:
   minAvailable: 1
 
 probes:
+  # Up to 5 minutes to start listening.
+  startup:
+    periodSeconds: 5
+    failureThreshold: 60
   liveness:
     path: /health/live
     initialDelaySeconds: 10

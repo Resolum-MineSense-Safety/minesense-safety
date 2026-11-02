@@ -19,10 +19,11 @@ public class PreShiftAvailabilityQueryServiceTests
     }
 
     [Fact]
-    public async Task Handle_WithAvailableAssignedCamera_AllowsMonitoring()
+    public async Task Handle_WithAvailableAssignedCameraAndWearable_AllowsMonitoring()
     {
         var operatorId = Guid.NewGuid();
         await AddCameraAsync(operatorId, DeviceStatus.Available, 80);
+        await AddWearableAsync(operatorId, DeviceStatus.Available, 80);
 
         var result = await _service.Handle(
             new GetPreShiftAvailabilityQuery(operatorId), _batteryThreshold);
@@ -36,6 +37,7 @@ public class PreShiftAvailabilityQueryServiceTests
     {
         var operatorId = Guid.NewGuid();
         await AddCameraAsync(operatorId, DeviceStatus.Available, 25);
+        await AddWearableAsync(operatorId, DeviceStatus.Available, 80);
 
         var result = await _service.Handle(
             new GetPreShiftAvailabilityQuery(operatorId), _batteryThreshold);
@@ -56,6 +58,19 @@ public class PreShiftAvailabilityQueryServiceTests
     }
 
     [Fact]
+    public async Task Handle_WithAssignedCameraButNoWearable_ReportsIncompleteProtection()
+    {
+        var operatorId = Guid.NewGuid();
+        await AddCameraAsync(operatorId, DeviceStatus.Available, 90);
+
+        var result = await _service.Handle(
+            new GetPreShiftAvailabilityQuery(operatorId), _batteryThreshold);
+
+        Assert.Equal(PreShiftAvailabilityStatus.ProtectionIncomplete, result.Status);
+        Assert.Equal(["wearable"], result.MissingDeviceTypes);
+    }
+
+    [Fact]
     public async Task Handle_WithDevicesAssignedToAnotherOperator_IgnoresThem()
     {
         var requestedOperatorId = Guid.NewGuid();
@@ -68,11 +83,19 @@ public class PreShiftAvailabilityQueryServiceTests
         Assert.Empty(result.EvaluatedDevices);
     }
 
-    private async Task<Device> AddCameraAsync(
-        Guid operatorId, DeviceStatus status, decimal battery)
+    private Task<Device> AddCameraAsync(
+        Guid operatorId, DeviceStatus status, decimal battery) =>
+        AddDeviceAsync("camera", operatorId, status, battery);
+
+    private Task<Device> AddWearableAsync(
+        Guid operatorId, DeviceStatus status, decimal battery) =>
+        AddDeviceAsync("wearable", operatorId, status, battery);
+
+    private async Task<Device> AddDeviceAsync(
+        string deviceType, Guid operatorId, DeviceStatus status, decimal battery)
     {
         var device = new Device(new RegisterDeviceCommand(
-            $"camera-{Guid.NewGuid():N}", "camera", Guid.NewGuid()));
+            $"{deviceType}-{Guid.NewGuid():N}", deviceType, Guid.NewGuid()));
         device.Assign(new AssignDeviceCommand(device.Id, operatorId, null));
         device.ReportStatus(new ReportDeviceStatusCommand(
             device.Id, status, new BatteryLevel(battery), DateTimeOffset.UtcNow, []));

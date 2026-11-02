@@ -1,5 +1,6 @@
 using PrivacyAuditService.Application.Internal.CommandServices;
 using PrivacyAuditService.Application.Internal.QueryServices;
+using PrivacyAuditService.Infrastructure.Persistence.InMemory;
 using PrivacyAuditService.Domain.Model.Commands;
 using PrivacyAuditService.Domain.Model.Queries;
 using PrivacyAuditService.Domain.Model.ValueObjects;
@@ -16,7 +17,7 @@ public class ConsentServicesTests
         var repo = repository ?? new FakeProcessingConsentRepository();
         return (new PrivacyAuditCommandService(repo, null!, null!, TimeProvider.System),
             new PrivacyAuditQueryService(repo, new FakeAccessAuditRepository(),
-                new FakeComplianceReportRepository()));
+                new FakeComplianceReportRepository(), new InMemoryIncidentLifecycleRepository()));
     }
 
     [Fact]

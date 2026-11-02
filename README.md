@@ -11,7 +11,7 @@ Integrated microservices and IoT system for the preventive detection and mitigat
 - `src/backend/EdgeSynchronizationService/`: Recepción idempotente de lotes de eventos
   generados offline por los nodos edge (puerto local `5280`).
 - `src/backend/FeedbackReliabilityService/`: Feedback & Reliability (EP12, US26–US28); [setup, contracts and testing](src/backend/FeedbackReliabilityService/README.md).
-- `src/edge/`: Local cabin processing and inference agent developed in Python.
+- `src/edge/`: Python cabin gateway agent: local fatigue classification and warnings, durable offline buffer and idempotent batch sync (US13, US14); [README](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/src/edge/README.md).
 - `src/frontend/`: Web-based monitoring dashboard built with React, Vite, and Tailwind CSS.
 - `infrastructure/`: Provisioning code using Terraform and Kubernetes/Helm manifests.
 - `docs/`: C4 architecture documentation and Architecture Decision Records (ADRs).

@@ -5,4 +5,5 @@ namespace DeviceManagementService.Domain.Model.ValueObjects;
 public record PreShiftAvailabilityResult(
     PreShiftAvailabilityStatus Status,
     PreShiftRecommendation Recommendation,
-    IReadOnlyCollection<Device> EvaluatedDevices);
+    IReadOnlyCollection<Device> EvaluatedDevices,
+    IReadOnlyCollection<string> MissingDeviceTypes);

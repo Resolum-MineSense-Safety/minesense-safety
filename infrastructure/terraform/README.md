@@ -19,14 +19,15 @@ infrastructure/terraform/
 │   └── delivery/              # Rol de despliegue de GitHub Actions (OIDC) + acceso a EKS + rol del Load Balancer Controller (sección 3.4)
 └── environments/
     ├── staging/               # 2 AZ, 1 NAT, t3.large x2, sin Multi-AZ
-    └── production/            # 3 AZ, NAT por AZ, m6i.large x3, Multi-AZ y protección de borrado
+    └── production/            # 3 AZ, NAT por AZ, m6i.large x4, Multi-AZ y protección de borrado
 ```
 
 | Recurso | Staging | Production |
 | --- | --- | --- |
+| Kubernetes | 1.35 (soporte estándar) | 1.35 (soporte estándar) |
 | VPC | 10.20.0.0/16, 2 AZ | 10.30.0.0/16, 3 AZ |
 | NAT Gateway | 1 compartido | 1 por AZ |
-| Nodos EKS | t3.large, 2–3 | m6i.large, 3–6 |
+| Nodos EKS | t3.large, 2–3 | m6i.large, 4–6 |
 | PostgreSQL | db.t4g.micro, Single-AZ | db.t4g.medium, Multi-AZ |
 | DocumentDB | 1 instancia | 2 instancias |
 | Backups | 3 días | 14 días |
@@ -35,16 +36,19 @@ infrastructure/terraform/
 ## Uso
 
 ```bash
+# Todo esto lo automatiza infrastructure/scripts/deploy-all.sh (ver docs/deploy/aws-staging.md).
 # 1. Una sola vez por cuenta: estado remoto
 cd infrastructure/terraform/bootstrap
-terraform init && terraform apply
+terraform init && terraform apply -var "state_bucket_name=minesense-safety-tfstate-<id de cuenta>"
 
 # 2. Empaquetar la Lambda (lo hace el pipeline de CD)
-dotnet lambda package -pl src/serverless/ReportPdfGenerator -o src/serverless/ReportPdfGenerator/artifacts/ReportPdfGenerator.zip
+dotnet publish src/serverless/ReportPdfGenerator -c Release -r linux-arm64 --self-contained false -o publish
+# ...y comprimir el contenido de publish en src/serverless/ReportPdfGenerator/artifacts/ReportPdfGenerator.zip
 
 # 3. Aprovisionar un entorno
 cd infrastructure/terraform/environments/staging
-terraform init
+terraform init -backend-config="bucket=minesense-safety-tfstate-<id de cuenta>" \
+  -backend-config="dynamodb_table=minesense-safety-terraform-locks" -backend-config="region=us-east-1"
 terraform plan -out tfplan
 terraform apply tfplan
 ```
@@ -60,7 +64,8 @@ terraform apply tfplan
 - **Red privada**: bases de datos, Kafka y nodos EKS viven en subredes privadas y solo aceptan
   tráfico del security group de los nodos.
 - **Mínimo privilegio**: la Lambda solo puede leer su cola y escribir en `reports/`; el
-  Reporting Service obtiene su rol IAM vía IRSA (ServiceAccount `reporting-service`).
+  Reporting Service obtiene su rol IAM vía IRSA (ServiceAccount `reporting-service`) y los siete
+  servicios con eventos comparten el rol `kafka_client_role_arn` (MSK Serverless solo acepta SASL/IAM).
 - **Gateways Edge**: cada cabina es un *thing* de IoT Core con certificado X.509 propio y
   solo puede publicar bajo `minesense/<thingName>/…`.
 - `*.tfvars` y `*.tfstate` están en `.gitignore`; los valores por defecto viven en `variables.tf`.

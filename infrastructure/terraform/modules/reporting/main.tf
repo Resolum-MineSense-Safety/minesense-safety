@@ -5,6 +5,8 @@
 # ---------- Storage of generated reports ----------
 resource "aws_s3_bucket" "reports" {
   bucket_prefix = "${var.name}-reports-"
+  # Versioned: without this a non-empty bucket blocks terraform destroy.
+  force_destroy = var.force_destroy_bucket
   tags          = var.tags
 }
 

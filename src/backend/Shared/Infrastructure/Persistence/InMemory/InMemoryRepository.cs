@@ -5,8 +5,8 @@ using MineSenseSafety.Shared.Domain.Repositories;
 namespace MineSenseSafety.Shared.Infrastructure.Persistence.InMemory;
 
 /// <summary>
-/// Thread-safe in-memory repository used while the PostgreSQL / MongoDB
-/// adapters of each bounded context are implemented.
+/// Thread-safe in-memory repository, used when the service has no database configured
+/// (tests, a bare <c>dotnet run</c>); otherwise the PostgreSQL or MongoDB adapter of the context is used.
 /// </summary>
 public abstract class InMemoryRepository<TAggregate> : IBaseRepository<TAggregate>
     where TAggregate : AggregateRoot
