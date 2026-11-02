@@ -38,8 +38,8 @@ spec:
       http:
         paths:
           {{- range .Values.routes }}
-          - path: {{ .path }}
-            pathType: {{ if contains "*" .path }}ImplementationSpecific{{ else }}Prefix{{ end }}
+          - path: {{ .path }}*
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ .service }}
@@ -48,8 +48,8 @@ spec:
           {{- end }}
           {{- if .Values.dashboard.enabled }}
           # Last rule: the catch-all of the single-page application.
-          - path: /
-            pathType: Prefix
+          - path: /*
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ .Values.dashboard.service }}
