@@ -168,7 +168,7 @@ base_url="$scheme://$target"
 # The ALB needs a moment to resolve in DNS and register the targets; the JWKS of Identity & Access is public.
 smoke_ok=false
 for _ in $(seq 1 45); do
-  if curl -fsS --max-time 10 -k "$base_url/.well-known/jwks.json" -o /dev/null 2>/dev/null; then
+  if curl -fsS --max-time 10 -k "$base_url/.well-known/jwks.json" -o "$DEV_NULL" 2>/dev/null; then
     smoke_ok=true
     break
   fi
@@ -191,7 +191,7 @@ ensure_edge_credentials() {
     # 409: the user exists but its Secret was lost (the password cannot be recovered).
     ((attempt > 1)) && username="edge-cabin-01-$(openssl rand -hex 3 | tr -d '\r')"
     status="$(printf '{"username":"%s","fullName":"Gateway simulador cabina 01","password":"%s","role":"Operator"}' "$username" "$password" |
-      curl -sS -k --max-time 20 -o /dev/null -w '%{http_code}' -X POST "$base_url/api/v1/authentication/sign-up" \
+      curl -sS -k --max-time 20 -o "$DEV_NULL" -w '%{http_code}' -X POST "$base_url/api/v1/authentication/sign-up" \
         -H 'Content-Type: application/json' --data-binary @-)" || status="000"
     case "$status" in
       201) break ;;

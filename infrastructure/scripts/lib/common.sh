@@ -8,6 +8,9 @@
 
 export MSYS_NO_PATHCONV=1
 export MSYS2_ARG_CONV_EXCL='*'
+# Native Windows curl does not know /dev/null once MSYS stops rewriting its arguments.
+DEV_NULL=/dev/null
+[[ "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == cygwin* ]] && DEV_NULL=NUL
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && (pwd -W 2>/dev/null || pwd))"
 TF_DIR="$REPO_ROOT/infrastructure/terraform"

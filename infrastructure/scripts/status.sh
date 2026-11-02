@@ -30,7 +30,7 @@ for service in $(kubectl get deployments -n "$ENVIRONMENT" -l app.kubernetes.io/
   code="000"
   for _ in 1 2 3 4 5 6 7 8; do
     sleep 1
-    code="$(curl -s --max-time 5 -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port$path")" && [[ "$code" != 000 ]] && break
+    code="$(curl -s --max-time 5 -o "$DEV_NULL" -w '%{http_code}' "http://127.0.0.1:$port$path")" && [[ "$code" != 000 ]] && break
   done
   kill "$forward" 2>/dev/null
   wait "$forward" 2>/dev/null
@@ -45,9 +45,9 @@ if [[ -n "$address" ]]; then
   kubectl get ingress minesense-api -n "$ENVIRONMENT" -o jsonpath='{.metadata.annotations}' 2>/dev/null | grep -q 'certificate-arn' && scheme=https
   base="$scheme://${host:-$address}"
   log "Entrada pública: $base"
-  printf 'Dashboard  GET /                        HTTP %s\n' "$(curl -sk --max-time 15 -o /dev/null -w '%{http_code}' "$base/")"
+  printf 'Dashboard  GET /                        HTTP %s\n' "$(curl -sk --max-time 15 -o "$DEV_NULL" -w '%{http_code}' "$base/")"
   printf 'API        GET /api/v1/mining-units     HTTP %s (401 = la API responde y exige token)\n' \
-    "$(curl -sk --max-time 15 -o /dev/null -w '%{http_code}' "$base/api/v1/mining-units")"
+    "$(curl -sk --max-time 15 -o "$DEV_NULL" -w '%{http_code}' "$base/api/v1/mining-units")"
   echo "JWKS       GET /.well-known/jwks.json:"
   curl -sk --max-time 15 "$base/.well-known/jwks.json" | head -c 400
   echo
