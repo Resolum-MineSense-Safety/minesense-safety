@@ -52,7 +52,7 @@ for image in $IMAGES; do
   token="$(registry_token "$image")"
   code="000"
   if [[ -n "$token" ]]; then
-    code="$(curl -s --max-time 20 -o /dev/null -w '%{http_code}' -I \
+    code="$(curl -s --max-time 20 -o "$DEV_NULL" -w '%{http_code}' -I \
       -H "Authorization: Bearer $token" \
       -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json" \
       "https://ghcr.io/v2/$REGISTRY_PATH/$image/manifests/$IMAGE_TAG")"
