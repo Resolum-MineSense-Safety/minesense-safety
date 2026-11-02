@@ -18,7 +18,7 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "postgres" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   security_group_id            = aws_security_group.postgres.id
   referenced_security_group_id = each.value
@@ -68,7 +68,7 @@ resource "aws_security_group" "documents" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "documents" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   security_group_id            = aws_security_group.documents.id
   referenced_security_group_id = each.value

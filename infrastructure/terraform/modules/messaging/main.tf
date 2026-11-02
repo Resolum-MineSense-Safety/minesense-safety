@@ -9,7 +9,7 @@ resource "aws_security_group" "kafka" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "kafka" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   security_group_id            = aws_security_group.kafka.id
   referenced_security_group_id = each.value
