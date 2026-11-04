@@ -20,3 +20,22 @@ Feature: US03 - Detección temprana de fatiga
     When el sistema intenta realizar la evaluación
     Then declara el resultado como no concluyente
     And no lo presenta como una detección confirmada
+
+  # Final version (section 4.8): every threshold of the detection policy, as a data table.
+  Scenario Outline: Evaluación de señales según los umbrales de fatiga
+    Given el operador presenta las señales de cabina
+      | perclos   | parpadeos_por_minuto | variabilidad_cardiaca_ms |
+      | <perclos> | <parpadeos>          | <variabilidad>           |
+    When el sistema evalúa las señales
+    Then el nivel de riesgo registrado es "<nivel>"
+    And la evaluación requiere alerta "<requiere_alerta>"
+
+    Examples: Umbrales de FatigueRiskPolicy
+      | caso                          | perclos | parpadeos | variabilidad | nivel    | requiere_alerta |
+      | operador descansado           | 0.05    | 15        | 60           | Normal   | no              |
+      | justo debajo del umbral       | 0.14    | 24        | 30           | Normal   | no              |
+      | ojos cerrados 15 % del tiempo | 0.15    | 15        | 60           | Warning  | sí              |
+      | parpadeo acelerado            | 0.10    | 25        | 60           | Warning  | sí              |
+      | variabilidad cardiaca baja    | 0.10    | 15        | 29           | Warning  | sí              |
+      | posible microsueño            | 0.40    | 15        | 60           | Critical | sí              |
+      | fatiga combinada grave        | 0.25    | 15        | 19           | Critical | sí              |

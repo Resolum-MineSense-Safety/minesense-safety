@@ -190,6 +190,61 @@ namespace MineSenseSafety.AcceptanceTests.Features
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableTheoryAttribute(DisplayName="Evaluación de señales según los umbrales de fatiga")]
+        [Xunit.TraitAttribute("FeatureTitle", "US03 - Detección temprana de fatiga")]
+        [Xunit.TraitAttribute("Description", "Evaluación de señales según los umbrales de fatiga")]
+        [Xunit.InlineDataAttribute("operador descansado", "0.05", "15", "60", "Normal", "no", new string[0])]
+        [Xunit.InlineDataAttribute("justo debajo del umbral", "0.14", "24", "30", "Normal", "no", new string[0])]
+        [Xunit.InlineDataAttribute("ojos cerrados 15 % del tiempo", "0.15", "15", "60", "Warning", "sí", new string[0])]
+        [Xunit.InlineDataAttribute("parpadeo acelerado", "0.10", "25", "60", "Warning", "sí", new string[0])]
+        [Xunit.InlineDataAttribute("variabilidad cardiaca baja", "0.10", "15", "29", "Warning", "sí", new string[0])]
+        [Xunit.InlineDataAttribute("posible microsueño", "0.40", "15", "60", "Critical", "sí", new string[0])]
+        [Xunit.InlineDataAttribute("fatiga combinada grave", "0.25", "15", "19", "Critical", "sí", new string[0])]
+        public async System.Threading.Tasks.Task EvaluacionDeSenalesSegunLosUmbralesDeFatiga(string caso, string perclos, string parpadeos, string variabilidad, string nivel, string requiere_Alerta, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("caso", caso);
+            argumentsOfScenario.Add("perclos", perclos);
+            argumentsOfScenario.Add("parpadeos", parpadeos);
+            argumentsOfScenario.Add("variabilidad", variabilidad);
+            argumentsOfScenario.Add("nivel", nivel);
+            argumentsOfScenario.Add("requiere_alerta", requiere_Alerta);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Evaluación de señales según los umbrales de fatiga", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 25
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+                global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+                            "perclos",
+                            "parpadeos_por_minuto",
+                            "variabilidad_cardiaca_ms"});
+                table4.AddRow(new string[] {
+                            string.Format("{0}", perclos),
+                            string.Format("{0}", parpadeos),
+                            string.Format("{0}", variabilidad)});
+#line 26
+    await testRunner.GivenAsync("el operador presenta las señales de cabina", ((string)(null)), table4, "Given ");
+#line hidden
+#line 29
+    await testRunner.WhenAsync("el sistema evalúa las señales", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 30
+    await testRunner.ThenAsync(string.Format("el nivel de riesgo registrado es \"{0}\"", nivel), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 31
+    await testRunner.AndAsync(string.Format("la evaluación requiere alerta \"{0}\"", requiere_Alerta), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime

@@ -196,6 +196,45 @@ namespace MineSenseSafety.AcceptanceTests.Features
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableTheoryAttribute(DisplayName="Severidad de la advertencia según el nivel de riesgo")]
+        [Xunit.TraitAttribute("FeatureTitle", "US05 - Recepción de advertencias preventivas")]
+        [Xunit.TraitAttribute("Description", "Severidad de la advertencia según el nivel de riesgo")]
+        [Xunit.InlineDataAttribute("Warning", "Warning", "120", new string[0])]
+        [Xunit.InlineDataAttribute("Critical", "Critical", "30", new string[0])]
+        public async System.Threading.Tasks.Task SeveridadDeLaAdvertenciaSegunElNivelDeRiesgo(string nivel, string severidad, string plazo_Segundos, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("nivel", nivel);
+            argumentsOfScenario.Add("severidad", severidad);
+            argumentsOfScenario.Add("plazo_segundos", plazo_Segundos);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Severidad de la advertencia según el nivel de riesgo", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 29
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 30
+    await testRunner.GivenAsync(string.Format("una evaluación con nivel de riesgo \"{0}\"", nivel), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 31
+    await testRunner.WhenAsync("el sistema genera la advertencia", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 32
+    await testRunner.ThenAsync(string.Format("la advertencia tiene severidad \"{0}\" y estado \"Issued\"", severidad), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 33
+    await testRunner.AndAsync(string.Format("el operador debe confirmarla en {0} segundos", plazo_Segundos), ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime

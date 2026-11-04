@@ -190,6 +190,44 @@ namespace MineSenseSafety.AcceptanceTests.Features
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableTheoryAttribute(DisplayName="Escalamiento al supervisor al vencer el plazo")]
+        [Xunit.TraitAttribute("FeatureTitle", "US06 - Confirmación de atención de una advertencia")]
+        [Xunit.TraitAttribute("Description", "Escalamiento al supervisor al vencer el plazo")]
+        [Xunit.InlineDataAttribute("Critical", "29", "Issued", new string[0])]
+        [Xunit.InlineDataAttribute("Critical", "31", "Escalated", new string[0])]
+        [Xunit.InlineDataAttribute("Warning", "119", "Issued", new string[0])]
+        [Xunit.InlineDataAttribute("Warning", "121", "Escalated", new string[0])]
+        public async System.Threading.Tasks.Task EscalamientoAlSupervisorAlVencerElPlazo(string severidad, string segundos, string estado, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            argumentsOfScenario.Add("severidad", severidad);
+            argumentsOfScenario.Add("segundos", segundos);
+            argumentsOfScenario.Add("estado", estado);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Escalamiento al supervisor al vencer el plazo", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 25
+  this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 26
+    await testRunner.GivenAsync(string.Format("se emite una advertencia de severidad \"{0}\"", severidad), ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 27
+    await testRunner.WhenAsync(string.Format("transcurren {0} segundos sin confirmación", segundos), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 28
+    await testRunner.ThenAsync(string.Format("el estado de la advertencia es \"{0}\"", estado), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "2.0.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime

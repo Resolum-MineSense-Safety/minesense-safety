@@ -24,3 +24,15 @@ Feature: US05 - Recepción de advertencias preventivas
     When el sistema debe comunicar el riesgo
     Then utiliza el medio disponible para emitir la advertencia
     And informa la falla del medio que no funciona
+
+  # Final version (section 4.8): the severity and the acknowledgement deadline follow the risk.
+  Scenario Outline: Severidad de la advertencia según el nivel de riesgo
+    Given una evaluación con nivel de riesgo "<nivel>"
+    When el sistema genera la advertencia
+    Then la advertencia tiene severidad "<severidad>" y estado "Issued"
+    And el operador debe confirmarla en <plazo_segundos> segundos
+
+    Examples:
+      | nivel    | severidad | plazo_segundos |
+      | Warning  | Warning   | 120            |
+      | Critical | Critical  | 30             |
