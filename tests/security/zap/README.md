@@ -28,8 +28,8 @@ docker run --rm --network host -v "$PWD/tests/security/zap:/zap/wrk:rw" ghcr.io/
 | A02 Cryptographic Failures | TLS 1.2/1.3 en el ALB con ACM, cifrado en reposo en DocumentDB y RDS (`storage_encrypted`), contraseñas con PBKDF2-SHA256 | Terraform `modules/data`, `ssl-policy` del Ingress, `Pbkdf2HashingService` |
 | A03 Injection | Consultas parametrizadas (Npgsql), driver tipado de MongoDB, validación `[JsonRequired]` | Reglas 40018 y 40012 de ZAP en `FAIL`, SonarCloud |
 | A04 Insecure Design | Amenazas tratadas en los ADR, procesamiento en edge sin depender de la nube | ADR-002/003 |
-| A05 Security Misconfiguration | Contenedores sin root y con FS de solo lectura, cabeceras de seguridad, Pod Security `restricted` | ZAP baseline (10020, 10021, 10038), Trivy de IaC |
-| A06 Vulnerable Components | Dependabot, Trivy de imágenes y dependencias con `exit-code 1` | `security-scan.yml`, `cd-deploy.yml` |
+| A05 Security Misconfiguration | Contenedores sin root y con FS de solo lectura, cabeceras de seguridad, Pod Security `restricted` | ZAP baseline (10020, 10021, 10038), `helm lint`, `terraform validate` |
+| A06 Vulnerable Components | Dependabot y Dependency Review en cada PR, Trivy de imágenes con `exit-code 1` | `security-scan.yml`, `containers-ci.yml`, `cd-deploy.yml` |
 | A07 Identification and Authentication Failures | Access tokens con vencimiento, refresh tokens guardados con hash y sesiones revocables, firma RS256 con JWKS. **Pendiente:** bloquear la cuenta tras varios intentos fallidos (roadmap) | Identity & Access (`AuthenticationCommandService`) |
 | A08 Software and Data Integrity Failures | Imágenes inmutables por SHA, OIDC sin llaves en GitHub Actions, *build once deploy many* | `cd-deploy.yml` |
 | A09 Logging and Monitoring Failures | Log `Access rejected ...` de cada rechazo, Privacy & Audit, alertas de Prometheus | `MineSenseUnauthorizedSpike`, runbook RB-04 |
