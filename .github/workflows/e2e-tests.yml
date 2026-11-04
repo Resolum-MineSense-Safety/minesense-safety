@@ -30,7 +30,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [ chromium, firefox, webkit, tablet-webkit ]
+        # bdd-*: the Gherkin acceptance test of NFR04 (features/*.feature, playwright-bdd).
+        project: [ chromium, firefox, webkit, tablet-webkit, bdd-chromium, bdd-firefox ]
     env:
       BASE_URL: http://localhost:8080
       E2E_ADMIN_PASSWORD: Admin-Local-2026
@@ -60,11 +61,11 @@ jobs:
         working-directory: tests/e2e
         run: |
           npm ci
-          npx playwright install --with-deps ${{ startsWith(matrix.project, 'tablet') && 'webkit' || matrix.project }}
+          npx playwright install --with-deps ${{ (matrix.project == 'tablet-webkit' && 'webkit') || (matrix.project == 'bdd-chromium' && 'chromium') || (matrix.project == 'bdd-firefox' && 'firefox') || matrix.project }}
 
       - name: Run tests
         working-directory: tests/e2e
-        run: npx playwright test --project=${{ matrix.project }}
+        run: npx bddgen && npx playwright test --project=${{ matrix.project }}
 
       - name: Lighthouse (Chromium only)
         if: matrix.project == 'chromium'

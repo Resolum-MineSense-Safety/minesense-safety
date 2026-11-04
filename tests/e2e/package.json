@@ -4,7 +4,8 @@
   "description": "End-to-end, browser and accessibility tests of the Supervision Dashboard (section 4.4.1 and 4.4.5)",
   "type": "module",
   "scripts": {
-    "test": "playwright test",
+    "test": "bddgen && playwright test",
+    "test:bdd": "bddgen && playwright test --project=bdd-chromium --project=bdd-firefox",
     "test:chromium": "playwright test --project=chromium",
     "test:a11y": "playwright test --grep @a11y",
     "lighthouse": "node scripts/lighthouse.mjs",
@@ -13,6 +14,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.56.1",
-    "lighthouse": "12.8.2"
+    "lighthouse": "12.8.2",
+    "playwright-bdd": "^8.4.1"
   }
 }

@@ -4,8 +4,16 @@
 // Browser-agnostic specs run on Chromium, Firefox and WebKit; browser-specific specs pick their
 // engine with test.skip (see tests/browser-specific.spec.js).
 import { defineConfig, devices } from '@playwright/test'
+import { defineBddConfig } from 'playwright-bdd'
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
+
+// Gherkin acceptance tests of NFR04 (section 4.8): features/*.feature -> .features-gen (bddgen).
+const bddTestDir = defineBddConfig({
+  features: 'features/*.feature',
+  steps: 'features/steps/*.js',
+  outputDir: '.features-gen',
+})
 
 export default defineConfig({
   testDir: './tests',
@@ -34,5 +42,7 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
     // Supervisors also check the board from a tablet in the pit (browser-specific, WebKit/iPad).
     { name: 'tablet-webkit', use: { ...devices['iPad (gen 7) landscape'] }, testMatch: /responsive\.spec\.js/ },
+    { name: 'bdd-chromium', testDir: bddTestDir, use: { ...devices['Desktop Chrome'] } },
+    { name: 'bdd-firefox', testDir: bddTestDir, use: { ...devices['Desktop Firefox'] } },
   ],
 })
