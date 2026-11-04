@@ -18,10 +18,26 @@ module "eks" {
   enable_irsa                              = true
 
   cluster_addons = {
-    coredns                = {}
-    kube-proxy             = {}
-    vpc-cni                = { before_compute = true }
+    coredns    = {}
+    kube-proxy = {}
+    # The VPC CNI network policy agent enforces the NetworkPolicies of infrastructure/k8s and the charts (section 4.5).
+    vpc-cni = {
+      before_compute = true
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+      })
+    }
     eks-pod-identity-agent = {}
+    # Resource metrics for the HorizontalPodAutoscalers (section 4.1).
+    metrics-server = {}
+  }
+
+  # RBAC groups of infrastructure/k8s/rbac.yaml bound to IAM roles (section 4.5).
+  access_entries = {
+    for group, role_arn in var.access_groups : group => {
+      principal_arn     = role_arn
+      kubernetes_groups = ["minesense:${group}"]
+    }
   }
 
   eks_managed_node_groups = {

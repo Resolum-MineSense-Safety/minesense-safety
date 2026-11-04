@@ -86,3 +86,9 @@ variable "report_lambda_package_path" {
   type        = string
   default     = "../../../../src/serverless/ReportPdfGenerator/artifacts/ReportPdfGenerator.zip"
 }
+
+variable "access_groups" {
+  description = "IAM role ARN per RBAC group (oncall, developers, deployers) of infrastructure/k8s/rbac.yaml."
+  type        = map(string)
+  default     = {}
+}

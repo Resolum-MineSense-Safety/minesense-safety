@@ -60,6 +60,7 @@ module "eks" {
   node_min_size       = var.node_min_size
   node_desired_size   = var.node_desired_size
   node_max_size       = var.node_max_size
+  access_groups       = var.access_groups
 }
 
 module "data" {
