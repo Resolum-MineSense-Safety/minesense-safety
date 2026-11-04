@@ -30,6 +30,9 @@ module "eks" {
     eks-pod-identity-agent = {}
     # Resource metrics for the HorizontalPodAutoscalers (section 4.1).
     metrics-server = {}
+    # Centralized logging (section 4.3): Fluent Bit ships every container log to CloudWatch Logs
+    # (/aws/containerinsights/<cluster>/application) and Container Insights adds node and pod metrics.
+    amazon-cloudwatch-observability = {}
   }
 
   # RBAC groups of infrastructure/k8s/rbac.yaml bound to IAM roles (section 4.5).
@@ -50,6 +53,10 @@ module "eks" {
       max_size       = var.node_max_size
       labels = {
         workload = "microservices"
+      }
+      # Lets the CloudWatch agent and Fluent Bit of the observability add-on write logs and metrics.
+      iam_role_additional_policies = {
+        cloudwatch = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
       }
     }
   }

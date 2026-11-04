@@ -11,6 +11,7 @@
 #   TF_VAR_enable_kafka=false   no MSK Serverless (about 0.78 USD/h less; events are only logged)
 #   API_HOST, ACM_CERTIFICATE_ARN   public host and HTTPS certificate; without them the ALB is HTTP only
 #   SKIP_DEMO_SEED=true         do not load the demo data
+#   SKIP_OBSERVABILITY=true     no Prometheus/Grafana stack (section 4.3)
 set -euo pipefail
 source "$(dirname "$0")/lib/common.sh"
 
@@ -113,6 +114,10 @@ CLUSTER_NAME="$(tf_output "$STACK" cluster_name)"
 aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION" >/dev/null
 kubectl get nodes
 bash "$SCRIPTS/create-k8s-secrets.sh" "$ENVIRONMENT"
+# Prometheus, Grafana and the SLO alerts before the services, so their ServiceMonitors apply (4.3).
+if [[ "${SKIP_OBSERVABILITY:-false}" != true ]]; then
+  bash "$SCRIPTS/install-observability.sh" "$ENVIRONMENT"
+fi
 
 log "7/8 Helm: controlador del ALB, servicios, dashboard, gateway y simulador Edge"
 EKS_CLUSTER_NAME="$CLUSTER_NAME" \
