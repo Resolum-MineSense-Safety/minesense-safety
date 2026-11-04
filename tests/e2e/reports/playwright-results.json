@@ -1,0 +1,4490 @@
+{
+  "config": {
+    "configFile": "E:\\repos\\ms-final\\tests\\e2e\\playwright.config.js",
+    "rootDir": "E:/repos/ms-final/tests/e2e/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "reports/playwright-results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "reports/playwright-junit.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "E:/repos/ms-final/tests/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "E:/repos/ms-final/tests/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "E:/repos/ms-final/tests/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-webkit",
+        "name": "tablet-webkit",
+        "testDir": "E:/repos/ms-final/tests/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/responsive\\.spec\\.js/"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-chromium",
+        "name": "bdd-chromium",
+        "testDir": "E:/repos/ms-final/tests/e2e/.features-gen",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "E:/repos/ms-final/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-firefox",
+        "name": "bdd-firefox",
+        "testDir": "E:/repos/ms-final/tests/e2e/.features-gen",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "accessibility.spec.js",
+      "file": "accessibility.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "@a11y ingreso sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2852,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:25.147Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-20002a50bc6f329c4b01",
+          "file": "accessibility.spec.js",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "@a11y Centro de control sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2763,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:28.213Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-1f02623d469f6e8683a3",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Flota sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2983,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:30.993Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-3f3c8a639c7879feee09",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Alertas sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:33.993Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-df8d604ae4cbb1ecfe7a",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Incidentes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:36.605Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-8f2830ff8b420ee519d6",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Operaciones sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2681,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:39.278Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-2d6631e29ec8203f9eb6",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Reportes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:41.974Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-2ae1b48bbf829247dd68",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y ingreso sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5814,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:14.854Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-7b2ae737ee8486c4cb3d",
+          "file": "accessibility.spec.js",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "@a11y Centro de control sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5992,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:21.944Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-b15ff4d16e5f0be40901",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Flota sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6554,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:27.958Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-df2fa1b0f3868ce4c507",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Alertas sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5965,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:34.535Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-8c9b4e57d5b2510e4f28",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Incidentes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5879,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:40.526Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-2581bd37027b0eebe55f",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Operaciones sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:46.429Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-750261debfbb444d1801",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Reportes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:52.409Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-f635d29197c6fd780222",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y ingreso sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3401,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:22.680Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-504ee35cf32129fe0c08",
+          "file": "accessibility.spec.js",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "@a11y Centro de control sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5027,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:26.267Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-5425e12fd096a46cb87b",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Flota sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6797,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:31.318Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-12bf316fd60573987492",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Alertas sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5581,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:38.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-bb2f32238135691c8f3c",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Incidentes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5005,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:43.742Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-899fd5c8f7b433b5c96d",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Operaciones sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5226,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:48.768Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-bcb8b21740d3acb304fb",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        },
+        {
+          "title": "@a11y Reportes sin violaciones graves de WCAG 2.1 AA",
+          "ok": true,
+          "tags": [
+            "a11y"
+          ],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5184,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:54.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d316df4bad39fab891ed-3943240b1ca103589dfe",
+          "file": "accessibility.spec.js",
+          "line": 43,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "alerts-flow.spec.js",
+      "file": "alerts-flow.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el supervisor atiende una alerta nueva y pasa a Atendidas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1408,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:44.849Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ca8253deeb3e477a247e-8e811abd9fa6f072d317",
+          "file": "alerts-flow.spec.js",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "el supervisor atiende una alerta nueva y pasa a Atendidas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4766,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:59.008Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ca8253deeb3e477a247e-f35fc22c2489e9bd51a4",
+          "file": "alerts-flow.spec.js",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "el supervisor atiende una alerta nueva y pasa a Atendidas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:59.236Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ca8253deeb3e477a247e-ccb8da683bba3f1f3c47",
+          "file": "alerts-flow.spec.js",
+          "line": 12,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.js",
+      "file": "auth.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Autenticación",
+          "file": "auth.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "un usuario válido entra al centro de control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 878,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:46.294Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-45b6268724a7d83c003e",
+              "file": "auth.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "una contraseña incorrecta muestra el error y no entra",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 729,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:47.187Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-a48cc08e3d0381d0254b",
+              "file": "auth.spec.js",
+              "line": 11,
+              "column": 3
+            },
+            {
+              "title": "cerrar sesión vuelve al formulario de ingreso",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1053,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:47.936Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-aae4b1f204d172607f5c",
+              "file": "auth.spec.js",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "la API rechaza peticiones sin token (401)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 25,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:49.016Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-a8dad856e6ae0cd32e9d",
+              "file": "auth.spec.js",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "un usuario válido entra al centro de control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3853,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:03.822Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-4477cdb11ebd2f10c14b",
+              "file": "auth.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "una contraseña incorrecta muestra el error y no entra",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3320,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:07.693Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-76cf8cb04d9787d02264",
+              "file": "auth.spec.js",
+              "line": 11,
+              "column": 3
+            },
+            {
+              "title": "cerrar sesión vuelve al formulario de ingreso",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4096,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:11.032Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-00d43592e321ce1568d1",
+              "file": "auth.spec.js",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "la API rechaza peticiones sin token (401)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 40,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:15.144Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-b00d11d52c7c7bb37d81",
+              "file": "auth.spec.js",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "un usuario válido entra al centro de control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2207,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:02.870Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-18e0293d00da364fd90e",
+              "file": "auth.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "una contraseña incorrecta muestra el error y no entra",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2129,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:05.103Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-b28ccef9adec9559c950",
+              "file": "auth.spec.js",
+              "line": 11,
+              "column": 3
+            },
+            {
+              "title": "cerrar sesión vuelve al formulario de ingreso",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3132,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:07.255Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-b069ea4de5f61f752a7c",
+              "file": "auth.spec.js",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "la API rechaza peticiones sin token (401)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 34,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:10.410Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-66faebf1e47c204f74c2",
+              "file": "auth.spec.js",
+              "line": 36,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "browser-specific.spec.js",
+      "file": "browser-specific.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Chromium · el ingreso carga en menos de 6 s con una red 3G de mina",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "load-ms-3g",
+                  "description": "1057"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:49.072Z",
+                  "annotations": [
+                    {
+                      "type": "load-ms-3g",
+                      "description": "1057"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-06999d824742e0d57ac6",
+          "file": "browser-specific.spec.js",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "Chromium · tras perder la red, el dashboard se recupera al volver la conexión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1266,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:51.067Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-3d1cc6c2dc5842eeb91d",
+          "file": "browser-specific.spec.js",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "Firefox · el formulario respeta el orden de foco con teclado (Tab)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Firefox ordena el foco de los controles de forma propia",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 32,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:52.352Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Firefox ordena el foco de los controles de forma propia",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 32,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-5c2b93c1cf84565e1529",
+          "file": "browser-specific.spec.js",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "WebKit · la sesión persiste al recargar (almacenamiento de Safari)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Safari limita el almacenamiento local de forma distinta",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 40,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 201,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:24:52.585Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Safari limita el almacenamiento local de forma distinta",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 40,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-7179c7cc79707f9d4923",
+          "file": "browser-specific.spec.js",
+          "line": 61,
+          "column": 1
+        },
+        {
+          "title": "Chromium · el ingreso carga en menos de 6 s con una red 3G de mina",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "La emulación de red usa el protocolo DevTools de Chromium",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 7,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 479,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:26:15.215Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "La emulación de red usa el protocolo DevTools de Chromium",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 7,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-f1f2b5a8bdc5bb355db5",
+          "file": "browser-specific.spec.js",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "Chromium · tras perder la red, el dashboard se recupera al volver la conexión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se valida con la emulación offline de Chromium",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 22,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:26:15.711Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se valida con la emulación offline de Chromium",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 22,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-db2c64ba60a8ca686d06",
+          "file": "browser-specific.spec.js",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "Firefox · el formulario respeta el orden de foco con teclado (Tab)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:26:16.249Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-3d5bf4f6e6d0474337c3",
+          "file": "browser-specific.spec.js",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "WebKit · la sesión persiste al recargar (almacenamiento de Safari)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Safari limita el almacenamiento local de forma distinta",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 40,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 455,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:26:19.462Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Safari limita el almacenamiento local de forma distinta",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 40,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-8bec48a3444623bf7aae",
+          "file": "browser-specific.spec.js",
+          "line": 61,
+          "column": 1
+        },
+        {
+          "title": "Chromium · el ingreso carga en menos de 6 s con una red 3G de mina",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "La emulación de red usa el protocolo DevTools de Chromium",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 7,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 518,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:28:10.479Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "La emulación de red usa el protocolo DevTools de Chromium",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 7,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-f32cd72edebae77252fb",
+          "file": "browser-specific.spec.js",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "Chromium · tras perder la red, el dashboard se recupera al volver la conexión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se valida con la emulación offline de Chromium",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 22,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 557,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:28:11.013Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se valida con la emulación offline de Chromium",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 22,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-7d4488d6af6695f03cad",
+          "file": "browser-specific.spec.js",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "Firefox · el formulario respeta el orden de foco con teclado (Tab)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Firefox ordena el foco de los controles de forma propia",
+                  "location": {
+                    "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                    "line": 32,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:28:11.591Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Firefox ordena el foco de los controles de forma propia",
+                      "location": {
+                        "file": "E:\\repos\\ms-final\\tests\\e2e\\tests\\browser-specific.spec.js",
+                        "line": 32,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-9380c2308760cd8e749d",
+          "file": "browser-specific.spec.js",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "WebKit · la sesión persiste al recargar (almacenamiento de Safari)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2747,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:28:12.328Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db5f671307a3d80e59ff-e432995e9d16795e3f0c",
+          "file": "browser-specific.spec.js",
+          "line": 61,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "navigation.spec.js",
+      "file": "navigation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Navegación del dashboard",
+          "file": "navigation.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "abre Flota",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1147,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:52.830Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-2f170dbbec5069633c3d",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Cabina",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1151,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:53.999Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-0e96b71712bb5202ec49",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Alertas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1199,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:55.172Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-37fb61b375a281d1404d",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Incidentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1154,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:56.390Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-b1280126c102b73634ed",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Operaciones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1295,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:57.565Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-c614028a4bcf7998e1e1",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Dispositivos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1155,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:24:58.883Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-ea5704d6fe86a4982a2a",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Edge",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1133,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:00.056Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-7c9032670943ae92def0",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Tendencias",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1235,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:01.209Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-7bceb2af899ef73c9516",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Fiabilidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1351,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:02.463Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-879e31de6a5aa72105a4",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Reportes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1336,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:03.832Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-d70f32377c69f5c94d70",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Privacidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1107,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:05.187Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-0de31ec0ac0659f4709c",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Usuarios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1144,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:06.320Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-3c55a8e804622486e7f1",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Servicios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1123,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:25:07.483Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-69389a2fc7ea466c5477",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Flota",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4304,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:19.956Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-105a90ed0e16ab3eb637",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Cabina",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4101,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:24.285Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-7527073cfc9b8890517c",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Alertas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3853,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:28.411Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-0ae319bb345459ab050f",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Incidentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4077,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:32.286Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-bdfb68d6979ca8fa05a1",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Operaciones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4057,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:36.383Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-9c939b62c9a19ea0b813",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Dispositivos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4171,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:40.461Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-75812f6b8eb0d2c4115a",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Edge",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4343,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:44.652Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-ba9f4b2743908cabb05c",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Tendencias",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4304,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:49.016Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-04a78af4c7dc11dd9132",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Fiabilidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4232,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:53.342Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-49abaeeeb58a49c5936b",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Reportes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4174,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:26:57.595Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-f7f70d9e58ccd5d7df4f",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Privacidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4279,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:27:01.789Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-29f7999a8049a3421668",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Usuarios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4064,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:27:06.087Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-5891f5b8aadc954bdf07",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Servicios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4129,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:27:10.168Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-83a2eacae56028735ff3",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Flota",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3104,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:15.129Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-31e46d5d0545aaee8823",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Cabina",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2913,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:18.255Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-633a46db22ac2a0c4518",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Alertas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3283,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:21.193Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-d324c2076f165317d5b9",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Incidentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3210,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:24.506Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-1b0fed9be7b2e47d66df",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Operaciones",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3146,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:27.738Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-c89c972039df3142c7ea",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Dispositivos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2830,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:30.909Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-19467191823715eed4d0",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Edge",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2974,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:33.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-e53c8fd8e12b5a4100ff",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Tendencias",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3444,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:36.752Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-72fc6b05848ae3714170",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Fiabilidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2997,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:40.212Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-a742c47cd191382f7ed1",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Reportes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3042,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:43.232Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-42c3bad01cada981e0d5",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Privacidad",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2854,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:46.295Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-a00c941aade53091af5e",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Usuarios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2973,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:49.173Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-4ad22bdb526cbce51dc6",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            },
+            {
+              "title": "abre Servicios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2888,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T05:28:52.167Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce7c070a851ea64285fd-86c06279fa9b2f9e7d4f",
+              "file": "navigation.spec.js",
+              "line": 10,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "responsive.spec.js",
+      "file": "responsive.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el centro de control cabe en una tablet sin scroll horizontal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1072,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:25:08.644Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "68833bfb7a01a66a4f98-731b7b5ce283816bf9f6",
+          "file": "responsive.spec.js",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "el centro de control cabe en una tablet sin scroll horizontal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3918,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:27:14.337Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "68833bfb7a01a66a4f98-d691c2d361624457438c",
+          "file": "responsive.spec.js",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "el centro de control cabe en una tablet sin scroll horizontal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2318,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:28:55.101Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "68833bfb7a01a66a4f98-224411ee97890973536e",
+          "file": "responsive.spec.js",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "el centro de control cabe en una tablet sin scroll horizontal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "tablet-webkit",
+              "projectName": "tablet-webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3119,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T05:29:01.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "68833bfb7a01a66a4f98-cfaa0473ac9eda43892e",
+          "file": "responsive.spec.js",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "..\\.features-gen\\features\\NFR04_accesibilidad_dashboard.feature.spec.js",
+      "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "NFR04 - Accesibilidad del Supervision Dashboard",
+          "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "El ingreso se puede completar solo con teclado",
+              "ok": true,
+              "tags": [
+                "nfr",
+                "accesibilidad"
+              ],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "bdd-chromium",
+                  "projectName": "bdd-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1198,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given el supervisor abre la página de ingreso",
+                          "duration": 328
+                        },
+                        {
+                          "title": "When completa el formulario con el teclado",
+                          "duration": 233
+                        },
+                        {
+                          "title": "Then entra al \"Centro de control\" sin usar el mouse",
+                          "duration": 394
+                        }
+                      ],
+                      "startTime": "2026-11-04T05:29:24.550Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5cf0a0ff996105fec887-d01604659cc9317a7d0b",
+              "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "Los controles tienen un nombre accesible",
+              "ok": true,
+              "tags": [
+                "nfr",
+                "accesibilidad"
+              ],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "bdd-chromium",
+                  "projectName": "bdd-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 693,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given el supervisor abre la página de ingreso",
+                          "duration": 309
+                        },
+                        {
+                          "title": "Then estos controles se encuentran por su nombre accesible",
+                          "duration": 54
+                        }
+                      ],
+                      "startTime": "2026-11-04T05:29:25.765Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5cf0a0ff996105fec887-a96e3d01066e03be0cf5",
+              "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+              "line": 154,
+              "column": 3
+            },
+            {
+              "title": "El ingreso se puede completar solo con teclado",
+              "ok": true,
+              "tags": [
+                "nfr",
+                "accesibilidad"
+              ],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "bdd-firefox",
+                  "projectName": "bdd-firefox",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3969,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given el supervisor abre la página de ingreso",
+                          "duration": 2637
+                        },
+                        {
+                          "title": "When completa el formulario con el teclado",
+                          "duration": 301
+                        },
+                        {
+                          "title": "Then entra al \"Centro de control\" sin usar el mouse",
+                          "duration": 448
+                        }
+                      ],
+                      "startTime": "2026-11-04T05:30:10.829Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5cf0a0ff996105fec887-30010cdc2b48f68de8a9",
+              "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "Los controles tienen un nombre accesible",
+              "ok": true,
+              "tags": [
+                "nfr",
+                "accesibilidad"
+              ],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "bdd-firefox",
+                  "projectName": "bdd-firefox",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3248,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Given el supervisor abre la página de ingreso",
+                          "duration": 2651
+                        },
+                        {
+                          "title": "Then estos controles se encuentran por su nombre accesible",
+                          "duration": 71
+                        }
+                      ],
+                      "startTime": "2026-11-04T05:30:14.818Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5cf0a0ff996105fec887-37a255c9d4028dc103d0",
+              "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+              "line": 154,
+              "column": 3
+            }
+          ],
+          "suites": [
+            {
+              "title": "Cada módulo principal cumple WCAG 2.1 AA",
+              "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+              "line": 4,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Example #1",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3413,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 765
+                            },
+                            {
+                              "title": "When abre el módulo \"Centro de control\"",
+                              "duration": 1772
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 8
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 3
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:07.695Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-d94346345557b3a5a17a",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 5,
+                  "column": 5
+                },
+                {
+                  "title": "Example #2",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2939,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 688
+                            },
+                            {
+                              "title": "When abre el módulo \"Flota\"",
+                              "duration": 2017
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 5
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:11.347Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-3d872dccd2ea8ce41e92",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 23,
+                  "column": 5
+                },
+                {
+                  "title": "Example #3",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2645,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 692
+                            },
+                            {
+                              "title": "When abre el módulo \"Alertas\"",
+                              "duration": 1737
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 5
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:14.304Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-e1425a52aa1e8e0e55f6",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 41,
+                  "column": 5
+                },
+                {
+                  "title": "Example #4",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2402,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 658
+                            },
+                            {
+                              "title": "When abre el módulo \"Incidentes\"",
+                              "duration": 1481
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 5
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:16.974Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-1d78031cb3db3ea89545",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 59,
+                  "column": 5
+                },
+                {
+                  "title": "Example #5",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2470,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 649
+                            },
+                            {
+                              "title": "When abre el módulo \"Operaciones\"",
+                              "duration": 1568
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 3
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:19.397Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-b3b465162b64d27c7212",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 77,
+                  "column": 5
+                },
+                {
+                  "title": "Example #6",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-chromium",
+                      "projectName": "bdd-chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2639,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 677
+                            },
+                            {
+                              "title": "When abre el módulo \"Reportes\"",
+                              "duration": 1699
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 4
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:21.891Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-9b493970e682510b7592",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 95,
+                  "column": 5
+                },
+                {
+                  "title": "Example #1",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 7668,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 3397
+                            },
+                            {
+                              "title": "When abre el módulo \"Centro de control\"",
+                              "duration": 2323
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 7
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 4
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:30.955Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-8471798ccf455b3ce953",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 5,
+                  "column": 5
+                },
+                {
+                  "title": "Example #2",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6512,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 3362
+                            },
+                            {
+                              "title": "When abre el módulo \"Flota\"",
+                              "duration": 2606
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 4
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:39.618Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-f5f74019cee10223d585",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 23,
+                  "column": 5
+                },
+                {
+                  "title": "Example #3",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 5895,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 3298
+                            },
+                            {
+                              "title": "When abre el módulo \"Alertas\"",
+                              "duration": 2132
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 5
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 3
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:46.160Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-324fe6aa45b5204c42bc",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 41,
+                  "column": 5
+                },
+                {
+                  "title": "Example #4",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 5919,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 3298
+                            },
+                            {
+                              "title": "When abre el módulo \"Incidentes\"",
+                              "duration": 2105
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 4
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 3
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:52.081Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-a7f580113e0837fac030",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 59,
+                  "column": 5
+                },
+                {
+                  "title": "Example #5",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6550,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 4364
+                            },
+                            {
+                              "title": "When abre el módulo \"Operaciones\"",
+                              "duration": 1703
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 5
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:29:58.029Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-0ca239884c6fe91d358f",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 77,
+                  "column": 5
+                },
+                {
+                  "title": "Example #6",
+                  "ok": true,
+                  "tags": [
+                    "nfr",
+                    "accesibilidad"
+                  ],
+                  "tests": [
+                    {
+                      "timeout": 45000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "bdd-firefox",
+                      "projectName": "bdd-firefox",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6198,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "Given el supervisor inició sesión en el dashboard",
+                              "duration": 3341
+                            },
+                            {
+                              "title": "When abre el módulo \"Reportes\"",
+                              "duration": 2235
+                            },
+                            {
+                              "title": "Then axe no encuentra violaciones de impacto \"serious\" ni \"critical\"",
+                              "duration": 26
+                            },
+                            {
+                              "title": "And el contraste de todo el texto es de al menos 4.5 a 1",
+                              "duration": 2
+                            }
+                          ],
+                          "startTime": "2026-11-04T05:30:04.604Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "axe-violations",
+                              "contentType": "application/json",
+                              "body": "W10="
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5cf0a0ff996105fec887-e6d0fdd322c8c03431bc",
+                  "file": "../.features-gen/features/NFR04_accesibilidad_dashboard.feature.spec.js",
+                  "line": 95,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T05:24:21.644Z",
+    "duration": 357548.76900000003,
+    "expected": 99,
+    "skipped": 8,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
