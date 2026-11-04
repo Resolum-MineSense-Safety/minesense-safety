@@ -1,0 +1,60 @@
+{{- /*
+Zero-trust network for every microservice (section 4.5). Combined with the namespace-wide
+default-deny policy of infrastructure/k8s/network-policies.yaml, a pod only receives:
+  - traffic from other MineSense pods of the same namespace (synchronous REST, ADR-007), and
+  - traffic from the VPC (the ALB targets the pod IPs directly, target-type ip),
+and only sends: DNS, traffic to MineSense pods, and TLS traffic to the managed AWS data
+services (DocumentDB 27017, RDS 5432, MSK IAM 9098, AWS APIs 443).
+The VPC CNI enforces it once enableNetworkPolicy is on (terraform/modules/eks).
+*/ -}}
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "minesense-service.name" . }}
+  labels:
+    {{- include "minesense-service.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "minesense-service.selectorLabels" . | nindent 6 }}
+  policyTypes: [ Ingress, Egress ]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: minesense-safety
+        {{- range .Values.networkPolicy.ingressCidrs }}
+        - ipBlock:
+            cidr: {{ . }}
+        {{- end }}
+      ports:
+        - port: http
+          protocol: TCP
+  egress:
+    # DNS (CoreDNS in kube-system)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    # Other MineSense microservices of the namespace
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: minesense-safety
+      ports:
+        - { port: {{ .Values.containerPort }}, protocol: TCP }
+    # Managed data services and AWS APIs
+    - to:
+        {{- range .Values.networkPolicy.egressCidrs }}
+        - ipBlock:
+            cidr: {{ . }}
+        {{- end }}
+      ports:
+        {{- range .Values.networkPolicy.egressPorts }}
+        - { port: {{ . }}, protocol: TCP }
+        {{- end }}
+{{- end }}

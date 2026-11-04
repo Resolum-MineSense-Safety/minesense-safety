@@ -23,3 +23,6 @@ service:
     alb.ingress.kubernetes.io/healthcheck-path: /healthz
 autoscaling:
   enabled: false
+# nginx serves no /metrics; the ALB access logs and the gateway cover the dashboard (section 4.3).
+metrics:
+  enabled: false

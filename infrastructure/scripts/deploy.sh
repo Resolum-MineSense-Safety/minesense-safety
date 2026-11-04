@@ -72,6 +72,10 @@ clear_pending() {
 
 echo "==> Namespace $ENVIRONMENT"
 kubectl apply -f "$REPO_ROOT/infrastructure/k8s/namespaces.yaml"
+# Guardrails of section 4.1 and 4.5: RBAC, quotas and limits, default-deny network.
+kubectl apply -f "$REPO_ROOT/infrastructure/k8s/rbac.yaml"
+kubectl apply -f "$REPO_ROOT/infrastructure/k8s/resource-limits.yaml"
+kubectl apply -f "$REPO_ROOT/infrastructure/k8s/network-policies.yaml"
 
 if [[ -n "${LB_CONTROLLER_ROLE_ARN:-}" ]]; then
   echo "==> AWS Load Balancer Controller"
