@@ -159,8 +159,9 @@ jobs:
     needs: [ resolve, build ]
     # Runs after a successful build, or directly when promoting existing images.
     # The repository variable EKS_DEPLOY_ENABLED turns deployments on once the AWS account exists.
+    # With GITOPS_ENABLED=true Argo CD deploys from Git instead (gitops-promote.yml, section 4.2).
     if: >-
-      always() && vars.EKS_DEPLOY_ENABLED == 'true' &&
+      always() && vars.EKS_DEPLOY_ENABLED == 'true' && vars.GITOPS_ENABLED != 'true' &&
       needs.resolve.result == 'success' &&
       (needs.build.result == 'success' || needs.build.result == 'skipped')
     runs-on: ubuntu-latest

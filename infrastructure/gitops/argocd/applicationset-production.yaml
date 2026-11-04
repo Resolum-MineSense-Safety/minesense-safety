@@ -1,0 +1,65 @@
+# Production: one Argo CD Application per microservice, generated from the list below
+# (section 4.2). Each one renders the same Helm chart that deploy.sh uses, with the environment
+# values, the service values and the release tag of infrastructure/gitops/environments/production.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: minesense-production
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: [ "missingkey=error" ]
+  generators:
+    - list:
+        elements:
+          - service: identity-access-service
+          - service: operations-service
+          - service: device-management-service
+          - service: monitoring-service
+          - service: fatigue-detection-service
+          - service: alert-service
+          - service: fleet-monitoring-service
+          - service: incident-management-service
+          - service: privacy-audit-service
+          - service: reporting-service
+          - service: analytics-service
+          - service: feedback-reliability-service
+          - service: edge-synchronization-service
+          - service: supervision-dashboard
+  template:
+    metadata:
+      name: '{{.service}}-production'
+      labels:
+        app.kubernetes.io/part-of: minesense-safety
+        minesense/environment: production
+      annotations:
+        # Rolling back: argocd app rollback <app> or revert the commit of release.yaml.
+        argocd.argoproj.io/sync-wave: '{{ if eq .service "identity-access-service" }}0{{ else }}1{{ end }}'
+    spec:
+      project: minesense-safety
+      source:
+        repoURL: https://github.com/Resolum-MineSense-Safety/minesense-safety.git
+        targetRevision: main
+        path: infrastructure/helm/minesense-service
+        helm:
+          releaseName: '{{.service}}'
+          valueFiles:
+            - ../values/environments/production.yaml
+            - ../values/services/{{.service}}.yaml
+            - ../../gitops/environments/production/release.yaml
+            # Terraform outputs (IAM roles, SQS queue, S3 bucket, MSK brokers) per service, written by
+            # infrastructure/scripts/gitops-platform-values.sh after terraform apply.
+            - ../../gitops/environments/production/platform/{{.service}}.yaml
+          ignoreMissingValueFiles: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: production
+      syncPolicy:
+        # Production never syncs on its own: the release PR is reviewed, merged, and the on-call
+        # engineer presses Sync inside the sync window (project.yaml).
+        syncOptions: [ CreateNamespace=false, ServerSideApply=true ]
+      # The HPA owns the replica count; Argo CD must not fight it.
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers: [ /spec/replicas ]
