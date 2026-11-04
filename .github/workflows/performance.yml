@@ -1,0 +1,81 @@
+name: Performance Tests (k6)
+
+# Section 4.4.3. Smoke test on every push to develop; load and stress on demand against the
+# local stack (docker compose) or a deployed environment (BASE_URL of Staging). The k6 thresholds
+# are the SLOs of docs/operations/slo.md, so a broken SLO fails the job.
+on:
+  push:
+    branches: [ "develop" ]
+    paths:
+      - "src/backend/**"
+      - "tests/performance/**"
+      - ".github/workflows/performance.yml"
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: k6 scenario
+        type: choice
+        options: [ smoke, load, stress ]
+        default: load
+      base_url:
+        description: Target (empty = docker compose in the runner, or the Staging ALB URL)
+        type: string
+        default: ""
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  k6:
+    name: k6 ${{ inputs.scenario || 'smoke' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SCENARIO: ${{ inputs.scenario || 'smoke' }}
+      BASE_URL: ${{ inputs.base_url || 'http://localhost:8080' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start the stack
+        if: inputs.base_url == ''
+        run: |
+          docker compose up -d --build
+          bash .github/scripts/wait-stack.sh
+
+      - name: Set up k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run ${{ env.SCENARIO }}
+        env:
+          K6_PASSWORD: ${{ inputs.base_url == '' && 'Admin-Local-2026' || secrets.K6_ADMIN_PASSWORD }}
+        run: k6 run -e BASE_URL="$BASE_URL" tests/performance/k6/${SCENARIO}.js
+
+      - name: Publish summary
+        if: always()
+        run: |
+          f="tests/performance/results/${SCENARIO}-summary.json"
+          [[ -f "$f" ]] || exit 0
+          python3 - "$f" >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import json, sys
+          m = json.load(open(sys.argv[1]))["metrics"]
+          print(f"### k6 {sys.argv[1].split('/')[-1]}")
+          print("| Métrica | Valor |\n|---|---|")
+          print(f"| Peticiones | {m['http_reqs']['values']['count']} ({m['http_reqs']['values']['rate']:.1f}/s) |")
+          print(f"| Errores | {m['http_req_failed']['values']['rate']*100:.2f} % |")
+          for key in ("http_req_duration{path:critical}", "http_req_duration{path:read}"):
+              if key in m:
+                  v = m[key]["values"]
+                  print(f"| P95 {key} | {v['p(95)']:.1f} ms |")
+          EOF
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-${{ env.SCENARIO }}
+          path: tests/performance/results
