@@ -1,0 +1,100 @@
+name: E2E, Browser & Accessibility Tests
+
+# Section 4.4.1 and 4.4.5: the whole stack runs with docker compose, the demo data is loaded and
+# Playwright drives the dashboard on Chromium, Firefox and WebKit (plus an iPad). The same run
+# checks WCAG 2.1 AA with axe-core and scores the pages with Lighthouse.
+on:
+  pull_request:
+    branches: [ "develop", "main" ]
+    paths:
+      - "src/**"
+      - "tests/e2e/**"
+      - "docker-compose.yml"
+      - ".github/workflows/e2e-tests.yml"
+  push:
+    branches: [ "develop", "release/**" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Playwright (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [ chromium, firefox, webkit, tablet-webkit ]
+    env:
+      BASE_URL: http://localhost:8080
+      E2E_ADMIN_PASSWORD: Admin-Local-2026
+      # Demo password of this ephemeral environment only (destroyed at the end of the job).
+      DEMO_PASSWORD: ${{ github.run_id }}-demo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start the stack
+        run: |
+          docker compose up -d --build
+          bash .github/scripts/wait-stack.sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+
+      - name: Load demo data
+        working-directory: src/frontend
+        run: node scripts/seed-demo.mjs
+
+      - name: Install Playwright
+        working-directory: tests/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ startsWith(matrix.project, 'tablet') && 'webkit' || matrix.project }}
+
+      - name: Run tests
+        working-directory: tests/e2e
+        run: npx playwright test --project=${{ matrix.project }}
+
+      - name: Lighthouse (Chromium only)
+        if: matrix.project == 'chromium'
+        working-directory: tests/e2e
+        run: node scripts/lighthouse.mjs
+
+      - name: Publish summary
+        if: always()
+        working-directory: tests/e2e
+        run: |
+          node -e "
+            const r = require('./reports/playwright-results.json');
+            const s = r.stats;
+            console.log('### Playwright ${{ matrix.project }}');
+            console.log('| Pasadas | Fallidas | Omitidas | Inestables | Duración |');
+            console.log('|---|---|---|---|---|');
+            console.log('| ' + s.expected + ' | ' + s.unexpected + ' | ' + s.skipped + ' | ' + s.flaky + ' | ' + Math.round(s.duration/1000) + ' s |');
+          " >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ matrix.project }}
+          path: |
+            tests/e2e/playwright-report
+            tests/e2e/reports
+            tests/e2e/test-results
+          retention-days: 14
+
+      - name: Logs of the stack
+        if: failure()
+        run: docker compose logs --tail=200

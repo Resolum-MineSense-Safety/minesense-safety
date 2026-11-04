@@ -1,0 +1,5 @@
+.native-logs/
+node_modules/
+test-results/
+playwright-report/
+reports/lighthouse/*.html
