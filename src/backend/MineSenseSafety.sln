@@ -67,6 +67,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringService.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MineSenseSafety.Shared.Tests", "tests\MineSenseSafety.Shared.Tests\MineSenseSafety.Shared.Tests.csproj", "{2704DD3F-7FD3-44E7-84A7-658473C2638A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThirdPartyIntegrationTests", "ThirdPartyIntegrationTests", "{3A0FD9E1-3A90-CF7E-4FF4-D07AA2F030C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MineSenseSafety.ThirdPartyIntegrationTests", "tests\ThirdPartyIntegrationTests\MineSenseSafety.ThirdPartyIntegrationTests.csproj", "{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -425,6 +429,18 @@ Global
 		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x64.Build.0 = Release|Any CPU
 		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x86.ActiveCfg = Release|Any CPU
 		{2704DD3F-7FD3-44E7-84A7-658473C2638A}.Release|x86.Build.0 = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|x64.Build.0 = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Debug|x86.Build.0 = Debug|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|x64.ActiveCfg = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|x64.Build.0 = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|x86.ActiveCfg = Release|Any CPU
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -446,5 +462,7 @@ Global
 		{09198A6A-4EF9-4769-B9A8-A1DF74DD26C3} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 		{CAC2562E-7498-4B71-8060-EE2CE8A92B5A} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
 		{2704DD3F-7FD3-44E7-84A7-658473C2638A} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
+		{3A0FD9E1-3A90-CF7E-4FF4-D07AA2F030C1} = {BD5BA7FE-58A1-4943-A500-415A21695C80}
+		{7AD1D69E-5A4B-45E6-A6CB-B33D05AFAFB0} = {3A0FD9E1-3A90-CF7E-4FF4-D07AA2F030C1}
 	EndGlobalSection
 EndGlobal
