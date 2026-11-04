@@ -61,6 +61,7 @@ export default function Login() {
           <input
             className="field h-12"
             placeholder="Usuario"
+            aria-label="Usuario"
             autoComplete="username"
             value={form.username}
             onChange={(event) => setForm({ ...form, username: event.target.value })}
@@ -70,11 +71,12 @@ export default function Login() {
             id="login-password"
             type="password"
             placeholder="Contraseña"
+            aria-label="Contraseña"
             autoComplete="current-password"
             value={form.password}
             onChange={(event) => setForm({ ...form, password: event.target.value })}
           />
-          {error && <p className="rounded-lg bg-risk-criticalWash px-3 py-2 text-sm font-medium text-risk-critical">{error}</p>}
+          {error && <p role="alert" className="rounded-lg bg-risk-criticalWash px-3 py-2 text-sm font-medium text-risk-critical">{error}</p>}
           <Button type="submit" size="lg" icon={LogIn} busy={busy} className="w-full" disabled={!form.username || !form.password}>
             Entrar
           </Button>

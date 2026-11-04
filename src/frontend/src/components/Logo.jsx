@@ -15,7 +15,9 @@ export function LogoMark({ size = 40, variant = 'plate', title = 'MineSense Safe
   const ink = plate ? INK : LIGHT
   const light = plate ? LIGHT : INK
   return (
-    <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label={title} className={className}>
+    // An empty title marks a decorative copy of the mark (WCAG 1.1.1): hidden from assistive technology.
+    <svg viewBox="0 0 64 64" width={size} height={size} className={className}
+      {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true, focusable: 'false' })}>
       {plate && <rect width="64" height="64" rx="15" fill={LIGHT} />}
       {BENCHES.map((d, index) => (
         <path key={d} d={d} fill={index % 2 === 0 ? ink : light} />

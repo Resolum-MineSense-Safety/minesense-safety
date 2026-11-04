@@ -14,17 +14,17 @@ export default function FleetTile({ operator, assessment, onClick, selected }) {
       onClick={onClick}
       className={`group relative flex w-full items-stretch overflow-hidden rounded-tile border text-left transition-colors ${
         selected ? 'border-basalt ring-2 ring-basalt' : 'border-line hover:border-basalt-mute'
-      } ${WASH[risk] ?? 'bg-white'} ${operator.isStale ? 'opacity-70' : ''}`}
+      } ${WASH[risk] ?? 'bg-white'} ${operator.isStale ? 'border-dashed saturate-50' : ''}`}
     >
       <span className={`w-2 shrink-0 ${BEACON[risk] ?? 'bg-line'} ${risk === 'Critical' ? 'animate-beacon' : ''}`} />
       <div className="flex min-w-0 flex-1 items-center gap-3 p-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="rounded-md bg-basalt px-1.5 py-0.5 font-cond text-sm font-semibold text-haul">{operator.vehicleCode}</span>
-            <span className="truncate text-sm text-basalt-mute">{operator.fleet}</span>
+            <span className="truncate text-sm text-basalt-soft">{operator.fleet}</span>
           </div>
           <div className="mt-1.5 truncate text-[15px] font-semibold">{operator.fullName}</div>
-          <div className="mt-1 flex items-center gap-3 text-[13px] text-basalt-mute">
+          <div className="mt-1 flex items-center gap-3 text-[13px] text-basalt-soft">
             <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{operator.location}</span>
             <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{ago(operator.lastUpdatedAt)}</span>
           </div>

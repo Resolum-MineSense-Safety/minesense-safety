@@ -265,7 +265,7 @@ async function main() {
   await post('/api/v1/synchronization-batches', batch) // retry: idempotent 200
   log(`Edge: lote ${batchId.slice(0, 8)} sincronizado (y reintentado)`)
 
-  console.log('\nListo. Inicia sesión como supervisor / Supervisor-2026 o admin / Admin-Local-2026.')
+  console.log(`\nListo. Inicia sesión como supervisor, jefe.seguridad u operador.rosa con DEMO_PASSWORD, o como ${ADMIN.username} con ADMIN_PASSWORD.`)
 }
 
 main().catch((error) => {

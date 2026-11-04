@@ -2,10 +2,12 @@ import {
   BarChart3, Bell, Building2, Cpu, FileText, Gauge, LogOut, Radio, Server, ShieldCheck, Siren,
   ThumbsUp, Truck, Users, Waves,
 } from 'lucide-react'
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Logo, LogoMark } from './Logo'
 import { label } from '../lib/format'
+import { Spinner } from './ui'
 
 const NAV = [
   {
@@ -57,7 +59,7 @@ export default function Shell() {
         <nav className="rail-scroll min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-3">
           {NAV.map((section) => (
             <div key={section.group}>
-              <div className="px-3 pb-1 text-xs font-medium text-white/40">{section.group}</div>
+              <div className="px-3 pb-1 text-xs font-medium text-white/60">{section.group}</div>
               {section.items
                 .filter((item) => !item.roles || item.roles.includes(user?.role))
                 .map((item) => (
@@ -112,7 +114,9 @@ export default function Shell() {
             ))}
         </header>
         <main className="mx-auto max-w-[1400px] px-4 py-6 md:px-8">
-          <Outlet />
+          <Suspense fallback={<div className="grid place-items-center py-24"><Spinner /></div>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

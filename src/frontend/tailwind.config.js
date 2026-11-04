@@ -6,7 +6,7 @@ export default {
       colors: {
         mineral: '#F3F5F4', // page background, cool rock dust
         line: '#DDE3E1', // hairlines and borders
-        basalt: { DEFAULT: '#1F2A2E', soft: '#3B4A50', mute: '#6B7A80' },
+        basalt: { DEFAULT: '#1F2A2E', soft: '#3B4A50', mute: '#5E6D73' },
         haul: { DEFAULT: '#F2B705', deep: '#B98A00', wash: '#FDF3CC' }, // haul-truck safety yellow
         ore: { DEFAULT: '#1F7A8C', wash: '#E3F1F4' }, // copper-oxide teal for info and links
         risk: {

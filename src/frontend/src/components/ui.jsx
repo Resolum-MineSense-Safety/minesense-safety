@@ -10,7 +10,8 @@ const BUTTON = {
   ghost: 'bg-transparent text-basalt hover:bg-basalt/5',
   outline: 'border border-line bg-white text-basalt hover:border-basalt-mute',
   danger: 'bg-risk-critical text-white hover:bg-[#BC2C26]',
-  ok: 'bg-risk-normal text-white hover:bg-[#268A5C]',
+  // White on the bright green is 3.4:1; this darker green keeps 5.3:1 (WCAG 1.4.3).
+  ok: 'bg-[#1F7A53] text-white hover:bg-[#19663F]',
 }
 
 export function Button({ variant = 'primary', icon: Icon, busy, size = 'md', className, children, ...props }) {
@@ -46,12 +47,14 @@ export function IconButton({ icon: Icon, label: text, className, ...props }) {
   )
 }
 
+// Text tones are the darker "ink" of each risk color: at least 4.5:1 on their wash (WCAG 1.4.3,
+// section 4.4.5); the bright risk colors stay for beacons, borders and icons.
 const TONES = {
-  Critical: 'bg-risk-criticalWash text-risk-critical',
-  Warning: 'bg-risk-warningWash text-[#A15F00]',
-  Normal: 'bg-risk-normalWash text-risk-normal',
+  Critical: 'bg-risk-criticalWash text-[#B3261E]',
+  Warning: 'bg-risk-warningWash text-[#8A5200]',
+  Normal: 'bg-risk-normalWash text-[#1E6B48]',
   neutral: 'bg-basalt/5 text-basalt-soft',
-  info: 'bg-ore-wash text-ore',
+  info: 'bg-ore-wash text-[#175E6C]',
   accent: 'bg-haul-wash text-[#8A6700]',
 }
 
