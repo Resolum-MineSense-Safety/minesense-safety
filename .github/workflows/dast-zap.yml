@@ -1,0 +1,59 @@
+name: DAST (OWASP ZAP)
+
+# Section 4.4.4: dynamic security testing of the running application. A passive baseline scan of
+# the dashboard and an active API scan of the OpenAPI contracts of Alerts and Fatigue Detection.
+# tests/security/zap/rules.tsv decides which findings fail the pipeline.
+on:
+  pull_request:
+    branches: [ "develop", "main" ]
+    paths:
+      - "src/**"
+      - "tests/security/**"
+      - ".github/workflows/dast-zap.yml"
+  schedule:
+    - cron: "0 6 * * 1" # every Monday, against the latest develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    name: ZAP ${{ matrix.scan.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        scan:
+          - { name: baseline-dashboard, kind: baseline, target: "http://localhost:8080" }
+          - { name: api-alerts, kind: api, target: "http://localhost:5206/swagger/v1/swagger.json" }
+          - { name: api-fatigue, kind: api, target: "http://localhost:5205/swagger/v1/swagger.json" }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start the stack
+        run: |
+          docker compose up -d --build
+          bash .github/scripts/wait-stack.sh
+
+      - name: ZAP baseline scan
+        if: matrix.scan.kind == 'baseline'
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: ${{ matrix.scan.target }}
+          rules_file_name: tests/security/zap/rules.tsv
+          cmd_options: "-a -j"
+          allow_issue_writing: false
+          artifact_name: zap-${{ matrix.scan.name }}
+
+      - name: ZAP API scan
+        if: matrix.scan.kind == 'api'
+        uses: zaproxy/action-api-scan@v0.9.0
+        with:
+          target: ${{ matrix.scan.target }}
+          format: openapi
+          rules_file_name: tests/security/zap/rules.tsv
+          allow_issue_writing: false
+          artifact_name: zap-${{ matrix.scan.name }}
