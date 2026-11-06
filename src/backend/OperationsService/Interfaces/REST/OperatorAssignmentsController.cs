@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OperationsService.Domain.Model.Commands;
 using OperationsService.Domain.Model.Queries;
@@ -55,6 +56,7 @@ public class OperatorAssignmentsController(
     }
 
     [HttpPost("{assignmentId:guid}/vehicle-change")]
+    [Authorize]
     public async Task<IActionResult> ChangeAssignedVehicle(Guid assignmentId, [FromBody] ChangeAssignedVehicleResource resource)
     {
         var command = new ChangeAssignedVehicleCommand(assignmentId, resource.NewVehicleId, resource.ChangeDate);
