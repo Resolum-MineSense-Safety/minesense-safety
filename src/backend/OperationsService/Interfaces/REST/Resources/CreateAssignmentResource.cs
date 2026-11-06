@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace OperationsService.Interfaces.REST.Resources;
 
 /// <summary>
@@ -5,5 +7,11 @@ namespace OperationsService.Interfaces.REST.Resources;
 /// <c>validFrom</c>/<c>validTo</c>; only the date part is kept because assignments are per shift day.
 /// </summary>
 public record CreateAssignmentResource(
-    Guid OperatorId, Guid VehicleId, string? Shift, DateOnly ValidFrom, DateOnly? ValidTo,
-    DateTimeOffset? StartsAt = null, DateTimeOffset? EndsAt = null);
+    [property: JsonRequired] Guid OperatorId,
+    [property: JsonRequired] Guid VehicleId,
+    string? Shift,
+    [property: JsonRequired] DateOnly ValidFrom,
+    DateOnly? ValidTo,
+    DateTimeOffset? StartsAt = null,
+    DateTimeOffset? EndsAt = null
+);
