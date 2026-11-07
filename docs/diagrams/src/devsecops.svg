@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #1b2631; }
+      .h { font-size: 16px; font-weight: 700; fill: #ffffff; }
+      .t { font-size: 13.5px; fill: #263238; }
+      .s { font-size: 12.5px; fill: #455a64; }
+      .b { font-size: 13.5px; fill: #263238; font-weight: 700; }
+      .flow { stroke: #37474f; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="40" y="46" class="title">DevSecOps en MineSense Safety: controles de seguridad en cada etapa</text>
+  <text x="40" y="72" class="s">"Shift left": cada control corre lo más temprano posible y bloquea el avance si encuentra un problema.</text>
+
+  <g>
+    <rect x="40" y="100" width="290" height="44" rx="10" fill="#455a64"/><text x="185" y="128" text-anchor="middle" class="h">1. Código y commit</text>
+    <rect x="350" y="100" width="290" height="44" rx="10" fill="#1565c0"/><text x="495" y="128" text-anchor="middle" class="h">2. Pull Request (CI)</text>
+    <rect x="660" y="100" width="290" height="44" rx="10" fill="#6a1b9a"/><text x="805" y="128" text-anchor="middle" class="h">3. Imagen y artefacto</text>
+    <rect x="970" y="100" width="290" height="44" rx="10" fill="#2e7d32"/><text x="1115" y="128" text-anchor="middle" class="h">4. Despliegue</text>
+    <rect x="1280" y="100" width="280" height="44" rx="10" fill="#c62828"/><text x="1420" y="128" text-anchor="middle" class="h">5. Operación</text>
+    <path d="M330,122 L348,122" class="flow"/><path d="M640,122 L658,122" class="flow"/><path d="M950,122 L968,122" class="flow"/><path d="M1260,122 L1278,122" class="flow"/>
+  </g>
+
+  <rect x="40" y="160" width="290" height="560" rx="10" fill="#eceff1"/>
+  <text x="56" y="190" class="b">Ramas protegidas (rulesets)</text>
+  <text x="56" y="210" class="s">sin push directo a develop/main,</text>
+  <text x="56" y="228" class="s">sin force push ni borrado</text>
+  <text x="56" y="262" class="b">Revisión obligatoria</text>
+  <text x="56" y="282" class="s">1 aprobación, hilos resueltos,</text>
+  <text x="56" y="300" class="s">aprobación invalidada al hacer push</text>
+  <text x="56" y="334" class="b">Secretos fuera del repositorio</text>
+  <text x="56" y="354" class="s">.gitignore de .env, *.tfvars, *.tfstate;</text>
+  <text x="56" y="372" class="s">.env.example sin valores reales</text>
+  <text x="56" y="406" class="b">Reglas en el dominio</text>
+  <text x="56" y="426" class="s">validación de entrada (400/422),</text>
+  <text x="56" y="444" class="s">contraseñas con PBKDF2-SHA256</text>
+  <text x="56" y="478" class="b">SECURITY.md</text>
+  <text x="56" y="498" class="s">reporte privado de vulnerabilidades</text>
+  <text x="56" y="532" class="b">Dependabot</text>
+  <text x="56" y="552" class="s">NuGet, npm, imágenes Docker y</text>
+  <text x="56" y="570" class="s">actions: PRs agrupados mensuales</text>
+
+  <rect x="350" y="160" width="290" height="560" rx="10" fill="#e3f2fd"/>
+  <text x="366" y="190" class="b">SAST: SonarCloud</text>
+  <text x="366" y="210" class="s">bugs, vulnerabilidades, hotspots,</text>
+  <text x="366" y="228" class="s">cobertura · check obligatorio</text>
+  <text x="366" y="262" class="b">SAST: CodeQL</text>
+  <text x="366" y="282" class="s">C# y JavaScript, consultas</text>
+  <text x="366" y="300" class="s">security-extended · alertas en Security</text>
+  <text x="366" y="334" class="b">Secretos: gitleaks</text>
+  <text x="366" y="354" class="s">commits del PR; historial completo</text>
+  <text x="366" y="372" class="s">en push y cada lunes</text>
+  <text x="366" y="406" class="b">Dependency Review</text>
+  <text x="366" y="426" class="s">bloquea dependencias nuevas con</text>
+  <text x="366" y="444" class="s">vulnerabilidad alta o crítica</text>
+  <text x="366" y="478" class="b">IaC: Terraform y Helm</text>
+  <text x="366" y="498" class="s">validate, lint --strict, kubeconform</text>
+  <text x="366" y="532" class="b">Pruebas de seguridad funcional</text>
+  <text x="366" y="552" class="s">xUnit: 401/403 sin token o rol,</text>
+  <text x="366" y="570" class="s">refresh token reutilizado revoca sesiones</text>
+  <text x="366" y="604" class="b">Permisos mínimos del GITHUB_TOKEN</text>
+  <text x="366" y="624" class="s">contents: read por defecto</text>
+
+  <rect x="660" y="160" width="290" height="560" rx="10" fill="#f3e5f5"/>
+  <text x="676" y="190" class="b">Imagen base chiseled</text>
+  <text x="676" y="210" class="s">sin shell ni gestor de paquetes</text>
+  <text x="676" y="228" class="s">243 → 6 CVE (0 críticas, 0 altas)</text>
+  <text x="676" y="262" class="b">Usuario no root (UID 1654)</text>
+  <text x="676" y="282" class="s">verificado en CI para las 14 imágenes</text>
+  <text x="676" y="316" class="b">Trivy</text>
+  <text x="676" y="336" class="s">CRITICAL/HIGH corregibles bloquean</text>
+  <text x="676" y="354" class="s">el PR y la publicación en GHCR</text>
+  <text x="676" y="388" class="b">Arranque endurecido en CI</text>
+  <text x="676" y="408" class="s">--read-only, --cap-drop ALL,</text>
+  <text x="676" y="426" class="s">no-new-privileges + probe de salud</text>
+  <text x="676" y="460" class="b">Imágenes inmutables</text>
+  <text x="676" y="480" class="s">tag sha-&lt;commit&gt;, construidas una vez</text>
+  <text x="676" y="498" class="s">y promovidas sin reconstruir</text>
+
+  <rect x="970" y="160" width="290" height="560" rx="10" fill="#e8f5e9"/>
+  <text x="986" y="190" class="b">OIDC sin claves de AWS</text>
+  <text x="986" y="210" class="s">rol por entorno, solo desde su</text>
+  <text x="986" y="228" class="s">environment de GitHub</text>
+  <text x="986" y="262" class="b">Aprobación manual</text>
+  <text x="986" y="282" class="s">environment production con</text>
+  <text x="986" y="300" class="s">revisores requeridos</text>
+  <text x="986" y="334" class="b">Pod Security "restricted"</text>
+  <text x="986" y="354" class="s">rechaza pods root o privilegiados</text>
+  <text x="986" y="388" class="b">securityContext del chart</text>
+  <text x="986" y="408" class="s">FS de solo lectura, sin capabilities,</text>
+  <text x="986" y="426" class="s">seccomp RuntimeDefault</text>
+  <text x="986" y="460" class="b">Secretos en Secrets Manager</text>
+  <text x="986" y="480" class="s">clave JWT y cadenas de conexión</text>
+  <text x="986" y="498" class="s">como Secrets de Kubernetes</text>
+  <text x="986" y="532" class="b">IRSA y mínimo privilegio</text>
+  <text x="986" y="552" class="s">cada pod con su propio rol IAM</text>
+  <text x="986" y="586" class="b">helm --atomic</text>
+  <text x="986" y="606" class="s">rollback si un pod no queda sano</text>
+
+  <rect x="1280" y="160" width="280" height="560" rx="10" fill="#ffebee"/>
+  <text x="1296" y="190" class="b">TLS 1.2/1.3 en el ALB</text>
+  <text x="1296" y="210" class="s">certificado ACM, WAF opcional</text>
+  <text x="1296" y="244" class="b">JWT RS256 de vida corta</text>
+  <text x="1296" y="264" class="s">15 min, validados con JWKS</text>
+  <text x="1296" y="298" class="b">Red privada</text>
+  <text x="1296" y="318" class="s">bases de datos y Kafka solo desde</text>
+  <text x="1296" y="336" class="s">el security group de los nodos</text>
+  <text x="1296" y="370" class="b">Cifrado en reposo</text>
+  <text x="1296" y="390" class="s">KMS en S3, RDS y estado de Terraform</text>
+  <text x="1296" y="424" class="b">Auditoría de accesos</text>
+  <text x="1296" y="444" class="s">401/403 registrados (QAS04);</text>
+  <text x="1296" y="462" class="s">Privacy &amp; Audit con hash chain</text>
+  <text x="1296" y="496" class="b">MQTTS con X.509</text>
+  <text x="1296" y="516" class="s">un certificado por cabina Edge</text>
+  <text x="1296" y="550" class="b">Escaneo semanal</text>
+  <text x="1296" y="570" class="s">CodeQL y gitleaks cada lunes</text>
+
+  <rect x="40" y="744" width="1520" height="130" rx="12" fill="#fff8e1" stroke="#f9a825" stroke-width="2"/>
+  <text x="60" y="776" class="b">Resultado medido</text>
+  <text x="60" y="802" class="t">• gitleaks sobre 177 commits: 0 secretos reales (2 falsos positivos de contraseñas de prueba, excluidos por su huella exacta).</text>
+  <text x="60" y="826" class="t">• Imagen de Operations: de 243 vulnerabilidades (1 crítica, 58 altas) a 6 (2 medias, 4 bajas) con la base chiseled.</text>
+  <text x="60" y="850" class="t">• Ningún secreto en workflows: tokens en GitHub Secrets y acceso a AWS por OIDC con credenciales temporales.</text>
+</svg>

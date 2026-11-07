@@ -1,0 +1,6 @@
+# Fleet Monitoring (EP04): control-center read model of the fleet.
+name: fleet-monitoring-service
+image:
+  repository: fleet-monitoring-service
+env:
+  FleetMonitoring__StaleAfterMinutes: "5"

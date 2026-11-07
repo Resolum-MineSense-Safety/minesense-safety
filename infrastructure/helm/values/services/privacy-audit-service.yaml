@@ -1,0 +1,4 @@
+# Privacy & Audit (EP09): consents, access log and incident history.
+name: privacy-audit-service
+image:
+  repository: privacy-audit-service

@@ -1,0 +1,4 @@
+# Incident Management (EP05): incidents, actions and escalation.
+name: incident-management-service
+image:
+  repository: incident-management-service

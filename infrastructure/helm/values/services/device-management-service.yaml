@@ -1,0 +1,4 @@
+# Device Management (EP06): cabin devices and pre-shift availability.
+name: device-management-service
+image:
+  repository: device-management-service

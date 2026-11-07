@@ -1,0 +1,49 @@
+@ReportingService_HostAddress = http://localhost:5270
+
+# Scaffold: every endpoint below returns 501 until Fase 1 (US22 definitions) and Fase 2 (generation).
+
+GET {{ReportingService_HostAddress}}/api/v1/report-definitions?onlyActive=true
+Accept: application/json
+
+###
+
+POST {{ReportingService_HostAddress}}/api/v1/report-definitions
+Content-Type: application/json
+
+{
+  "code": "fatigue-by-shift",
+  "name": "Fatigue alerts by shift",
+  "version": "v1.0",
+  "dataSources": ["fatigue-assessments", "alerts"]
+}
+
+###
+
+POST {{ReportingService_HostAddress}}/api/v1/reports/safety
+Content-Type: application/json
+
+{
+  "from": "2026-10-01T00:00:00Z",
+  "to": "2026-10-14T00:00:00Z",
+  "siteId": "site-north",
+  "fleetId": "fleet-a",
+  "definitionCode": "fatigue-by-shift",
+  "format": "Pdf"
+}
+
+###
+
+GET {{ReportingService_HostAddress}}/api/v1/reports?siteId=site-north&page=1&pageSize=20
+Accept: application/json
+
+###
+
+GET {{ReportingService_HostAddress}}/api/v1/reports/7c9e6679-7425-40de-944b-e07fc1f90ae7
+Accept: application/json
+
+###
+
+GET {{ReportingService_HostAddress}}/api/v1/reports/7c9e6679-7425-40de-944b-e07fc1f90ae7/download
+Accept: application/json
+
+###

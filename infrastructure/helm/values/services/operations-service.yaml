@@ -1,0 +1,4 @@
+# Operations (EP08): mining units, fleets, vehicles, operators and assignments.
+name: operations-service
+image:
+  repository: operations-service

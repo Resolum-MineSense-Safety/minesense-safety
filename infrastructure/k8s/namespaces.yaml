@@ -1,0 +1,20 @@
+# One namespace per environment (each environment also has its own EKS cluster, ADR-008).
+# Pod Security Admission "restricted": pods must run as non-root, without privilege escalation
+# and with the default seccomp profile, which the minesense-service chart already sets.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

@@ -1,0 +1,4 @@
+# Alerts (EP03): issued, acknowledged and escalated alerts.
+name: alert-service
+image:
+  repository: alert-service

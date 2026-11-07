@@ -1,6 +1,64 @@
 @FleetMonitoringService_HostAddress = http://localhost:5255
+@operatorId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@miningUnitId = 2f1c3f15-b56d-44c0-b749-d1e6f6d35011
+@fleetId = d50319e2-e1d4-48af-9c28-c2a64a47d010
 
-GET {{FleetMonitoringService_HostAddress}}/weatherforecast/
+POST {{FleetMonitoringService_HostAddress}}/api/v1/fleet-operators
+Content-Type: application/json
+
+{
+  "operatorId": "{{operatorId}}",
+  "fullName": "Juan Perez",
+  "vehicleCode": "CAT-797-01",
+  "fleet": "Haulage",
+  "shift": "Night",
+  "location": "Pit North",
+  "miningUnitId": "{{miningUnitId}}",
+  "fleetId": "{{fleetId}}"
+}
+
+###
+
+GET {{FleetMonitoringService_HostAddress}}/api/v1/fleet-operators?shift=night&fleet=Haulage&riskLevel=critical
 Accept: application/json
+
+###
+
+GET {{FleetMonitoringService_HostAddress}}/api/v1/fleet/status?siteId={{miningUnitId}}&fleetId={{fleetId}}
+Accept: application/json
+
+###
+
+GET {{FleetMonitoringService_HostAddress}}/api/v1/fleet-monitoring?siteId={{miningUnitId}}&fleetId={{fleetId}}
+Accept: application/json
+
+###
+
+GET {{FleetMonitoringService_HostAddress}}/api/v1/fleet-operators/{{operatorId}}
+Accept: application/json
+
+###
+
+GET {{FleetMonitoringService_HostAddress}}/api/v1/operators/{{operatorId}}/status
+Accept: application/json
+
+###
+
+PUT {{FleetMonitoringService_HostAddress}}/api/v1/fleet-operators/{{operatorId}}/risk-level
+Content-Type: application/json
+
+{
+  "riskLevel": "Critical"
+}
+
+###
+
+PUT {{FleetMonitoringService_HostAddress}}/api/v1/fleet-operators/{{operatorId}}/vehicle
+Content-Type: application/json
+
+{
+  "vehicleCode": "CAT-797-07",
+  "location": "Pit South"
+}
 
 ###

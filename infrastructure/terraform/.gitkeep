@@ -1,2 +1,0 @@
-# Preserve empty directory in Git (Git does not track empty folders).
-# Safe to delete once real content exists.

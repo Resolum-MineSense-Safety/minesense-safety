@@ -1,0 +1,4 @@
+# Fatigue Detection (EP02): risk classification of the biometric signals.
+name: fatigue-detection-service
+image:
+  repository: fatigue-detection-service

@@ -1,0 +1,29 @@
+{
+  "reportId": "5d1f7a3e-2c4b-4f8e-9a61-0b7c2d9e4f10",
+  "title": "Reporte de gestión de fatiga - Octubre 2026",
+  "periodFrom": "2026-10-01T00:00:00Z",
+  "periodTo": "2026-11-01T00:00:00Z",
+  "requestedBy": "Gerencia de Seguridad",
+  "scope": "Mina Antamina - Flota CAT 797F",
+  "summary": {
+    "detections": 184,
+    "alerts": 132,
+    "criticalAlerts": 21,
+    "incidentsClosed": 20,
+    "averageAttentionMinutes": 6.4
+  },
+  "sections": [
+    {
+      "heading": "Alertas por turno",
+      "text": "Frecuencia de alertas por turno en el periodo.",
+      "columns": ["Turno", "Alertas", "Críticas", "Proporción"],
+      "rows": [["Noche", "89", "17", "67 %"], ["Día", "43", "4", "33 %"]]
+    },
+    {
+      "heading": "Incidentes críticos",
+      "text": null,
+      "columns": ["Incidente", "Responsable", "Acción", "Atención (min)"],
+      "rows": [["INC-0142", "J. Argomedo", "Pausa preventiva", "4.2"]]
+    }
+  ]
+}
