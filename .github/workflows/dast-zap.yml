@@ -46,6 +46,7 @@ jobs:
           rules_file_name: tests/security/zap/rules.tsv
           cmd_options: "-a -j"
           allow_issue_writing: false
+          fail_action: true
           artifact_name: zap-${{ matrix.scan.name }}
 
       - name: ZAP API scan
@@ -56,4 +57,5 @@ jobs:
           format: openapi
           rules_file_name: tests/security/zap/rules.tsv
           allow_issue_writing: false
+          fail_action: true
           artifact_name: zap-${{ matrix.scan.name }}
