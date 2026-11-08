@@ -2,6 +2,23 @@
 # autoscaling on CPU and a disruption budget so node upgrades never stop a service.
 environment: Production
 
+# Every service validates the access tokens of Identity & Access (ADR-007); maps merge with
+# the env of each service file.
+env:
+  Authentication__IdentityUrl: http://identity-access-service/
+  # Domain events on MSK Serverless (ADR-004), signed with the pod's IAM role. deploy.sh sets
+  # Kafka__BootstrapServers from KAFKA_BOOTSTRAP_SERVERS (Terraform output kafka_bootstrap_brokers);
+  # while it is empty the services only log their events and start no consumers.
+  Kafka__BootstrapServers: ""
+  Kafka__Authentication: AwsMskIam
+  Kafka__AwsRegion: us-east-1
+  # Amazon DocumentDB certificates are signed by the Amazon RDS CAs (create-k8s-secrets.sh creates the ConfigMap).
+  # .NET adds this file to the system roots; the driver ignores tlsCAFile.
+  SSL_CERT_FILE: /etc/minesense/ca/global-bundle.pem
+
+trustBundle:
+  configMap: documentdb-ca
+
 resources:
   requests:
     cpu: 250m
@@ -21,3 +38,8 @@ podDisruptionBudget:
 
 topologySpread:
   enabled: true
+
+# Production VPC (terraform/environments/production, vpc_cidr).
+networkPolicy:
+  ingressCidrs:
+    - 10.30.0.0/16

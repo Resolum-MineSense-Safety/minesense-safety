@@ -20,6 +20,18 @@ public static class ServiceCollectionExtensions
         services.AddSwaggerGen();
         services.AddHealthChecks();
         services.AddTransient<IStartupFilter, HealthProbesStartupFilter>();
+        services.AddMineSenseMetrics();
+        services.AddTransient<IStartupFilter, SecurityHeadersStartupFilter>();
+        return services;
+    }
+
+    /// <summary>
+    /// Prometheus metrics at /metrics (section 4.3); also used by services that register their
+    /// own web API pipeline.
+    /// </summary>
+    public static IServiceCollection AddMineSenseMetrics(this IServiceCollection services)
+    {
+        services.AddTransient<IStartupFilter, MetricsStartupFilter>();
         return services;
     }
 }

@@ -46,4 +46,6 @@ In Docker Compose the service listens on port 5201 and reaches Device Management
 dotnet test src/backend/tests/MonitoringService.Tests/MonitoringService.Tests.csproj
 ```
 
-Persistence is in memory, like the other services of this slice; PostgreSQL is pending.
+Sessions are stored in PostgreSQL (ADR-005, database `minesense_monitoring`) when
+`ConnectionStrings:PostgreSql` is set, and in memory otherwise. A partial unique index allows only
+one open session per operator, so two racing start requests cannot both succeed.

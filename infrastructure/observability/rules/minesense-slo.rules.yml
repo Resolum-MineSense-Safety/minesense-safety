@@ -1,0 +1,129 @@
+# SLIs, SLOs and alerts of MineSense Safety (section 4.3, docs/operations/slo.md).
+# Plain Prometheus rule file: docker-compose.observability.yml mounts it as is, and
+# infrastructure/scripts/install-observability.sh wraps it in a PrometheusRule for EKS.
+#
+# SLO-1 Availability  99.5 % of API requests answer without a 5xx (30-day window).
+# SLO-2 Latency       95 % of detection and alert requests answer in <= 500 ms (QAS 02).
+# SLO-3 Latency       95 % of every other API request answers in <= 2 s (QAS 06).
+# SLO-4 Security      100 % of requests without a valid token are rejected (QAS 04).
+groups:
+  - name: minesense-sli
+    interval: 30s
+    rules:
+      - record: minesense:http_requests:rate5m
+        expr: sum by (job) (rate(http_request_duration_seconds_count[5m]))
+      - record: minesense:http_errors:ratio_rate5m
+        expr: |
+          sum by (job) (rate(http_request_duration_seconds_count{code=~"5.."}[5m]))
+          / clamp_min(sum by (job) (rate(http_request_duration_seconds_count[5m])), 1e-9)
+      - record: minesense:http_errors:ratio_rate30m
+        expr: |
+          sum by (job) (rate(http_request_duration_seconds_count{code=~"5.."}[30m]))
+          / clamp_min(sum by (job) (rate(http_request_duration_seconds_count[30m])), 1e-9)
+      - record: minesense:http_errors:ratio_rate1h
+        expr: |
+          sum by (job) (rate(http_request_duration_seconds_count{code=~"5.."}[1h]))
+          / clamp_min(sum by (job) (rate(http_request_duration_seconds_count[1h])), 1e-9)
+      - record: minesense:http_errors:ratio_rate6h
+        expr: |
+          sum by (job) (rate(http_request_duration_seconds_count{code=~"5.."}[6h]))
+          / clamp_min(sum by (job) (rate(http_request_duration_seconds_count[6h])), 1e-9)
+      - record: minesense:http_latency_seconds:p95_5m
+        expr: histogram_quantile(0.95, sum by (job, le) (rate(http_request_duration_seconds_bucket[5m])))
+      - record: minesense:http_unauthorized:rate5m
+        expr: sum by (job) (rate(http_request_duration_seconds_count{code=~"401|403"}[5m]))
+
+  - name: minesense-slo-alerts
+    rules:
+      - alert: MineSenseServiceDown
+        expr: up{job=~".*-service"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} no responde a Prometheus"
+          description: "El target {{ $labels.instance }} lleva 2 minutos caído."
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-01-servicio-caido
+
+      # SLO-1, multi-window burn rate (Google SRE workbook): budget = 0.5 % of errors.
+      - alert: MineSenseErrorBudgetFastBurn
+        expr: |
+          minesense:http_errors:ratio_rate1h > (14.4 * 0.005)
+          and minesense:http_errors:ratio_rate5m > (14.4 * 0.005)
+        for: 2m
+        labels:
+          severity: critical
+          slo: availability
+        annotations:
+          summary: "{{ $labels.job }} consume el presupuesto de errores 14x más rápido"
+          description: "Más del 7.2 % de las respuestas son 5xx en la última hora: el presupuesto mensual se agotaría en ~2 días."
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-02-tasa-de-errores-5xx
+
+      - alert: MineSenseErrorBudgetSlowBurn
+        expr: |
+          minesense:http_errors:ratio_rate6h > (6 * 0.005)
+          and minesense:http_errors:ratio_rate30m > (6 * 0.005)
+        for: 15m
+        labels:
+          severity: warning
+          slo: availability
+        annotations:
+          summary: "{{ $labels.job }} consume el presupuesto de errores 6x más rápido"
+          description: "Más del 3 % de las respuestas son 5xx en 6 horas."
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-02-tasa-de-errores-5xx
+
+      # SLO-2: detection and alerts, the safety-critical path (QAS 02).
+      - alert: MineSenseCriticalPathSlow
+        expr: minesense:http_latency_seconds:p95_5m{job=~"fatigue-detection-service|alert-service"} > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          slo: latency-critical
+        annotations:
+          summary: "P95 de {{ $labels.job }} = {{ $value | humanizeDuration }} (meta <= 500 ms)"
+          description: "La detección o la alerta tardan más de lo que exige QAS 02."
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-03-latencia-alta
+
+      # SLO-3: the rest of the API (QAS 06).
+      - alert: MineSenseApiSlow
+        expr: minesense:http_latency_seconds:p95_5m{job!~"fatigue-detection-service|alert-service"} > 2
+        for: 10m
+        labels:
+          severity: warning
+          slo: latency
+        annotations:
+          summary: "P95 de {{ $labels.job }} = {{ $value | humanizeDuration }} (meta <= 2 s)"
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-03-latencia-alta
+
+      # SLO-4 is enforced by design (tests); a spike of 401/403 means an attack or a broken client.
+      - alert: MineSenseUnauthorizedSpike
+        expr: minesense:http_unauthorized:rate5m > 5
+        for: 5m
+        labels:
+          severity: warning
+          slo: security
+        annotations:
+          summary: "{{ $labels.job }} rechaza más de 5 peticiones/s sin token válido"
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-04-pico-de-accesos-no-autorizados
+
+  # Only on Kubernetes (kube-state-metrics); locally these series do not exist and never fire.
+  - name: minesense-kubernetes
+    rules:
+      - alert: MineSensePodCrashLooping
+        expr: increase(kube_pod_container_status_restarts_total{namespace=~"staging|production"}[15m]) > 3
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.pod }} se reinició más de 3 veces en 15 minutos"
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-05-pod-en-crashloopbackoff
+
+      - alert: MineSenseHpaAtMaximum
+        expr: |
+          kube_horizontalpodautoscaler_status_current_replicas{namespace=~"staging|production"}
+          >= kube_horizontalpodautoscaler_spec_max_replicas{namespace=~"staging|production"}
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "El HPA {{ $labels.horizontalpodautoscaler }} lleva 15 minutos en su máximo"
+          runbook_url: https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/operations/runbook.md#rb-06-hpa-en-su-maximo

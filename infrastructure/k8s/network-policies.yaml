@@ -1,0 +1,66 @@
+# Namespace-wide baseline of the zero-trust network (section 4.5). Every pod starts with no
+# traffic at all; the NetworkPolicy that the minesense-service chart creates for each
+# microservice then opens only what that service needs (templates/networkpolicy.yaml).
+# Enforced by the Amazon VPC CNI network policy agent (enableNetworkPolicy, terraform/modules/eks).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: staging
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+spec:
+  podSelector: {}
+  policyTypes: [ Ingress, Egress ]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+spec:
+  podSelector: {}
+  policyTypes: [ Ingress, Egress ]
+---
+# Prometheus (namespace monitoring) may scrape /metrics of every MineSense pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: staging
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: minesense-safety
+  policyTypes: [ Ingress ]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - { port: 8080, protocol: TCP }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: minesense-safety
+  policyTypes: [ Ingress ]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - { port: 8080, protocol: TCP }

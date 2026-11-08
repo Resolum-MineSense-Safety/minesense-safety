@@ -1,0 +1,24 @@
+{
+  "page": "ingreso",
+  "passes": 22,
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": 1,
+      "targets": [
+        ".text-basalt-mute"
+      ]
+    },
+    {
+      "id": "svg-img-alt",
+      "impact": "serious",
+      "help": "<svg> elements with an img role must have an alternative text",
+      "nodes": 1,
+      "targets": [
+        ".pointer-events-none"
+      ]
+    }
+  ]
+}

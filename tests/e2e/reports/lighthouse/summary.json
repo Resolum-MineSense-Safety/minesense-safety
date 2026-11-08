@@ -1,0 +1,35 @@
+[
+  {
+    "page": "ingreso",
+    "url": "http://localhost:4173/",
+    "performance": 83,
+    "accessibility": 100,
+    "best-practices": 100,
+    "fcpMs": 1814,
+    "lcpMs": 1814,
+    "tbtMs": 9,
+    "cls": 0.004
+  },
+  {
+    "page": "centro-de-control",
+    "url": "http://localhost:4173/",
+    "performance": 98,
+    "accessibility": 100,
+    "best-practices": 100,
+    "fcpMs": 907,
+    "lcpMs": 907,
+    "tbtMs": 1,
+    "cls": 0.005
+  },
+  {
+    "page": "alertas",
+    "url": "http://localhost:4173/alertas",
+    "performance": 98,
+    "accessibility": 100,
+    "best-practices": 100,
+    "fcpMs": 908,
+    "lcpMs": 908,
+    "tbtMs": 5,
+    "cls": 0.005
+  }
+]

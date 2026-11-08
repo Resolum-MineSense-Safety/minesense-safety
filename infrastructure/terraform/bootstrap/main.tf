@@ -24,17 +24,31 @@ variable "aws_region" {
 }
 
 variable "state_bucket_name" {
-  description = "Globally unique name of the Terraform state bucket."
+  description = "Globally unique name of the Terraform state bucket (deploy-all.sh uses minesense-safety-tfstate-<account id>)."
   type        = string
-  default     = "minesense-safety-terraform-state"
+}
+
+variable "lock_table_name" {
+  description = "DynamoDB table with the state locks."
+  type        = string
+  default     = "minesense-safety-terraform-locks"
+}
+
+variable "force_destroy_state" {
+  description = "Apply with true right before destroying this stack: S3 refuses to delete a bucket with objects, which is what protects the state from an accidental destroy."
+  type        = bool
+  default     = false
+}
+
+variable "create_github_oidc_provider" {
+  description = "False when the account already has the GitHub Actions OIDC provider (there can only be one)."
+  type        = bool
+  default     = true
 }
 
 resource "aws_s3_bucket" "state" {
-  bucket = var.state_bucket_name
-
-  lifecycle {
-    prevent_destroy = true
-  }
+  bucket        = var.state_bucket_name
+  force_destroy = var.force_destroy_state
 }
 
 resource "aws_s3_bucket_versioning" "state" {
@@ -64,7 +78,7 @@ resource "aws_s3_bucket_public_access_block" "state" {
 }
 
 resource "aws_dynamodb_table" "locks" {
-  name         = "minesense-safety-terraform-locks"
+  name         = var.lock_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -77,6 +91,8 @@ resource "aws_dynamodb_table" "locks" {
 # GitHub Actions OIDC provider: one per AWS account, shared by Staging and Production.
 # Each environment creates its own deploy role that trusts it (modules/delivery).
 resource "aws_iam_openid_connect_provider" "github" {
+  count = var.create_github_oidc_provider ? 1 : 0
+
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
   # AWS validates GitHub's certificate chain itself; the thumbprint is kept for older providers.
@@ -84,7 +100,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 output "github_oidc_provider_arn" {
-  value = aws_iam_openid_connect_provider.github.arn
+  value = one(aws_iam_openid_connect_provider.github[*].arn)
 }
 
 output "state_bucket" {

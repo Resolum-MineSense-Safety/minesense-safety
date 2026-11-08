@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #1b2631; }
+      .h { font-size: 16px; font-weight: 700; fill: #1b2631; }
+      .t { font-size: 13.5px; fill: #263238; }
+      .s { font-size: 12.5px; fill: #455a64; }
+      .flow { stroke: #37474f; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1600" height="760" fill="#ffffff"/>
+  <text x="40" y="46" class="title">Agile Operations: métricas, logs, alertas y respuesta a incidentes</text>
+  <text x="40" y="72" class="s">Las tres señales se toman de los mismos pods; las alertas se derivan de los SLO de la sección 2.1.1 y cada una enlaza a su procedimiento del runbook.</text>
+
+  <rect x="40" y="110" width="300" height="250" rx="12" fill="#e1f5fe" stroke="#0288d1" stroke-width="2"/>
+  <text x="190" y="140" text-anchor="middle" class="h">13 microservicios .NET 8</text>
+  <text x="60" y="170" class="t">/metrics (prometheus-net)</text>
+  <text x="60" y="190" class="s">http_request_duration_seconds</text>
+  <text x="60" y="208" class="s">{job, code, method} + runtime .NET</text>
+  <text x="60" y="238" class="t">/health/live · /health/ready</text>
+  <text x="60" y="258" class="s">sondas de Kubernetes</text>
+  <text x="60" y="288" class="t">stdout (logs estructurados)</text>
+  <text x="60" y="308" class="s">"Access rejected 401 ..." (QAS 04)</text>
+  <text x="60" y="338" class="s">MetricsStartupFilter (Shared)</text>
+
+  <rect x="420" y="110" width="330" height="150" rx="12" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+  <text x="585" y="140" text-anchor="middle" class="h">Prometheus</text>
+  <text x="440" y="166" class="s">ServiceMonitor por servicio (30 s)</text>
+  <text x="440" y="186" class="s">reglas minesense-slo.rules.yml:</text>
+  <text x="440" y="206" class="s">SLI de tráfico, errores 5xx, P95, 401/403</text>
+  <text x="440" y="226" class="s">+ kube-state-metrics (réplicas, reinicios)</text>
+  <text x="440" y="246" class="s">retención 7 días</text>
+
+  <rect x="830" y="110" width="330" height="150" rx="12" fill="#fff3e0" stroke="#fb8c00" stroke-width="2"/>
+  <text x="995" y="140" text-anchor="middle" class="h">Alertmanager</text>
+  <text x="850" y="166" class="s">critical → receptor oncall (cada 30 min)</text>
+  <text x="850" y="186" class="s">warning → canal del equipo (cada 4 h)</text>
+  <text x="850" y="206" class="s">burn rate 14.4× (1 h/5 min) y 6× (6 h/30 min)</text>
+  <text x="850" y="226" class="s">P95 crítico &gt; 500 ms · API &gt; 2 s</text>
+  <text x="850" y="246" class="s">servicio caído · CrashLoop · HPA al máximo</text>
+
+  <rect x="1240" y="110" width="320" height="150" rx="12" fill="#ffebee" stroke="#e53935" stroke-width="2"/>
+  <text x="1400" y="140" text-anchor="middle" class="h">Guardia (on-call)</text>
+  <text x="1260" y="166" class="s">runbook.md RB-01 … RB-06</text>
+  <text x="1260" y="186" class="s">rol RBAC minesense-oncall</text>
+  <text x="1260" y="206" class="s">rollback · restart · escalar</text>
+  <text x="1260" y="226" class="s">postmortem sin culpables (48 h)</text>
+  <text x="1260" y="246" class="s">diagnóstico en CloudWatch · → DORA</text>
+
+  <rect x="420" y="300" width="330" height="120" rx="12" fill="#f1f8e9" stroke="#7cb342" stroke-width="2"/>
+  <text x="585" y="330" text-anchor="middle" class="h">Grafana</text>
+  <text x="440" y="356" class="s">Dashboard "MineSense Safety · SLOs y operación"</text>
+  <text x="440" y="376" class="s">SLO-1..3, tráfico, errores, P95, 401/403,</text>
+  <text x="440" y="396" class="s">réplicas HPA, CPU, memoria, reinicios</text>
+
+  <rect x="420" y="460" width="330" height="120" rx="12" fill="#e0f7fa" stroke="#00acc1" stroke-width="2"/>
+  <text x="585" y="490" text-anchor="middle" class="h">CloudWatch</text>
+  <text x="440" y="516" class="s">Fluent Bit → Logs /aws/containerinsights/…</text>
+  <text x="440" y="536" class="s">Logs Insights (consultas del runbook)</text>
+  <text x="440" y="556" class="s">Container Insights: nodos y pods</text>
+
+  <path d="M340 200 L416 190" class="flow"/>
+  <path d="M750 185 L826 185" class="flow"/>
+  <path d="M1160 185 L1236 185" class="flow"/>
+  <path d="M585 260 L585 296" class="flow"/>
+  <path d="M340 300 L416 510" class="flow"/>
+
+  <rect x="830" y="300" width="730" height="120" rx="12" fill="#fafafa" stroke="#90a4ae" stroke-width="2"/>
+  <text x="850" y="330" class="h">SLO (docs/operations/slo.md)</text>
+  <text x="850" y="356" class="s">SLO-1 Disponibilidad ≥ 99.5 % sin 5xx (30 días) · SLO-2 P95 detección y alertas ≤ 500 ms (QAS 02)</text>
+  <text x="850" y="376" class="s">SLO-3 P95 resto de la API ≤ 2 s (QAS 06) · SLO-4 100 % de accesos sin token rechazados (QAS 04)</text>
+  <text x="850" y="396" class="s">Los mismos umbrales son los thresholds de k6 (4.4.3) y las aserciones de NFR01-NFR03 (4.8).</text>
+
+  <rect x="830" y="460" width="730" height="120" rx="12" fill="#fafafa" stroke="#90a4ae" stroke-width="2"/>
+  <text x="850" y="490" class="h">Entorno local (docker-compose.observability.yml)</text>
+  <text x="850" y="516" class="s">Prometheus v3 + Grafana 12 con las mismas reglas y el mismo dashboard que EKS: cualquier integrante</text>
+  <text x="850" y="536" class="s">reproduce las alertas antes de desplegar.</text>
+
+  <text x="40" y="640" class="s">Fuente: src/backend/Shared/Interfaces/ASP/Configuration/MetricsStartupFilter.cs, infrastructure/observability y docs/operations del repositorio minesense-safety.</text>
+</svg>

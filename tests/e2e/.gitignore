@@ -1,0 +1,10 @@
+.native-logs/
+node_modules/
+test-results/
+playwright-report/
+reports/lighthouse/*.html
+.features-gen/
+reports/lighthouse/*.json
+!reports/lighthouse/summary*.json
+reports/run-*.log
+reports/playwright-junit.xml

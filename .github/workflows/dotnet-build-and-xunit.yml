@@ -44,4 +44,4 @@ jobs:
         run: dotnet build MineSenseSafety.sln --configuration Release --no-restore
 
       - name: Run xUnit tests
-        run: dotnet test MineSenseSafety.sln --configuration Release --no-build --verbosity normal --logger trx --results-directory "TestResults"
+        run: dotnet test MineSenseSafety.sln --configuration Release --no-build --verbosity normal --filter "Category!=ThirdParty" --logger trx --results-directory "TestResults"

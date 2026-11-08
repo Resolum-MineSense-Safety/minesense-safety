@@ -7,7 +7,11 @@ public record ReportJobResource(
     string? SiteId,
     string? FleetId,
     string DefinitionCode,
+    string DefinitionVersion,
     string Format,
     Guid RequestedBy,
     string Status,
-    DateTimeOffset RequestedAt);
+    DateTimeOffset RequestedAt,
+    DateTimeOffset? CompletedAt,
+    string? FailureReason,
+    string? DownloadUri);

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <marker id="red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c62828"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #1b2631; }
+      .h { font-size: 16px; font-weight: 700; fill: #1b2631; }
+      .t { font-size: 13.5px; fill: #263238; }
+      .s { font-size: 12.5px; fill: #455a64; }
+      .flow { stroke: #37474f; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .back { stroke: #c62828; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#red); }
+    </style>
+  </defs>
+  <rect width="1600" height="820" fill="#ffffff"/>
+  <text x="40" y="46" class="title">Entrega continua sobre Kubernetes: promoción GitOps entre ambientes</text>
+  <text x="40" y="72" class="s">Las imágenes se construyen una sola vez; entre ambientes solo cambia el archivo release.yaml en Git, siempre por Pull Request.</text>
+
+  <!-- lane labels -->
+  <rect x="40" y="100" width="1520" height="190" rx="12" fill="#f5f5f5" stroke="#bdbdbd"/>
+  <text x="58" y="126" class="h">Build (una vez)</text>
+  <rect x="40" y="310" width="1520" height="200" rx="12" fill="#fffde7" stroke="#f9a825"/>
+  <text x="58" y="336" class="h">Staging (sincronización automática)</text>
+  <rect x="40" y="530" width="1520" height="200" rx="12" fill="#e8f5e9" stroke="#43a047"/>
+  <text x="58" y="556" class="h">Production (aprobación + sincronización manual)</text>
+
+  <!-- build lane -->
+  <rect x="70" y="150" width="200" height="110" rx="10" fill="#ffffff" stroke="#546e7a" stroke-width="2"/>
+  <text x="170" y="180" text-anchor="middle" class="h">feature/* → develop</text>
+  <text x="170" y="204" text-anchor="middle" class="s">PR con revisión, CI verde,</text>
+  <text x="170" y="222" text-anchor="middle" class="s">SonarCloud, E2E, ZAP</text>
+  <rect x="320" y="150" width="200" height="110" rx="10" fill="#ffffff" stroke="#546e7a" stroke-width="2"/>
+  <text x="420" y="180" text-anchor="middle" class="h">release/x.y.z</text>
+  <text x="420" y="204" text-anchor="middle" class="s">rama de release</text>
+  <text x="420" y="222" text-anchor="middle" class="s">(SemVer)</text>
+  <rect x="570" y="150" width="270" height="110" rx="10" fill="#e3f2fd" stroke="#1e88e5" stroke-width="2"/>
+  <text x="705" y="180" text-anchor="middle" class="h">cd-deploy.yml</text>
+  <text x="705" y="204" text-anchor="middle" class="s">docker build de 15 imágenes</text>
+  <text x="705" y="222" text-anchor="middle" class="s">Trivy CRITICAL/HIGH = bloquea</text>
+  <text x="705" y="240" text-anchor="middle" class="s">push GHCR sha-&lt;commit&gt;</text>
+  <rect x="890" y="150" width="260" height="110" rx="10" fill="#f3e5f5" stroke="#8e24aa" stroke-width="2"/>
+  <text x="1020" y="180" text-anchor="middle" class="h">gitops-promote.yml</text>
+  <text x="1020" y="204" text-anchor="middle" class="s">abre PR a develop:</text>
+  <text x="1020" y="222" text-anchor="middle" class="s">staging/release.yaml</text>
+  <text x="1020" y="240" text-anchor="middle" class="s">tag: sha-&lt;commit&gt;</text>
+  <path d="M270 205 L316 205" class="flow"/><path d="M520 205 L566 205" class="flow"/><path d="M840 205 L886 205" class="flow"/>
+
+  <!-- staging lane -->
+  <rect x="890" y="360" width="260" height="120" rx="10" fill="#ffffff" stroke="#f9a825" stroke-width="2"/>
+  <text x="1020" y="390" text-anchor="middle" class="h">Merge del PR (develop)</text>
+  <text x="1020" y="414" text-anchor="middle" class="s">Argo CD detecta el cambio</text>
+  <text x="1020" y="432" text-anchor="middle" class="s">auto-sync · prune · self-heal</text>
+  <rect x="1190" y="360" width="340" height="120" rx="10" fill="#ffffff" stroke="#f9a825" stroke-width="2"/>
+  <text x="1360" y="390" text-anchor="middle" class="h">EKS Staging</text>
+  <text x="1360" y="414" text-anchor="middle" class="s">RollingUpdate: maxUnavailable 0, maxSurge 1</text>
+  <text x="1360" y="432" text-anchor="middle" class="s">readiness /health/ready antes de recibir tráfico</text>
+  <text x="1360" y="450" text-anchor="middle" class="s">k6 smoke + E2E Playwright + alertas SLO</text>
+  <path d="M1020 260 L1020 356" class="flow"/><path d="M1150 420 L1186 420" class="flow"/>
+
+  <!-- production lane -->
+  <rect x="890" y="580" width="260" height="120" rx="10" fill="#ffffff" stroke="#43a047" stroke-width="2"/>
+  <text x="1020" y="610" text-anchor="middle" class="h">PR "promote to production"</text>
+  <text x="1020" y="634" text-anchor="middle" class="s">copia el tag de Staging</text>
+  <text x="1020" y="652" text-anchor="middle" class="s">aprobación obligatoria (main)</text>
+  <rect x="1190" y="580" width="340" height="120" rx="10" fill="#ffffff" stroke="#43a047" stroke-width="2"/>
+  <text x="1360" y="610" text-anchor="middle" class="h">EKS Production</text>
+  <text x="1360" y="634" text-anchor="middle" class="s">Sync manual del guardia en Argo CD</text>
+  <text x="1360" y="652" text-anchor="middle" class="s">ventana L-V 08:00-17:00 · PDB minAvailable 1</text>
+  <text x="1360" y="670" text-anchor="middle" class="s">HPA 2-6 réplicas · topologySpread por zona</text>
+  <path d="M1360 480 C 1360 530, 1020 530, 1020 576" class="flow"/><text x="1200" y="540" class="s">Staging estable</text>
+  <path d="M1150 640 L1186 640" class="flow"/>
+
+  <!-- rollback -->
+  <rect x="70" y="580" width="760" height="120" rx="10" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+  <text x="90" y="608" class="h">Rollback</text>
+  <text x="90" y="632" class="t">1. Automático en deploy.sh: helm rollback &lt;svc&gt; 0 si un servicio no queda listo.</text>
+  <text x="90" y="654" class="t">2. GitOps: git revert del commit de release.yaml → Argo CD vuelve al tag anterior.</text>
+  <text x="90" y="676" class="t">3. Urgencia: argocd app rollback o helm rollback (rol minesense-oncall, runbook RB-02).</text>
+  <path d="M1186 690 C 1000 760, 900 720, 834 660" class="back"/>
+  <path d="M1186 470 C 960 540, 900 560, 834 610" class="back"/>
+  <text x="40" y="770" class="s">Fuente: .github/workflows/cd-deploy.yml, gitops-promote.yml, infrastructure/gitops y docs/deploy/gitops.md del repositorio minesense-safety.</text>
+</svg>

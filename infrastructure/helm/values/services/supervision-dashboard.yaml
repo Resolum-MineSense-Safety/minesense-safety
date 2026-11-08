@@ -1,0 +1,28 @@
+# Supervision Dashboard: static React build on nginx-unprivileged (UID 101, port 8080, /tmp writable).
+name: supervision-dashboard
+image:
+  repository: supervision-dashboard
+podSecurityContext:
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    memory: 64Mi
+probes:
+  liveness:
+    path: /healthz
+  readiness:
+    path: /healthz
+# The ALB checks each target group; nginx answers /healthz, not /health/ready.
+service:
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+autoscaling:
+  enabled: false
+# nginx serves no /metrics; the ALB access logs and the gateway cover the dashboard (section 4.3).
+metrics:
+  enabled: false

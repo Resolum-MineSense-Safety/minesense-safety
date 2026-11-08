@@ -4,7 +4,7 @@ variable "cluster_name" {
 
 variable "kubernetes_version" {
   type    = string
-  default = "1.30"
+  default = "1.35"
 }
 
 variable "vpc_id" {
@@ -38,4 +38,10 @@ variable "node_max_size" {
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+variable "access_groups" {
+  description = "IAM role ARN per RBAC group of infrastructure/k8s/rbac.yaml (deployers, oncall, developers). Empty = only the cluster creator."
+  type        = map(string)
+  default     = {}
 }

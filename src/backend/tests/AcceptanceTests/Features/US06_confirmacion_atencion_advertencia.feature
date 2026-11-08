@@ -20,3 +20,16 @@ Feature: US06 - Confirmación de atención de una advertencia
     When transcurre el tiempo establecido sin recibir confirmación
     Then el evento permanece pendiente de confirmación
     And el sistema comunica la ausencia de confirmación al supervisor
+
+  # Final version (section 4.8): escalation exactly at the deadline of each severity.
+  Scenario Outline: Escalamiento al supervisor al vencer el plazo
+    Given se emite una advertencia de severidad "<severidad>"
+    When transcurren <segundos> segundos sin confirmación
+    Then el estado de la advertencia es "<estado>"
+
+    Examples:
+      | severidad | segundos | estado    |
+      | Critical  | 29       | Issued    |
+      | Critical  | 31       | Escalated |
+      | Warning   | 119      | Issued    |
+      | Warning   | 121      | Escalated |

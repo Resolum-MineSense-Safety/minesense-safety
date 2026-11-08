@@ -31,6 +31,9 @@ internal class FakeAlertRepository : IAlertRepository
     public Task<IEnumerable<Alert>> FindByOperatorIdAsync(Guid operatorId) =>
         Task.FromResult<IEnumerable<Alert>>(Items.Where(item => item.OperatorId == operatorId).ToList());
 
+    public Task<Alert?> FindByAssessmentIdAsync(Guid assessmentId) =>
+        Task.FromResult(Items.Find(item => item.AssessmentId == assessmentId));
+
     public Task<IEnumerable<Alert>> FindByStatusAsync(AlertStatus status) =>
         Task.FromResult<IEnumerable<Alert>>(Items.Where(item => item.Status == status).ToList());
 }

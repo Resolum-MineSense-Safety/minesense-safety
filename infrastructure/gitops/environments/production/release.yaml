@@ -1,0 +1,4 @@
+# Desired release of Production (GitOps, section 4.2). Only changes through a reviewed pull
+# request that copies the tag already validated in Staging ("build once, deploy many").
+image:
+  tag: sha-2371239c9bbec0917c54f90dfcadbd683717280e

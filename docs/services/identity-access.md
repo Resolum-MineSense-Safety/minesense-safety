@@ -57,5 +57,7 @@ variables, for example `IdentityAccess__BootstrapAdministrator__Password`.
 dotnet test src/backend/tests/IdentityAccessService.Tests/IdentityAccessService.Tests.csproj
 ```
 
-The adapter is in memory, like the other services in this slice. PostgreSQL persistence and
-publishing access events to Privacy & Audit are still pending platform work.
+Users and sessions are stored in PostgreSQL (ADR-005, database `minesense_identity`) when
+`ConnectionStrings:PostgreSql` is set, and in memory otherwise (tests, a bare `dotnet run`).
+Unique indexes on `users.username` and `sessions.refresh_token_hash` turn a racing duplicate into
+HTTP 409. Publishing access events to Privacy & Audit is still pending platform work.
