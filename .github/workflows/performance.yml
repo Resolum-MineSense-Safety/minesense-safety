@@ -1,11 +1,18 @@
 name: Performance Tests (k6)
 
 # Section 4.4.3. Smoke test on every push to develop; load and stress on demand against the
-# local stack (docker compose) or a deployed environment (BASE_URL of Staging). The k6 thresholds
+# local stack (docker compose) or a deployed environment (BASE_URL of Staging). Pull requests run
+# load and stress against the compose stack in the runner. The k6 thresholds
 # are the SLOs of docs/operations/slo.md, so a broken SLO fails the job.
 on:
   push:
     branches: [ "develop" ]
+    paths:
+      - "src/backend/**"
+      - "tests/performance/**"
+      - ".github/workflows/performance.yml"
+  pull_request:
+    branches: [ "develop", "main" ]
     paths:
       - "src/backend/**"
       - "tests/performance/**"
@@ -31,11 +38,15 @@ permissions:
 
 jobs:
   k6:
-    name: k6 ${{ inputs.scenario || 'smoke' }}
+    name: k6 ${{ matrix.scenario }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: ${{ fromJSON(github.event_name == 'pull_request' && '["load","stress"]' || format('["{0}"]', inputs.scenario || 'smoke')) }}
     env:
-      SCENARIO: ${{ inputs.scenario || 'smoke' }}
+      SCENARIO: ${{ matrix.scenario }}
       BASE_URL: ${{ inputs.base_url || 'http://localhost:8080' }}
     steps:
       - name: Checkout repository
@@ -77,5 +88,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k6-${{ env.SCENARIO }}
+          name: k6-${{ matrix.scenario }}
           path: tests/performance/results
