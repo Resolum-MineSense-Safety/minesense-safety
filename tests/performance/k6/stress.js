@@ -38,5 +38,14 @@ export function cabin({ token }) {
 }
 
 export function handleSummary(data) {
-  return { 'tests/performance/results/stress-summary.json': JSON.stringify(data, null, 2) }
+  const m = data.metrics
+  const critical = m['http_req_duration{path:critical}']?.values ?? {}
+  const ms = (v) => (v === undefined ? '-' : `${v.toFixed(1)} ms`)
+  const stdout = [
+    `requests=${m.http_reqs.values.count} rate=${m.http_reqs.values.rate.toFixed(1)}/s failed=${(m.http_req_failed.values.rate * 100).toFixed(2)}%`,
+    `http_req_duration{path:critical}: p90=${ms(critical['p(90)'])} p95=${ms(critical['p(95)'])} p99=${ms(critical['p(99)'])} max=${ms(critical.max)}`,
+    `vus_max=${m.vus_max?.values.max ?? '-'} dropped_iterations=${m.dropped_iterations?.values.count ?? 0}`,
+    '',
+  ].join('\n')
+  return { 'tests/performance/results/stress-summary.json': JSON.stringify(data, null, 2), stdout }
 }
