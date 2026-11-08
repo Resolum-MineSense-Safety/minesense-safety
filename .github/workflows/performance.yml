@@ -61,6 +61,9 @@ jobs:
       - name: Set up k6
         uses: grafana/setup-k6-action@v1
 
+      - name: Prepare results folder
+        run: mkdir -p tests/performance/results
+
       - name: Run ${{ env.SCENARIO }}
         env:
           K6_PASSWORD: ${{ inputs.base_url == '' && 'Admin-Local-2026' || secrets.K6_ADMIN_PASSWORD }}
