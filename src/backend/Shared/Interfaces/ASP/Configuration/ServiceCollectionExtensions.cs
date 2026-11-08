@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddHealthChecks();
         services.AddTransient<IStartupFilter, HealthProbesStartupFilter>();
         services.AddMineSenseMetrics();
+        services.AddTransient<IStartupFilter, SecurityHeadersStartupFilter>();
         return services;
     }
 
