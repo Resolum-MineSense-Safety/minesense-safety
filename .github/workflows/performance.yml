@@ -41,6 +41,8 @@ jobs:
     name: k6 ${{ matrix.scenario }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # stress.js looks for the breaking point, so crossing its thresholds must not block a PR.
+    continue-on-error: ${{ matrix.scenario == 'stress' }}
     strategy:
       fail-fast: false
       matrix:
