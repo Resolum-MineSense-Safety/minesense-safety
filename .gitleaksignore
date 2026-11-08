@@ -2,3 +2,8 @@
 # Each entry is the exact gitleaks fingerprint (commit:file:rule:line), so new findings still fail the scan.
 ab72aed2eb940adf8881ffbd5ae6750a1ffd87b0:src/backend/tests/IdentityAccessService.Tests/Interfaces/IdentityApiTests.cs:generic-api-key:11
 9a4c2eb19710a35876a0aaae0a0cdf6450d8c24b:src/backend/tests/IdentityAccessService.Tests/Interfaces/IdentityApiTests.cs:generic-api-key:11
+# Local demo accounts of the Supervision Dashboard (seed script and login shortcuts) and the fake
+# bearer token that the NFR02 scenario sends to prove a forged token is rejected.
+88459f7f9b74c7bc455dbd088ae91eecdf7baaa1:src/frontend/src/pages/Login.jsx:generic-api-key:10
+88459f7f9b74c7bc455dbd088ae91eecdf7baaa1:src/frontend/scripts/seed-demo.mjs:generic-api-key:80
+4a93a479df58ae2c3d44d7553ed1bece6eb0f630:src/backend/tests/AcceptanceTests/StepDefinitions/NonFunctionalSteps.cs:jwt:93
