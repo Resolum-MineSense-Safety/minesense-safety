@@ -25,9 +25,9 @@ public class IdentityAccessSteps(ApiContext api)
     public async Task GivenARegisteredUser(string role)
     {
         _username = $"acc-{api.Suffix.ToLowerInvariant()}";
-        var user = await api.ExpectAsync(HttpStatusCode.Created, Service.IdentityAccess, HttpMethod.Post,
-            "/api/v1/authentication/sign-up", new { username = _username, fullName = "Carmen Salas", password = Password, role });
-        _userId = user.GetProperty("id").GetGuid();
+        await PublicAsync("/api/v1/authentication/sign-up", new { username = _username, fullName = "Carmen Salas", password = Password, role });
+        api.AssertStatus(HttpStatusCode.Created);
+        _userId = api.JsonBody.GetProperty("id").GetGuid();
     }
 
     [Given("el usuario inicia sesión con su contraseña")]
@@ -53,23 +53,26 @@ public class IdentityAccessSteps(ApiContext api)
     public async Task WhenTheUserRefreshes()
     {
         _previousRefreshToken = _refreshToken;
-        var session = await api.ExpectAsync(HttpStatusCode.OK, Service.IdentityAccess, HttpMethod.Post,
-            "/api/v1/auth/refresh", new { refreshToken = _refreshToken });
+        await PublicAsync("/api/v1/auth/refresh", new { refreshToken = _refreshToken });
+        api.AssertStatus(HttpStatusCode.OK);
+        var session = api.JsonBody;
         _accessToken = session.GetProperty("accessToken").GetString();
         _refreshToken = session.GetProperty("refreshToken").GetString();
     }
 
     [When("el usuario cierra su sesión")]
-    public async Task WhenTheUserSignsOut() =>
-        await api.ExpectAsync(HttpStatusCode.NoContent, Service.IdentityAccess, HttpMethod.Post,
-            "/api/v1/authentication/sign-out", new { refreshToken = _refreshToken });
+    public async Task WhenTheUserSignsOut()
+    {
+        await PublicAsync("/api/v1/authentication/sign-out", new { refreshToken = _refreshToken });
+        api.AssertStatus(HttpStatusCode.NoContent);
+    }
 
     [When("alguien se registra por su cuenta con el rol {string}")]
     public Task WhenSomeoneSignsUpAs(string role) => WhenSomeoneSignsUpWithPassword(role, Password);
 
     [When("alguien se registra por su cuenta con el rol {string} y la contraseña {string}")]
     public async Task WhenSomeoneSignsUpWithPassword(string role, string password) =>
-        await api.PostAsync(Service.IdentityAccess, "/api/v1/authentication/sign-up",
+        await PublicAsync("/api/v1/authentication/sign-up",
             new { username = $"acc-{api.Suffix.ToLowerInvariant()}", fullName = "Pedro Ramos", password, role });
 
     [Given("el administrador le concede acceso a una unidad minera")]
@@ -149,19 +152,22 @@ public class IdentityAccessSteps(ApiContext api)
 
     private async Task AssertRefreshRejectedAsync(string refreshToken)
     {
-        await api.PostAsync(Service.IdentityAccess, "/api/v1/authentication/refresh", new { refreshToken });
+        await PublicAsync("/api/v1/authentication/refresh", new { refreshToken });
         api.AssertStatus(HttpStatusCode.Unauthorized);
     }
 
     private Task SignInAsync(string username, string password) =>
-        api.PostAsync(Service.IdentityAccess, "/api/v1/authentication/sign-in", new { username, password });
+        PublicAsync("/api/v1/authentication/sign-in", new { username, password });
+
+    /// <summary>Public routes are called without credentials, as a person signing up or in would.</summary>
+    private Task<HttpResponseMessage> PublicAsync(string path, object body) =>
+        api.SendAsync(Service.IdentityAccess, HttpMethod.Post, path, body, api.Services.Anonymous(Service.IdentityAccess));
 
     private async Task<string> AdministratorTokenAsync()
     {
-        var session = await api.ExpectAsync(HttpStatusCode.OK, Service.IdentityAccess, HttpMethod.Post,
-            "/api/v1/authentication/sign-in",
-            new { username = MineSenseServices.AdministratorUsername, password = MineSenseServices.AdministratorPassword });
-        return session.GetProperty("accessToken").GetString()!;
+        await SignInAsync(MineSenseServices.AdministratorUsername, MineSenseServices.AdministratorPassword);
+        api.AssertStatus(HttpStatusCode.OK);
+        return api.JsonBody.GetProperty("accessToken").GetString()!;
     }
 
     /// <summary>Sends the request with the given user's token instead of the acceptance credentials.</summary>
