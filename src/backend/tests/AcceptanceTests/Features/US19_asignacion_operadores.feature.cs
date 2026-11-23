@@ -90,26 +90,26 @@ namespace MineSenseSafety.AcceptanceTests.Features
 #line 8
     await testRunner.GivenAsync("una unidad minera registrada en la región \"Arequipa\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-            global::Reqnroll.Table table14 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table17 = new global::Reqnroll.Table(new string[] {
                         "codigo",
                         "modelo"});
-            table14.AddRow(new string[] {
+            table17.AddRow(new string[] {
                         "CAT-11",
                         "CAT 793F"});
-            table14.AddRow(new string[] {
+            table17.AddRow(new string[] {
                         "CAT-12",
                         "CAT 793F"});
 #line 9
-    await testRunner.AndAsync("se registra la flota \"Acarreo\" con los vehículos:", ((string)(null)), table14, "And ");
+    await testRunner.AndAsync("se registra la flota \"Acarreo\" con los vehículos:", ((string)(null)), table17, "And ");
 #line hidden
-            global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table18 = new global::Reqnroll.Table(new string[] {
                         "operador"});
-            table15.AddRow(new string[] {
+            table18.AddRow(new string[] {
                         "Ana Quispe"});
-            table15.AddRow(new string[] {
+            table18.AddRow(new string[] {
                         "Bruno Huamán"});
 #line 13
-    await testRunner.AndAsync("los operadores de la unidad minera:", ((string)(null)), table15, "And ");
+    await testRunner.AndAsync("los operadores de la unidad minera:", ((string)(null)), table18, "And ");
 #line hidden
         }
         
@@ -300,17 +300,17 @@ namespace MineSenseSafety.AcceptanceTests.Features
 #line 49
     await testRunner.WhenAsync("se cambia el vehículo de \"Ana Quispe\" a \"CAT-12\" desde hoy", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-                global::Reqnroll.Table table16 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table19 = new global::Reqnroll.Table(new string[] {
                             "vehiculo",
                             "estado"});
-                table16.AddRow(new string[] {
+                table19.AddRow(new string[] {
                             "CAT-11",
                             "Superseded"});
-                table16.AddRow(new string[] {
+                table19.AddRow(new string[] {
                             "CAT-12",
                             "Active"});
 #line 50
-    await testRunner.ThenAsync("el historial de asignaciones de \"Ana Quispe\" registra:", ((string)(null)), table16, "Then ");
+    await testRunner.ThenAsync("el historial de asignaciones de \"Ana Quispe\" registra:", ((string)(null)), table19, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

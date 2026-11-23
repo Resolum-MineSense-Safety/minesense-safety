@@ -115,35 +115,35 @@ namespace MineSenseSafety.AcceptanceTests.Features
 #line 8
     await testRunner.GivenAsync("una unidad minera registrada en la región \"Cajamarca\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table13 = new global::Reqnroll.Table(new string[] {
                             "nombre",
                             "tipo"});
-                table10.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "Tajo Norte",
                             "Pit"});
-                table10.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "Botadero Sur",
                             "Dump"});
-                table10.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "Taller Central",
                             "Workshop"});
 #line 9
-    await testRunner.WhenAsync("se agregan las ubicaciones:", ((string)(null)), table10, "When ");
+    await testRunner.WhenAsync("se agregan las ubicaciones:", ((string)(null)), table13, "When ");
 #line hidden
-                global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table14 = new global::Reqnroll.Table(new string[] {
                             "nombre",
                             "tipo"});
-                table11.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "Tajo Norte",
                             "Pit"});
-                table11.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "Botadero Sur",
                             "Dump"});
-                table11.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "Taller Central",
                             "Workshop"});
 #line 14
-    await testRunner.ThenAsync("la unidad minera tiene las ubicaciones:", ((string)(null)), table11, "Then ");
+    await testRunner.ThenAsync("la unidad minera tiene las ubicaciones:", ((string)(null)), table14, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -170,14 +170,14 @@ namespace MineSenseSafety.AcceptanceTests.Features
 #line 21
     await testRunner.GivenAsync("una unidad minera registrada en la región \"Cajamarca\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
                             "nombre",
                             "tipo"});
-                table12.AddRow(new string[] {
+                table15.AddRow(new string[] {
                             "Tajo Norte",
                             "Pit"});
 #line 22
-    await testRunner.AndAsync("se agregan las ubicaciones:", ((string)(null)), table12, "And ");
+    await testRunner.AndAsync("se agregan las ubicaciones:", ((string)(null)), table15, "And ");
 #line hidden
 #line 25
     await testRunner.WhenAsync("se agrega la ubicación \"Tajo Norte\" de tipo \"Pit\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -279,17 +279,17 @@ namespace MineSenseSafety.AcceptanceTests.Features
 #line 45
     await testRunner.GivenAsync("una unidad minera registrada en la región \"Áncash\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-                global::Reqnroll.Table table13 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table16 = new global::Reqnroll.Table(new string[] {
                             "codigo",
                             "modelo"});
-                table13.AddRow(new string[] {
+                table16.AddRow(new string[] {
                             "CAT-01",
                             "CAT 797F"});
-                table13.AddRow(new string[] {
+                table16.AddRow(new string[] {
                             "KOM-02",
                             "Komatsu 930E"});
 #line 46
-    await testRunner.WhenAsync("se registra la flota \"Acarreo\" con los vehículos:", ((string)(null)), table13, "When ");
+    await testRunner.WhenAsync("se registra la flota \"Acarreo\" con los vehículos:", ((string)(null)), table16, "When ");
 #line hidden
 #line 50
     await testRunner.ThenAsync("la flota tiene los vehículos activos \"CAT-01, KOM-02\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
