@@ -54,6 +54,23 @@ public class IncidentServicesTests
     }
 
     [Fact]
+    public async Task Handle_OpenIncidentCommand_WhenConsumerWinsTheRace_ReturnsStoredIncident()
+    {
+        // Arrange
+        var command = new OpenIncidentCommand(Guid.NewGuid(), Guid.NewGuid(), IncidentSeverity.Critical);
+        var stored = new Incident(command, _clock.GetUtcNow());
+        _repository.StoredConcurrently = stored;
+
+        // Act
+        var result = await _commandService.Handle(command);
+
+        // Assert
+        Assert.Same(stored, result);
+        Assert.Single(_repository.Items);
+        Assert.Empty(_publisher.Published);
+    }
+
+    [Fact]
     public async Task Handle_AssignRecordAndClose_RunsFullLifecycle()
     {
         // Arrange

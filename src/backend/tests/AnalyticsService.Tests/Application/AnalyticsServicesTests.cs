@@ -43,6 +43,22 @@ public class AnalyticsServicesTests
     }
 
     [Fact]
+    public async Task Handle_RecordFatigueMetric_WhenConsumerWinsTheRace_ReturnsStoredMetric()
+    {
+        // Arrange
+        var command = MetricFactory.Command(MetricFactory.Start);
+        var stored = new FatigueMetric(command);
+        _metrics.StoredConcurrently = stored;
+
+        // Act
+        var result = await _metricCommandService.Handle(command);
+
+        // Assert
+        Assert.Same(stored, result);
+        Assert.Single(_metrics.Items);
+    }
+
+    [Fact]
     public async Task Handle_GetFatigueTrends_AppliesFilterAndPeriod()
     {
         // Arrange

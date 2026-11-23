@@ -1,3 +1,4 @@
+using MineSenseSafety.Shared.Domain.Model;
 using IncidentManagementService.Domain.Model.Aggregates;
 using IncidentManagementService.Domain.Model.ValueObjects;
 using IncidentManagementService.Domain.Repositories;
@@ -10,8 +11,21 @@ internal class FakeIncidentRepository : IIncidentRepository
     public List<Incident> Items { get; } = [];
     public int Updates { get; private set; }
 
+    /// <summary>
+    /// Simulates another caller (the AlertIssued consumer or the API) that stores this aggregate
+    /// between the lookup and the insert: the next insert then hits the unique key, as in the database.
+    /// </summary>
+    public Incident? StoredConcurrently { get; set; }
+
     public Task AddAsync(Incident aggregate)
     {
+        if (StoredConcurrently is { } winner)
+        {
+            Items.Add(winner);
+            StoredConcurrently = null;
+            throw new DomainConflictException("A Incident with the same identity or business key already exists.");
+        }
+
         Items.Add(aggregate);
         return Task.CompletedTask;
     }

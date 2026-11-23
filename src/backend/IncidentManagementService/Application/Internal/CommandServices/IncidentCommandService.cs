@@ -6,6 +6,7 @@ using IncidentManagementService.Domain.Model.ValueObjects;
 using IncidentManagementService.Domain.Repositories;
 using IncidentManagementService.Domain.Services;
 using MineSenseSafety.Shared.Application.IntegrationEvents;
+using MineSenseSafety.Shared.Domain.Model;
 
 namespace IncidentManagementService.Application.Internal.CommandServices;
 
@@ -18,7 +19,9 @@ public class IncidentCommandService(
 
     /// <summary>
     /// Opens the incident for an alert. Opening is idempotent per alert so a
-    /// resent event (e.g. after an Edge reconnection) does not duplicate it.
+    /// resent event (e.g. after an Edge reconnection) does not duplicate it. When the AlertIssued
+    /// consumer and a direct call race for the same alert, the loser returns the stored incident
+    /// (the winner already published IncidentOpened).
     /// </summary>
     public async Task<Incident> Handle(OpenIncidentCommand command)
     {
@@ -26,7 +29,17 @@ public class IncidentCommandService(
         if (existing is not null) return existing;
 
         var incident = new Incident(command, timeProvider.GetUtcNow());
-        await incidentRepository.AddAsync(incident);
+        try
+        {
+            await incidentRepository.AddAsync(incident);
+        }
+        catch (DomainConflictException)
+        {
+            var stored = await incidentRepository.FindByAlertIdAsync(command.AlertId);
+            if (stored is null) throw;
+            return stored;
+        }
+
         await eventPublisher.PublishAsync(IntegrationEventTopics.IncidentOpened,
             IntegrationEvent.Create(IncidentOpenedEvent.Type, Source, incident.Id,
                 new IncidentOpenedEvent(incident.Id, incident.OperatorId, incident.AlertId, incident.Severity.ToString(),

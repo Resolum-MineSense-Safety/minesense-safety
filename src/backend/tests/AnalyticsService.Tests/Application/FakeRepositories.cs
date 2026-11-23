@@ -1,3 +1,4 @@
+using MineSenseSafety.Shared.Domain.Model;
 using AnalyticsService.Domain.Model.Aggregates;
 using AnalyticsService.Domain.Model.ValueObjects;
 using AnalyticsService.Domain.Repositories;
@@ -9,8 +10,21 @@ internal class FakeFatigueMetricRepository : IFatigueMetricRepository
 {
     public List<FatigueMetric> Items { get; } = [];
 
+    /// <summary>
+    /// Simulates another caller (the AlertIssued consumer or the API) that stores this aggregate
+    /// between the lookup and the insert: the next insert then hits the unique key, as in the database.
+    /// </summary>
+    public FatigueMetric? StoredConcurrently { get; set; }
+
     public Task AddAsync(FatigueMetric aggregate)
     {
+        if (StoredConcurrently is { } winner)
+        {
+            Items.Add(winner);
+            StoredConcurrently = null;
+            throw new DomainConflictException("A FatigueMetric with the same identity or business key already exists.");
+        }
+
         Items.Add(aggregate);
         return Task.CompletedTask;
     }
