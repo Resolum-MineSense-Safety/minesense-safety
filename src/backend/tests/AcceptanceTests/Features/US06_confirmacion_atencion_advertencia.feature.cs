@@ -159,12 +159,14 @@ namespace MineSenseSafety.AcceptanceTests.Features
         [Xunit.SkippableFactAttribute(DisplayName="Ausencia de confirmación")]
         [Xunit.TraitAttribute("FeatureTitle", "US06 - Confirmación de atención de una advertencia")]
         [Xunit.TraitAttribute("Description", "Ausencia de confirmación")]
+        [Xunit.TraitAttribute("Category", "solo-en-memoria")]
         public async System.Threading.Tasks.Task AusenciaDeConfirmacion()
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = new string[] {
+                    "solo-en-memoria"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Ausencia de confirmación", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 18
+#line 20
   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -174,16 +176,16 @@ namespace MineSenseSafety.AcceptanceTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 19
+#line 21
     await testRunner.GivenAsync("se emite una advertencia crítica", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 20
+#line 22
     await testRunner.WhenAsync("transcurre el tiempo establecido sin recibir confirmación", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 21
+#line 23
     await testRunner.ThenAsync("el evento permanece pendiente de confirmación", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 22
+#line 24
     await testRunner.AndAsync("el sistema comunica la ausencia de confirmación al supervisor", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }

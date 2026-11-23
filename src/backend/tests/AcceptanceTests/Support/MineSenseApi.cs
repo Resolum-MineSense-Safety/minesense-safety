@@ -1,12 +1,5 @@
-extern alias fatigue;
-extern alias alerts;
-
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Time.Testing;
 
 namespace MineSenseSafety.AcceptanceTests.Support;
@@ -17,32 +10,18 @@ public record AlertResult(Guid Id, Guid OperatorId, Guid AssessmentId, string Se
 
 /// <summary>
 /// Drives the Fatigue Detection and Alerts APIs exactly as a client would, over HTTP.
-/// A new pair of in-memory services is created for every scenario, so scenarios never share data.
-/// The Alerts clock is a FakeTimeProvider: deadlines (30 s for critical alerts) are tested
+/// In memory a new pair of services is created for every scenario, so scenarios never share data;
+/// against a deployed environment each scenario uses a new operator for the same reason.
+/// The in-memory Alerts clock is a FakeTimeProvider: deadlines (30 s for critical alerts) are tested
 /// without waiting.
 /// </summary>
-public sealed class MineSenseApi : IDisposable
+public sealed class MineSenseApi(MineSenseServices services)
 {
-    private readonly WebApplicationFactory<fatigue::Program> _fatigueFactory = new();
-    private readonly WebApplicationFactory<alerts::Program> _alertsFactory;
+    public FakeTimeProvider AlertsClock => services.Clock(Service.Alerts);
 
-    public MineSenseApi()
-    {
-        _alertsFactory = new WebApplicationFactory<alerts::Program>().WithWebHostBuilder(builder =>
-            builder.ConfigureTestServices(services =>
-            {
-                services.RemoveAll<TimeProvider>();
-                services.AddSingleton<TimeProvider>(AlertsClock);
-            }));
-        Fatigue = _fatigueFactory.CreateClient();
-        Alerts = _alertsFactory.CreateClient();
-    }
+    public HttpClient Fatigue => services.Client(Service.FatigueDetection);
 
-    public FakeTimeProvider AlertsClock { get; } = new(DateTimeOffset.UtcNow);
-
-    public HttpClient Fatigue { get; }
-
-    public HttpClient Alerts { get; }
+    public HttpClient Alerts => services.Client(Service.Alerts);
 
     public Guid OperatorId { get; } = Guid.NewGuid();
 
@@ -84,12 +63,4 @@ public sealed class MineSenseApi : IDisposable
 
     public async Task<AlertResult> GetAlertAsync(Guid alertId) =>
         (await Alerts.GetFromJsonAsync<AlertResult>($"/api/v1/alerts/{alertId}"))!;
-
-    public void Dispose()
-    {
-        Fatigue.Dispose();
-        Alerts.Dispose();
-        _fatigueFactory.Dispose();
-        _alertsFactory.Dispose();
-    }
 }
