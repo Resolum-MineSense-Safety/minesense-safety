@@ -110,3 +110,109 @@ output "state_bucket" {
 output "lock_table" {
   value = aws_dynamodb_table.locks.name
 }
+
+# ---------- Infrastructure pipeline (infrastructure-cd.yml) ----------
+# Two roles so a pull request can never change the account:
+#   terraform-plan  - read-only, assumable from pull requests and develop: terraform plan + cost report
+#   terraform-apply - administrator, assumable ONLY from the protected GitHub environment
+#                     "infrastructure", which requires a reviewer's approval before each apply/destroy.
+
+variable "github_repository" {
+  description = "Repository whose workflows may assume the infrastructure roles."
+  type        = string
+  default     = "Resolum-MineSense-Safety/minesense-safety"
+}
+
+variable "create_github_terraform_roles" {
+  description = "Create the plan/apply roles of the infrastructure pipeline."
+  type        = bool
+  default     = true
+}
+
+data "aws_caller_identity" "current" {}
+
+locals {
+  github_oidc_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
+  terraform_roles = var.create_github_terraform_roles ? {
+    plan = {
+      subjects = [
+        "repo:${var.github_repository}:pull_request",
+        "repo:${var.github_repository}:ref:refs/heads/develop",
+      ]
+      policy = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    }
+    apply = {
+      subjects = ["repo:${var.github_repository}:environment:infrastructure"]
+      policy   = "arn:aws:iam::aws:policy/AdministratorAccess"
+    }
+  } : {}
+}
+
+data "aws_iam_policy_document" "github_terraform_assume" {
+  for_each = local.terraform_roles
+
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [local.github_oidc_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = each.value.subjects
+    }
+  }
+}
+
+resource "aws_iam_role" "github_terraform" {
+  for_each = local.terraform_roles
+
+  name                 = "minesense-github-terraform-${each.key}"
+  description          = "GitHub Actions infrastructure pipeline: terraform ${each.key}."
+  assume_role_policy   = data.aws_iam_policy_document.github_terraform_assume[each.key].json
+  max_session_duration = 7200
+
+  depends_on = [aws_iam_openid_connect_provider.github]
+}
+
+resource "aws_iam_role_policy_attachment" "github_terraform" {
+  for_each = local.terraform_roles
+
+  role       = aws_iam_role.github_terraform[each.key].name
+  policy_arn = each.value.policy
+}
+
+# ReadOnlyAccess does not read secret values, and terraform plan refreshes the DocumentDB password
+# version. Only the secrets of this project, and plan runs with -lock=false so it never writes.
+data "aws_iam_policy_document" "plan_secrets" {
+  statement {
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = ["arn:aws:secretsmanager:*:${data.aws_caller_identity.current.account_id}:secret:minesense-*"]
+  }
+}
+
+resource "aws_iam_role_policy" "plan_secrets" {
+  count  = var.create_github_terraform_roles ? 1 : 0
+  name   = "read-project-secrets"
+  role   = aws_iam_role.github_terraform["plan"].id
+  policy = data.aws_iam_policy_document.plan_secrets.json
+}
+
+output "github_terraform_plan_role_arn" {
+  description = "Repository variable AWS_TERRAFORM_PLAN_ROLE_ARN."
+  value       = try(aws_iam_role.github_terraform["plan"].arn, null)
+}
+
+output "github_terraform_apply_role_arn" {
+  description = "Repository variable AWS_TERRAFORM_APPLY_ROLE_ARN."
+  value       = try(aws_iam_role.github_terraform["apply"].arn, null)
+}

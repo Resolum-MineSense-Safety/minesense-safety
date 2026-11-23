@@ -1,0 +1,287 @@
+name: Infrastructure CD (Terraform plan & apply)
+
+# Section 3.3/3.4 (AV3 feedback): the environment is created, verified and removed from the pipeline,
+# so any deployment can be repeated from versioned code instead of a laptop.
+#
+#   pull_request / push to develop  -> terraform plan of Staging (read-only role), summary in the run
+#   workflow_dispatch "apply"       -> deploy-all.sh: bootstrap, Lambda package, terraform apply,
+#                                      Helm releases, demo data -> acceptance tests against the URL
+#   workflow_dispatch "destroy"     -> destroy-all.sh, the environment stops costing money
+#   workflow_dispatch "cost-report" -> real cost by AWS service for a period (Cost Explorer)
+#
+# apply and destroy run in the GitHub environment "infrastructure", which requires a reviewer's
+# approval; only that environment can assume the administrator role (terraform/bootstrap).
+# Repository variables: AWS_TERRAFORM_PLAN_ROLE_ARN, AWS_TERRAFORM_APPLY_ROLE_ARN, AWS_REGION.
+# Without them every job explains what is missing and ends without failing.
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - "infrastructure/terraform/**"
+      - ".github/workflows/infrastructure-cd.yml"
+  push:
+    branches: [ "develop" ]
+    paths:
+      - "infrastructure/terraform/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: What to do with the environment
+        type: choice
+        options: [ plan, apply, destroy, cost-report ]
+        default: plan
+      environment:
+        description: Target environment
+        type: choice
+        options: [ staging ]
+        default: staging
+      image_tag:
+        description: Images to deploy on apply (sha-<commit> built by cd-deploy.yml)
+        type: string
+        default: ""
+      enable_kafka:
+        description: Create MSK Serverless on apply (about 0.78 USD/h more)
+        type: boolean
+        default: true
+      cost_start:
+        description: cost-report start date (YYYY-MM-DD)
+        type: string
+        default: ""
+      cost_end:
+        description: cost-report end date, exclusive (YYYY-MM-DD)
+        type: string
+        default: ""
+
+concurrency:
+  # One change at a time per environment; a plan never cancels a running apply.
+  group: infrastructure-${{ inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  TERRAFORM_VERSION: 1.9.8
+
+jobs:
+  plan:
+    name: Terraform plan (${{ inputs.environment || 'staging' }})
+    if: github.event_name != 'workflow_dispatch' || inputs.action == 'plan'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROLE: ${{ vars.AWS_TERRAFORM_PLAN_ROLE_ARN }}
+      STACK: infrastructure/terraform/environments/${{ inputs.environment || 'staging' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check AWS access
+        id: access
+        run: |
+          if [[ -z "$ROLE" ]]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::AWS_TERRAFORM_PLAN_ROLE_ARN is not set: plan skipped (Terraform Validate still runs). See docs/deploy/aws-staging.md."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup .NET 8 (Lambda package)
+        if: steps.access.outputs.enabled == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Terraform
+        if: steps.access.outputs.enabled == 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials (OIDC, read-only)
+        if: steps.access.outputs.enabled == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package the report Lambda
+        if: steps.access.outputs.enabled == 'true'
+        run: bash infrastructure/scripts/package-lambda.sh
+
+      - name: Terraform plan
+        if: steps.access.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          source infrastructure/scripts/lib/common.sh
+          terraform_init "$STACK" "$(state_bucket_name)"
+          # -lock=false: the plan role is read-only and never takes the state lock.
+          set +e
+          terraform -chdir="$STACK" plan -input=false -lock=false -no-color -detailed-exitcode \
+            -var "aws_region=$AWS_REGION" -out=tfplan > plan.txt 2>&1
+          code=$?
+          set -e
+          {
+            echo "### Terraform plan: \`$STACK\`"
+            case $code in
+              0) echo "Sin cambios: la infraestructura coincide con el código." ;;
+              2) echo "Con cambios:"; grep -E '^Plan:|will be (created|destroyed|updated|replaced)' plan.txt | head -60 | sed 's/^/    /' ;;
+              *) echo "El plan falló:"; tail -40 plan.txt | sed 's/^/    /' ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+          [[ $code -ne 1 ]]
+
+      - name: Upload plan
+        if: always() && steps.access.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ inputs.environment || 'staging' }}
+          path: plan.txt
+          retention-days: 14
+
+  apply:
+    name: Apply and deploy ${{ inputs.environment }}
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'apply'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment:
+      name: infrastructure
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Require role and image tag
+        env:
+          ROLE: ${{ vars.AWS_TERRAFORM_APPLY_ROLE_ARN }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          [[ -n "$ROLE" ]] || { echo "::error::Set the repository variable AWS_TERRAFORM_APPLY_ROLE_ARN (output of terraform/bootstrap)."; exit 1; }
+          [[ "$IMAGE_TAG" == sha-* ]] || { echo "::error::image_tag must be sha-<commit> of images built by cd-deploy.yml."; exit 1; }
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node.js (demo data)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+
+      - name: Configure AWS credentials (OIDC, approved environment)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 7200
+
+      - name: Deploy the environment (deploy-all.sh)
+        id: deploy
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USERNAME: ${{ github.actor }}
+          TF_VAR_enable_kafka: ${{ inputs.enable_kafka }}
+          TF_VAR_alarm_email: ${{ vars.REPORT_ALARM_EMAIL }}
+        run: |
+          started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          bash infrastructure/scripts/deploy-all.sh "${{ inputs.environment }}" "${{ inputs.image_tag }}" | tee deploy.log
+          url="$(grep -oE 'MineSense Safety en [a-z]+: https?://[^ ]+' deploy.log | tail -1 | awk '{print $NF}')"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          {
+            echo "### ${{ inputs.environment }} desplegado"
+            echo "- Imágenes: \`${{ inputs.image_tag }}\`"
+            echo "- Inicio: $started · Fin: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- URL: $url"
+            echo "- Apagar: este workflow con action=destroy"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  acceptance:
+    name: Acceptance tests against ${{ inputs.environment }}
+    needs: apply
+    if: needs.apply.outputs.url != ''
+    uses: ./.github/workflows/acceptance-tests.yml
+    with:
+      base_url: ${{ needs.apply.outputs.url }}
+    secrets: inherit
+
+  destroy:
+    name: Destroy ${{ inputs.environment }}
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'destroy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: infrastructure
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+
+      - name: Configure AWS credentials (OIDC, approved environment)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 7200
+
+      - name: Destroy (destroy-all.sh)
+        run: |
+          bash infrastructure/scripts/destroy-all.sh "${{ inputs.environment }}" --yes
+          echo "### ${{ inputs.environment }} destruido el $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
+
+  cost-report:
+    name: Real AWS cost
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'cost-report'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC, read-only)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_PLAN_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Cost by service
+        env:
+          COST_TAG_PROJECT: ${{ vars.COST_TAG_PROJECT }}
+        run: bash infrastructure/scripts/cost-report.sh "${{ inputs.cost_start }}" "${{ inputs.cost_end }}" | tee -a "$GITHUB_STEP_SUMMARY"
