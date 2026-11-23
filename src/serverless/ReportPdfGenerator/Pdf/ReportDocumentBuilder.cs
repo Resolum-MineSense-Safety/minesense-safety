@@ -22,10 +22,10 @@ public static class ReportDocumentBuilder
         var summary = request.Summary;
         pdf.Table(["Indicador", "Valor"],
         [
-            ["Detecciones de fatiga", summary.Detections.ToString(Format)],
-            ["Alertas emitidas", summary.Alerts.ToString(Format)],
-            ["Alertas críticas", summary.CriticalAlerts.ToString(Format)],
-            ["Incidentes cerrados", summary.IncidentsClosed.ToString(Format)],
+            ["Detecciones de fatiga", summary.Detections?.ToString(Format) ?? "Sin datos"],
+            ["Alertas emitidas", summary.Alerts?.ToString(Format) ?? "Sin datos"],
+            ["Alertas críticas", summary.CriticalAlerts?.ToString(Format) ?? "Sin datos"],
+            ["Incidentes cerrados", summary.IncidentsClosed?.ToString(Format) ?? "Sin datos"],
             ["Tiempo medio de atención (min)", summary.AverageAttentionMinutes?.ToString("0.0", Format) ?? "Sin datos"]
         ]);
 

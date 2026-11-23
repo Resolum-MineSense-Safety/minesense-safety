@@ -9,5 +9,5 @@ public static class FatigueAssessmentResourceFromEntityAssembler
         new(assessment.Id, assessment.OperatorId, assessment.MonitoringSessionId,
             assessment.Signals.Perclos, assessment.Signals.BlinkRatePerMinute,
             assessment.Signals.HeartRateVariabilityMs, assessment.RiskLevel.ToString(),
-            assessment.RequiresAlert, assessment.AssessedAt);
+            assessment.RequiresAlert, assessment.AssessedAt, assessment.Origin.ToString(), assessment.SyncedAt);
 }

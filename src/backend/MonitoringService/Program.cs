@@ -1,3 +1,4 @@
+using MineSenseSafety.Shared.Infrastructure.Security;
 using MonitoringService.Application.Internal.CommandServices;
 using MonitoringService.Application.Internal.OutboundServices;
 using MonitoringService.Application.Internal.QueryServices;
@@ -5,17 +6,28 @@ using MonitoringService.Domain.Repositories;
 using MonitoringService.Domain.Services;
 using MonitoringService.Infrastructure.DeviceManagement;
 using MonitoringService.Infrastructure.Persistence.InMemory;
+using MonitoringService.Infrastructure.Persistence.PostgreSql;
 using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Monitoring bounded context (EP01)
-builder.Services.AddSingleton<IMonitoringSessionRepository, InMemoryMonitoringSessionRepository>();
+// Persistence (ADR-005): PostgreSQL when ConnectionStrings:PostgreSql is set, in memory otherwise
+if (builder.Services.AddMineSensePostgres(builder.Configuration))
+    builder.Services.AddPostgresRepository<IMonitoringSessionRepository, PostgresMonitoringSessionRepository>();
+else
+    builder.Services.AddSingleton<IMonitoringSessionRepository, InMemoryMonitoringSessionRepository>();
 builder.Services.AddScoped<IMonitoringSessionCommandService, MonitoringSessionCommandService>();
 builder.Services.AddScoped<IMonitoringSessionQueryService, MonitoringSessionQueryService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ForwardAuthorizationHandler>();
 
 // Outbound: Device Management bounded context (devices available before the shift)
 var deviceManagementServiceUrl =
@@ -24,9 +36,11 @@ var batteryThreshold = builder.Configuration.GetValue("Monitoring:BatteryThresho
 builder.Services.AddHttpClient(nameof(IDeviceAvailabilityService), client =>
         client.BaseAddress = new Uri(deviceManagementServiceUrl.TrimEnd('/') + "/"))
     .AddTypedClient<IDeviceAvailabilityService>(httpClient =>
-        new HttpDeviceAvailabilityService(httpClient, batteryThreshold));
+        new HttpDeviceAvailabilityService(httpClient, batteryThreshold))
+    .AddHttpMessageHandler<ForwardAuthorizationHandler>();
 
 var app = builder.Build();
+await app.Services.InitializePostgresTablesAsync(app.Lifetime.ApplicationStopping);
 
 if (app.Environment.IsDevelopment())
 {

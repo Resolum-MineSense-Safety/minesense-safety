@@ -84,6 +84,44 @@ public class FunctionTests
     }
 
     [Fact]
+    public async Task ProcessAsync_WithRequestedAt_StoresUnderThatDate()
+    {
+        // Arrange
+        var requestedAt = new DateTimeOffset(2026, 10, 31, 23, 59, 0, TimeSpan.Zero);
+        var request = ReportRequests.Valid() with { RequestedAt = requestedAt };
+
+        // Act
+        await _function.ProcessAsync(JsonSerializer.Serialize(request, Web), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(requestedAt, Assert.Single(_storage.RequestedAts));
+    }
+
+    [Fact]
+    public async Task ProcessAsync_WithoutRequestedAt_StoresUnderProcessingDate()
+    {
+        // Act
+        await _function.ProcessAsync(JsonSerializer.Serialize(ReportRequests.Valid(), Web), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(new DateTimeOffset(2026, 11, 2, 0, 0, 0, TimeSpan.Zero), Assert.Single(_storage.RequestedAts));
+    }
+
+    [Fact]
+    public void ReportObjectKey_UsesUtcYearAndMonth()
+    {
+        // Arrange
+        var reportId = Guid.Parse("5d1f7a3e-2c4b-4f8e-9a61-0b7c2d9e4f10");
+        var lastMinuteOfOctoberInLima = new DateTimeOffset(2026, 10, 31, 23, 59, 0, TimeSpan.FromHours(-5));
+
+        // Act
+        var key = ReportObjectKey.For(reportId, lastMinuteOfOctoberInLima);
+
+        // Assert
+        Assert.Equal("reports/2026/11/5d1f7a3e-2c4b-4f8e-9a61-0b7c2d9e4f10.pdf", key);
+    }
+
+    [Fact]
     public async Task ProcessAsync_SampleRequestFile_IsValid()
     {
         // Arrange
@@ -99,12 +137,14 @@ public class FunctionTests
     private sealed class FakeStorage : IReportStorage
     {
         public List<(Guid ReportId, byte[] Document)> Saved { get; } = [];
+        public List<DateTimeOffset> RequestedAts { get; } = [];
         public Model.ReportRequest? FailFor { get; set; }
 
-        public Task<string> SaveAsync(Guid reportId, byte[] document, CancellationToken cancellationToken)
+        public Task<string> SaveAsync(Guid reportId, DateTimeOffset requestedAt, byte[] document, CancellationToken cancellationToken)
         {
             if (FailFor?.ReportId == reportId) throw new IOException("S3 unavailable");
             Saved.Add((reportId, document));
+            RequestedAts.Add(requestedAt);
             return Task.FromResult($"fake/{reportId}.pdf");
         }
     }

@@ -23,6 +23,12 @@ variable "report_retention_days" {
   default     = 365
 }
 
+variable "force_destroy_bucket" {
+  description = "Delete the generated reports together with the bucket on terraform destroy."
+  type        = bool
+  default     = false
+}
+
 variable "oidc_provider_arn" {
   description = "EKS OIDC provider, used to grant the Reporting Service its IAM role."
   type        = string

@@ -25,8 +25,7 @@ public class Function
     public Function() : this(
         new S3ReportStorage(new AmazonS3Client(),
             Environment.GetEnvironmentVariable("REPORTS_BUCKET")
-            ?? throw new InvalidOperationException("REPORTS_BUCKET is not configured."),
-            TimeProvider.System),
+            ?? throw new InvalidOperationException("REPORTS_BUCKET is not configured.")),
         TimeProvider.System)
     {
     }
@@ -80,7 +79,8 @@ public class Function
             throw new InvalidReportRequestException(string.Join(" ", errors));
 
         var document = ReportDocumentBuilder.Build(request!, _timeProvider.GetUtcNow());
-        return await _storage.SaveAsync(request!.ReportId, document, cancellationToken);
+        var requestedAt = request!.RequestedAt ?? _timeProvider.GetUtcNow();
+        return await _storage.SaveAsync(request.ReportId, requestedAt, document, cancellationToken);
     }
 }
 

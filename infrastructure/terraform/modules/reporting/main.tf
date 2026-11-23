@@ -5,6 +5,8 @@
 # ---------- Storage of generated reports ----------
 resource "aws_s3_bucket" "reports" {
   bucket_prefix = "${var.name}-reports-"
+  # Versioned: without this a non-empty bucket blocks terraform destroy.
+  force_destroy = var.force_destroy_bucket
   tags          = var.tags
 }
 
@@ -186,6 +188,14 @@ data "aws_iam_policy_document" "reporting_service_access" {
     sid       = "DownloadReports"
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.reports.arn}/reports/*"]
+  }
+
+  # Without it S3 answers 403 instead of 404 while the PDF does not exist yet. No s3:prefix
+  # condition: reading an object does not send that key, so the condition would never match.
+  statement {
+    sid       = "DetectMissingReports"
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.reports.arn]
   }
 }
 

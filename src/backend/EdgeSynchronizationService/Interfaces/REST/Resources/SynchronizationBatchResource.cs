@@ -10,7 +10,9 @@ public sealed record SynchronizationBatchResource(
     DateTimeOffset CapturedAt,
     DateTimeOffset ReceivedAt,
     string Status,
-    IReadOnlyCollection<SynchronizationEventResource> Events);
+    IReadOnlyCollection<SynchronizationEventResource> Events,
+    bool PublicationPending = false,
+    DateTimeOffset? PublishedAt = null);
 
 public sealed record SynchronizationEventResource(
     Guid EventId,

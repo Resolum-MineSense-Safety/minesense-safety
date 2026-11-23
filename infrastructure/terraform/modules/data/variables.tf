@@ -30,6 +30,11 @@ variable "documentdb_instance_class" {
   default = "db.t4g.medium"
 }
 
+variable "documentdb_engine_version" {
+  type    = string
+  default = "5.0.0"
+}
+
 variable "documentdb_instances" {
   type    = number
   default = 1

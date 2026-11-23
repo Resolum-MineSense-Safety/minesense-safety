@@ -26,6 +26,12 @@ de acceso) y **Audit** (`AccessAuditEntry` append-only con hash-chain,
 - `POST /api/v1/reports/safety`, `GET /api/v1/reports/{id}` (US22)
 - `GET /api/v1/incidents/{incidentId}/history` (US23)
 
+> [!note] Actualizado
+> Las rutas de US22 y US23 se movieron a `POST /api/v1/audit/compliance-reports`,
+> `GET /api/v1/audit/compliance-reports/{id}` y `GET /api/v1/audit/incidents/{incidentId}/history`:
+> el gateway envía `/api/v1/reports` a Reporting Service y `/api/v1/incidents` a Incident
+> Management, así que las rutas originales no eran alcanzables desde fuera del clúster.
+
 ## Alternativas consideradas
 
 - Implementar EP09/EP10 dentro de otro servicio (rechazada: mezcla responsabilidades).

@@ -17,6 +17,10 @@ public class Alert : AggregateRoot
     public AlertStatus Status { get; private set; }
     public DateTimeOffset IssuedAt { get; private set; }
     public DateTimeOffset? AcknowledgedAt { get; private set; }
+    public AlertOrigin Origin { get; private set; }
+
+    /// <summary>When a cabin warning reached the cloud; <see cref="IssuedAt"/> keeps the time it was given.</summary>
+    public DateTimeOffset? SyncedAt { get; private set; }
 
     public Alert(IssueAlertCommand command, DateTimeOffset issuedAt)
     {
@@ -28,6 +32,18 @@ public class Alert : AggregateRoot
         Severity = command.Severity;
         Status = AlertStatus.Issued;
         IssuedAt = issuedAt;
+    }
+
+    /// <summary>Warning the cabin already gave the operator, recorded as history.</summary>
+    public Alert(RecordCabinWarningCommand command, DateTimeOffset syncedAt)
+        : this(new IssueAlertCommand(command.OperatorId, command.AssessmentId, command.Severity), command.IssuedAt)
+    {
+        if (command.AssessmentId == Guid.Empty)
+            throw new DomainException("A cabin warning must reference its reading.");
+
+        Status = AlertStatus.RecordedFromEdge;
+        Origin = AlertOrigin.Edge;
+        SyncedAt = syncedAt;
     }
 
     public void Acknowledge(DateTimeOffset acknowledgedAt)

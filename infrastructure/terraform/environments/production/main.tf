@@ -12,13 +12,13 @@ terraform {
     }
   }
 
-  # Remote state created by ../../bootstrap; one key per environment.
+  # Remote state created by ../../bootstrap; one key per environment. The bucket name is globally
+  # unique, so it is not fixed here:
+  #   terraform init -backend-config="bucket=minesense-safety-tfstate-<account id>" \
+  #     -backend-config="dynamodb_table=minesense-safety-terraform-locks" -backend-config="region=us-east-1"
   backend "s3" {
-    bucket         = "minesense-safety-terraform-state"
-    key            = "production/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "minesense-safety-terraform-locks"
-    encrypt        = true
+    key     = "production/terraform.tfstate"
+    encrypt = true
   }
 }
 
@@ -53,6 +53,7 @@ module "eks" {
   source = "../../modules/eks"
 
   cluster_name        = local.name
+  kubernetes_version  = var.kubernetes_version
   vpc_id              = module.network.vpc_id
   private_subnet_ids  = module.network.private_subnet_ids
   node_instance_types = var.node_instance_types
@@ -77,11 +78,15 @@ module "data" {
 
 module "messaging" {
   source = "../../modules/messaging"
+  count  = var.enable_kafka ? 1 : 0
 
   name                       = local.name
   vpc_id                     = module.network.vpc_id
   private_subnet_ids         = module.network.private_subnet_ids
   allowed_security_group_ids = [module.eks.node_security_group_id]
+  oidc_provider_arn          = module.eks.oidc_provider_arn
+  oidc_provider              = module.eks.oidc_provider
+  kubernetes_namespace       = var.environment
 }
 
 module "iot" {
@@ -98,6 +103,7 @@ module "reporting" {
   oidc_provider_arn    = module.eks.oidc_provider_arn
   oidc_provider        = module.eks.oidc_provider
   kubernetes_namespace = var.environment
+  force_destroy_bucket = !var.deletion_protection
 }
 
 module "delivery" {

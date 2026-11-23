@@ -14,7 +14,8 @@ public static class SynchronizationBatchAssembler
         new(batch.BatchId, batch.EdgeNodeId, batch.DeviceId, batch.SequenceNumber,
             batch.CapturedAt, batch.ReceivedAt, batch.Status.ToString(),
             batch.Events.Select(item => new SynchronizationEventResource(
-                item.EventId, item.OccurredAt, item.EventType, item.Payload)).ToList());
+                item.EventId, item.OccurredAt, item.EventType, item.Payload)).ToList(),
+            batch.PublicationPending, batch.PublishedAt);
 
     private static SynchronizationEvent ToEvent(SynchronizationEventResource resource) =>
         new(resource.EventId, resource.OccurredAt, resource.EventType, resource.Payload);

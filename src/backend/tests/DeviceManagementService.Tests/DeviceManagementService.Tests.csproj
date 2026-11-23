@@ -16,6 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Include="..\TestSupport\PostgresIntegration.cs" Link="Infrastructure\PostgresIntegration.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Using Include="Xunit"/>
     </ItemGroup>
 

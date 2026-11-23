@@ -1,6 +1,6 @@
 # Feedback and Reliability Service
 
-EP12 implements US26 (operator feedback), US27 (supervisor review), US28 (reliability metrics), TS-20 and TS-28 from the MineSense Safety report. Cloud service: .NET 8, port **5280**, MongoDB database `minesense_feedback`, collection `alert_evaluations`.
+EP12 implements US26 (operator feedback), US27 (supervisor review), US28 (reliability metrics), TS-20 and TS-28 from the MineSense Safety report. Cloud service: .NET 8, port **5281** (same host port as `docker-compose.yml`), MongoDB database `minesense_feedback`, collection `alert_evaluations`.
 
 ## Responsibilities and architecture
 
@@ -85,7 +85,7 @@ $env:ConnectionStrings__MongoDb = 'mongodb://localhost:27017'
 dotnet run --project src/backend/FeedbackReliabilityService --launch-profile http
 ```
 
-Start MongoDB with `docker compose up -d mongodb`. Start AlertService on port 5233 separately. For the container, configure `FEEDBACK_AUTHORITY` and optionally `FEEDBACK_ALERT_SERVICE_URL`, then `docker compose up --build feedback-reliability-service`. Defaults use the host's AlertService through `host.docker.internal:5233`. The new service does not run or change other microservices automatically.
+Start MongoDB with `docker compose up -d mongodb`. Start AlertService on port 5233 separately. For the container, tokens come from Identity & Access through `Authentication__IdentityUrl` (set by docker-compose); optionally configure `FEEDBACK_ALERT_SERVICE_URL`, then `docker compose up --build feedback-reliability-service`. Defaults use the host's AlertService through `host.docker.internal:5233`. The new service does not run or change other microservices automatically.
 
 | Setting | Default / behavior |
 |---|---|

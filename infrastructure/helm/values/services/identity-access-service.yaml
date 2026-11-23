@@ -2,7 +2,9 @@
 name: identity-access-service
 image:
   repository: identity-access-service
-# Signing key and bootstrap administrator come from AWS Secrets Manager (ADR-007).
+# Signing key, bootstrap administrator and ConnectionStrings__PostgreSql (Amazon RDS, database
+# minesense_identity) come from AWS Secrets Manager (ADR-007, ADR-005). Without the connection
+# string users and sessions are kept in memory.
 # All replicas must share the same key, otherwise a token issued by one pod fails in another.
 envFromSecrets:
   - identity-access-secrets

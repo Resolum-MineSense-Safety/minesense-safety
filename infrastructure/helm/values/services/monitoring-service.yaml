@@ -4,3 +4,7 @@ image:
   repository: monitoring-service
 env:
   Services__DeviceManagementServiceUrl: http://device-management-service/
+# ConnectionStrings__PostgreSql (Amazon RDS, database minesense_monitoring) comes from AWS Secrets Manager;
+# without the secret the service runs in memory.
+optionalSecrets:
+  - monitoring-secrets

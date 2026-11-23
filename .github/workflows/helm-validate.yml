@@ -49,8 +49,9 @@ jobs:
             done
           done
           helm lint minesense-gateway --strict
+          helm lint minesense-edge-simulator --strict
 
-      - name: Render and validate manifests (Kubernetes 1.30)
+      - name: Render and validate manifests (Kubernetes 1.35)
         run: |
           mkdir -p rendered
           for env in staging production; do
@@ -61,5 +62,7 @@ jobs:
                 > "rendered/$env-$service.yaml"
             done
             helm template minesense-gateway minesense-gateway --namespace "$env" > "rendered/$env-gateway.yaml"
+            helm template edge-agent minesense-edge-simulator --namespace "$env" --set-string image.tag=sha-ci \
+              > "rendered/$env-edge-simulator.yaml"
           done
-          kubeconform -strict -summary -kubernetes-version 1.30.0 rendered/*.yaml ../k8s/*.yaml
+          kubeconform -strict -summary -kubernetes-version 1.35.0 rendered/*.yaml ../k8s/*.yaml

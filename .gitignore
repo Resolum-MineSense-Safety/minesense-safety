@@ -66,3 +66,5 @@ dist-ssr/
 *.sqlite3
 # --- Serverless (Lambda packages) ---
 src/serverless/**/artifacts/
+# --- Edge agent offline buffer ---
+src/edge/data/
