@@ -76,6 +76,15 @@ public sealed class MineSenseServices : IDisposable
     public HttpClient SecuredAnonymous(Service service) =>
         IsRemote ? RemoteEnvironment.AnonymousClient() : SecuredHost(service).Client;
 
+    /// <summary>Client for the service that presents the given bearer token instead of the acceptance credentials.</summary>
+    public HttpClient WithBearer(Service service, string token)
+    {
+        var client = IsRemote ? RemoteEnvironment.WithBearer(token) : Host(service).Factory.CreateClient();
+        if (!IsRemote) client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        _disposables.Add(client);
+        return client;
+    }
+
     /// <summary>Same as <see cref="SecuredAnonymous"/>, presenting the given bearer token.</summary>
     public HttpClient SecuredWithBearer(Service service, string token)
     {

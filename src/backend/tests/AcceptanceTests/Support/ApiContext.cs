@@ -55,7 +55,7 @@ public sealed class ApiContext(MineSenseServices services)
     {
         await SendAsync(service, method, path, body);
         AssertStatus(expected);
-        return JsonBody;
+        return string.IsNullOrWhiteSpace(Body) ? default : JsonBody;
     }
 
     public void AssertStatus(HttpStatusCode expected) =>
