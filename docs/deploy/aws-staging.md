@@ -46,7 +46,7 @@ Las imágenes salen del workflow [cd-deploy.yml](https://github.com/Resolum-Mine
 gh workflow run cd-deploy.yml --ref <rama> -f environment=staging
 ```
 
-El despliegue dentro de ese workflow sigue apagado mientras `EKS_DEPLOY_ENABLED` no sea `true`, así que solo construye.
+El job de despliegue de ese workflow corre solo cuando existe `AWS_DEPLOY_ROLE_ARN` y el entorno está creado; toma los valores del estado de Terraform. Sin entorno, solo construye.
 
 Los paquetes de GHCR son **privados** (el registro responde `authentication required` sin token), así que el clúster necesita una credencial. `deploy-all.sh` crea el secreto `ghcr-pull` y lo usa en todos los pods si exportas un token con `read:packages`:
 
@@ -105,6 +105,44 @@ Imprime nodos, `kubectl get pods,svc,ingress`, `/health/ready` de cada servicio 
 | Despliegue cloud con IaC | `terraform` + `status.sh` |
 | Pruebas de aceptación en el pipeline | `acceptance-tests.yml` (corren dentro del pipeline, no contra Staging) |
 | Backend, frontend, base de datos y edge | URL pública, `kubectl get pods`, logs de `edge-agent` y lotes en la pantalla Edge |
+
+## Desde el pipeline (repetible, sin laptop)
+
+[infrastructure-cd.yml](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/.github/workflows/infrastructure-cd.yml) ejecuta los mismos scripts en GitHub Actions con credenciales OIDC temporales:
+
+| Disparador | Qué hace | Rol AWS |
+|---|---|---|
+| PR o push a `develop` que toca `infrastructure/terraform/**` | `terraform plan` de Staging y resumen de cambios en el run | `minesense-github-terraform-plan` (solo lectura) |
+| `action=apply` | `deploy-all.sh` (bootstrap, Lambda, `terraform apply`, Helm, datos demo) y luego las pruebas de aceptación contra la URL desplegada | `minesense-github-terraform-apply`, solo desde el environment `infrastructure` con aprobación |
+| `action=destroy` | `destroy-all.sh --yes` | el mismo, con aprobación |
+| `action=cost-report` | costo real por servicio de AWS entre dos fechas (Cost Explorer) | solo lectura |
+
+```bash
+gh workflow run infrastructure-cd.yml --ref develop -f action=apply -f image_tag=sha-<commit>
+gh workflow run infrastructure-cd.yml --ref develop -f action=destroy
+gh workflow run infrastructure-cd.yml --ref develop -f action=cost-report -f cost_start=2026-11-01 -f cost_end=2026-11-03
+```
+
+Los roles se crean con `bootstrap` (variables `AWS_TERRAFORM_PLAN_ROLE_ARN` y `AWS_TERRAFORM_APPLY_ROLE_ARN` en [infrastructure/helm/README.md](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/infrastructure/helm/README.md)).
+
+## Monitoreo de la Lambda
+
+`modules/reporting/monitoring.tf` crea, con cada `apply`:
+
+- Alarmas: errores de la Lambda (>0 en 5 min), throttles (>0), duración p95 (>80 % del timeout), antigüedad del mensaje más viejo de `report-requests` (>600 s) y mensajes en la DLQ (>0).
+- Tópico SNS `<entorno>-report-alarms`; con `REPORT_ALARM_EMAIL` (o `TF_VAR_alarm_email`) suscribe ese correo.
+- Dashboard de CloudWatch `<entorno>-report-generation`: invocaciones, errores, duración p50/p95/máx, mensajes enviados/borrados, antigüedad de la cola, DLQ y estado de las alarmas.
+- Trazas X-Ray de cada render.
+
+## Costo real
+
+Cost Explorer tarda hasta 24 h en mostrar el gasto. Al día siguiente de un despliegue:
+
+```bash
+infrastructure/scripts/cost-report.sh 2026-11-01 2026-11-03
+```
+
+Para filtrar solo MineSense, activa la etiqueta `Project` como *cost allocation tag* en Billing (no es retroactiva) y exporta `COST_TAG_PROJECT="MineSense Safety"`.
 
 ## 5. Apagar
 

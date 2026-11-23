@@ -79,24 +79,22 @@ dentro del prefijo de otro servicio van primero:
 
 1. `terraform apply` de `bootstrap` (estado remoto y proveedor OIDC de GitHub) y del entorno
    (`environments/staging` o `environments/production`).
-2. En GitHub, crear los environments `staging` y `production`; en `production`, activar
-   *Required reviewers*. Variables de cada environment (salidas de Terraform):
+2. En GitHub, crear los environments `staging`, `production` (con *Required reviewers*) e
+   `infrastructure` (con *Required reviewers*: aprueba cada `terraform apply`/`destroy`).
+   Variables de repositorio (todas son nombres estables, no cambian al recrear el entorno):
 
    | Variable | Valor |
    | --- | --- |
    | `AWS_REGION` | `us-east-1` |
-   | `EKS_CLUSTER_NAME` | `cluster_name` |
-   | `VPC_ID` | VPC del entorno |
-   | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` |
-   | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
-   | `KAFKA_CLIENT_ROLE_ARN` | `kafka_client_role_arn` (IRSA de los 7 servicios con eventos; MSK Serverless solo acepta SASL/IAM) |
-   | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
-   | `REPORT_REQUESTS_QUEUE_URL` | `report_requests_queue_url` (PDF serverless, ADR-008; va junto con `REPORTS_BUCKET`, vacías = PDF en proceso) |
-   | `REPORTS_BUCKET` | `reports_bucket` |
-   | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
+   | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` (`arn:aws:iam::<cuenta>:role/minesense-staging-github-deploy`) |
+   | `AWS_TERRAFORM_PLAN_ROLE_ARN` | salida `github_terraform_plan_role_arn` de `bootstrap` |
+   | `AWS_TERRAFORM_APPLY_ROLE_ARN` | salida `github_terraform_apply_role_arn` de `bootstrap` |
+   | `REPORT_ALARM_EMAIL` | correo que recibe las alarmas de la Lambda y las colas (opcional) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 
-   Y la variable de repositorio `EKS_DEPLOY_ENABLED=true` para activar los despliegues.
+   El resto (clúster, VPC, roles IRSA, cola, bucket, Kafka) ya no se copia a mano: el job de
+   despliegue de `cd-deploy.yml` lo lee del estado de Terraform del entorno, así que funciona
+   igual después de recrearlo con `infrastructure-cd.yml`. `EKS_DEPLOY_ENABLED=false` lo apaga.
 3. Crear los secretos de los servicios que los necesitan. `infrastructure/scripts/create-k8s-secrets.sh`
    lo hace de forma idempotente desde las salidas de Terraform y Secrets Manager (también lo llama
    `deploy-all.sh`). Equivalente a mano:

@@ -45,6 +45,20 @@ data "aws_iam_policy_document" "deploy" {
     actions   = ["eks:DescribeCluster"]
     resources = [var.cluster_arn]
   }
+
+  # cd-deploy.yml reads the Terraform outputs of its own environment (queue, bucket, roles, VPC),
+  # so a recreated environment is deployed automatically without copying values into variables.
+  statement {
+    sid       = "ReadOwnState"
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::${var.state_bucket_prefix}*/${var.github_environment}/terraform.tfstate"]
+  }
+
+  statement {
+    sid       = "ListStateBucket"
+    actions   = ["s3:ListBucket"]
+    resources = ["arn:aws:s3:::${var.state_bucket_prefix}*"]
+  }
 }
 
 resource "aws_iam_role_policy" "deploy" {
