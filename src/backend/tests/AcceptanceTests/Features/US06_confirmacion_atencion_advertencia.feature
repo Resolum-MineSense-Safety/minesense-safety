@@ -15,6 +15,8 @@ Feature: US06 - Confirmación de atención de una advertencia
     When sus señales regresan a una condición aceptable
     Then el sistema registra la recuperación
 
+  # The 30-second deadline is reached by moving the fake clock of the in-memory Alerts host.
+  @solo-en-memoria
   Scenario: Ausencia de confirmación
     Given se emite una advertencia crítica
     When transcurre el tiempo establecido sin recibir confirmación

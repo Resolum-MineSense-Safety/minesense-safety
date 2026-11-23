@@ -1,7 +1,7 @@
-# Non-functional user story NFR04 (accessibility, section 4.4.5 and 4.8).
+# Non-functional user story RNF04 (accessibility, section 4.4.5 and 4.8).
 # Automated with playwright-bdd + axe-core: npx bddgen && npx playwright test --project=bdd-chromium
-@nfr @accesibilidad
-Feature: NFR04 - Accesibilidad del Supervision Dashboard
+@no-funcional @accesibilidad
+Feature: RNF04 - Accesibilidad del Supervision Dashboard
   Como supervisor de seguridad con baja visión o que trabaja con teclado
   quiero que el dashboard cumpla las pautas WCAG 2.1 nivel AA
   para leer y atender las alertas sin depender del mouse ni de una visión perfecta.

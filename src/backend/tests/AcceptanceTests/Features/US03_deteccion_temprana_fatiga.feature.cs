@@ -221,16 +221,16 @@ namespace MineSenseSafety.AcceptanceTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-                global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
                             "perclos",
                             "parpadeos_por_minuto",
                             "variabilidad_cardiaca_ms"});
-                table4.AddRow(new string[] {
+                table8.AddRow(new string[] {
                             string.Format("{0}", perclos),
                             string.Format("{0}", parpadeos),
                             string.Format("{0}", variabilidad)});
 #line 26
-    await testRunner.GivenAsync("el operador presenta las señales de cabina", ((string)(null)), table4, "Given ");
+    await testRunner.GivenAsync("el operador presenta las señales de cabina", ((string)(null)), table8, "Given ");
 #line hidden
 #line 29
     await testRunner.WhenAsync("el sistema evalúa las señales", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");

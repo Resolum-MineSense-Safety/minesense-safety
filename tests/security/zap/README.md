@@ -24,7 +24,7 @@ docker run --rm --network host -v "$PWD/tests/security/zap:/zap/wrk:rw" ghcr.io/
 
 | Riesgo | Control en MineSense | Evidencia |
 |---|---|---|
-| A01 Broken Access Control | JWT RS256 obligatorio en cada API (ADR-007), roles por endpoint, RBAC en Kubernetes | `AuthenticationTests`, NFR02 y la prueba E2E de 401 |
+| A01 Broken Access Control | JWT RS256 obligatorio en cada API (ADR-007), roles por endpoint, RBAC en Kubernetes | `AuthenticationTests`, RNF02 y la prueba E2E de 401 |
 | A02 Cryptographic Failures | TLS 1.2/1.3 en el ALB con ACM, cifrado en reposo en DocumentDB y RDS (`storage_encrypted`), contraseñas con PBKDF2-SHA256 | Terraform `modules/data`, `ssl-policy` del Ingress, `Pbkdf2HashingService` |
 | A03 Injection | Consultas parametrizadas (Npgsql), driver tipado de MongoDB, validación `[JsonRequired]` | Reglas 40018 y 40012 de ZAP en `FAIL`, SonarCloud |
 | A04 Insecure Design | Amenazas tratadas en los ADR, procesamiento en edge sin depender de la nube | ADR-002/003 |

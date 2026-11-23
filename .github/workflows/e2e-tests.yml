@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # bdd-*: the Gherkin acceptance test of NFR04 (features/*.feature, playwright-bdd).
+        # bdd-*: the Gherkin acceptance test of RNF04 (features/*.feature, playwright-bdd).
         project: [ chromium, firefox, webkit, tablet-webkit, bdd-chromium, bdd-firefox ]
     env:
       BASE_URL: http://localhost:8080

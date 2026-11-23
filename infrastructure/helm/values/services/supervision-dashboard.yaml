@@ -1,4 +1,4 @@
-# Supervision Dashboard: static React build on nginx-unprivileged (UID 101, port 8080, /tmp writable).
+# Supervision Dashboard: static React build on Alpine nginx (UID 101, port 8080, /tmp writable).
 name: supervision-dashboard
 image:
   repository: supervision-dashboard

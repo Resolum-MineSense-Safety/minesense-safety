@@ -1,4 +1,4 @@
-// Steps of NFR04 (playwright-bdd). The same axe rules as tests/accessibility.spec.js.
+// Steps of RNF04 (playwright-bdd). The same axe rules as tests/accessibility.spec.js.
 import AxeBuilder from '@axe-core/playwright'
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'

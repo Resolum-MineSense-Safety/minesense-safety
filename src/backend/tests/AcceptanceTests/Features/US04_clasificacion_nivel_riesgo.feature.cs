@@ -208,59 +208,59 @@ namespace MineSenseSafety.AcceptanceTests.Features
             else
             {
                 await this.ScenarioStartAsync();
-                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
                             "operador",
                             "perclos",
                             "parpadeos_por_minuto",
                             "variabilidad_cardiaca_ms"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Rosa Quispe",
                             "0.45",
                             "8",
                             "18"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Luis Condori",
                             "0.20",
                             "18",
                             "45"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Ana Torres",
                             "0.05",
                             "15",
                             "60"});
-                table5.AddRow(new string[] {
+                table9.AddRow(new string[] {
                             "Juan Mamani",
                             "0.26",
                             "12",
                             "19"});
 #line 26
-    await testRunner.GivenAsync("los operadores del turno envían sus señales", ((string)(null)), table5, "Given ");
+    await testRunner.GivenAsync("los operadores del turno envían sus señales", ((string)(null)), table9, "Given ");
 #line hidden
 #line 32
     await testRunner.WhenAsync("el sistema determina el nivel de riesgo de cada operador", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
                             "operador",
                             "nivel",
                             "requiere_alerta"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "Rosa Quispe",
                             "Critical",
                             "sí"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "Luis Condori",
                             "Warning",
                             "sí"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "Ana Torres",
                             "Normal",
                             "no"});
-                table6.AddRow(new string[] {
+                table10.AddRow(new string[] {
                             "Juan Mamani",
                             "Critical",
                             "sí"});
 #line 33
-    await testRunner.ThenAsync("los operadores quedan clasificados así", ((string)(null)), table6, "Then ");
+    await testRunner.ThenAsync("los operadores quedan clasificados así", ((string)(null)), table10, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

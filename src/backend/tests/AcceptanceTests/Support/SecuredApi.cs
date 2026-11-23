@@ -10,7 +10,7 @@ namespace MineSenseSafety.AcceptanceTests.Support;
 
 /// <summary>
 /// Fatigue Detection and Alerts with token enforcement on, as in docker-compose and Kubernetes
-/// (NFR02). Identity &amp; Access is unreachable on purpose, so no token can be valid; every log
+/// (RNF02). Identity &amp; Access is unreachable on purpose, so no token can be valid; every log
 /// line of both services is captured to check that rejected attempts are recorded.
 /// </summary>
 public sealed class SecuredApi : IDisposable
@@ -26,11 +26,11 @@ public sealed class SecuredApi : IDisposable
 
     public CapturingLoggerProvider Logs { get; } = new();
 
-    public HttpClient Client(string service) => service switch
+    public HttpClient Client(Service service) => service switch
     {
-        "Fatigue Detection" => _fatigueFactory.CreateClient(),
-        "Alerts" => _alertsFactory.CreateClient(),
-        _ => throw new ArgumentOutOfRangeException(nameof(service), service, "Unknown service")
+        Service.FatigueDetection => _fatigueFactory.CreateClient(),
+        Service.Alerts => _alertsFactory.CreateClient(),
+        _ => throw new ArgumentOutOfRangeException(nameof(service), service, "Only Fatigue Detection and Alerts capture their logs.")
     };
 
     private void Secure(IWebHostBuilder builder) => builder

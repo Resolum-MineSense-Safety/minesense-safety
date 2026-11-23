@@ -1,4 +1,4 @@
-// Accessibility (section 4.4.5, NFR04): axe-core with the WCAG 2.1 A/AA rules on the login and on
+// Accessibility (section 4.4.5, RNF04): axe-core with the WCAG 2.1 A/AA rules on the login and on
 // the main pages. Serious and critical violations fail the test; every result is saved under
 // reports/axe for the report.
 import { mkdirSync, writeFileSync } from 'node:fs'

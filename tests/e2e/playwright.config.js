@@ -8,7 +8,7 @@ import { defineBddConfig } from 'playwright-bdd'
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
 
-// Gherkin acceptance tests of NFR04 (section 4.8): features/*.feature -> .features-gen (bddgen).
+// Gherkin acceptance tests of RNF04 (section 4.8): features/*.feature -> .features-gen (bddgen).
 const bddTestDir = defineBddConfig({
   features: 'features/*.feature',
   steps: 'features/steps/*.js',

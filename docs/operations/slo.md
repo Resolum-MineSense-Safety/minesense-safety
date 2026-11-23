@@ -25,7 +25,7 @@ vez en `Shared/Interfaces/ASP/Configuration/MetricsStartupFilter.cs`). El histog
 | SLO-1 | % de peticiones de la API sin respuesta 5xx | ≥ 99.5 % (presupuesto: 0.5 %, unas 3.6 h al mes) | Disponibilidad | `MineSenseErrorBudgetFastBurn` (crítica), `MineSenseErrorBudgetSlowBurn` (advertencia) |
 | SLO-2 | P95 de la latencia de `fatigue-detection-service` y `alert-service` | ≤ 500 ms | QAS 02 | `MineSenseCriticalPathSlow` (crítica) |
 | SLO-3 | P95 de la latencia del resto de la API | ≤ 2 s | QAS 06 | `MineSenseApiSlow` (advertencia) |
-| SLO-4 | % de peticiones sin token válido que se rechazan (401/403) | 100 % | QAS 04 | Se prueba en CI (`AuthenticationTests`, `NFR02`). `MineSenseUnauthorizedSpike` avisa de un posible ataque |
+| SLO-4 | % de peticiones sin token válido que se rechazan (401/403) | 100 % | QAS 04 | Se prueba en CI (`AuthenticationTests`, `RNF02`). `MineSenseUnauthorizedSpike` avisa de un posible ataque |
 | — | Targets arriba (`up`) | 13 de 13 | Disponibilidad | `MineSenseServiceDown` (crítica) |
 | — | Reinicios y saturación en Kubernetes | Sin CrashLoop; HPA por debajo de su máximo | Operación | `MineSensePodCrashLooping`, `MineSenseHpaAtMaximum` |
 

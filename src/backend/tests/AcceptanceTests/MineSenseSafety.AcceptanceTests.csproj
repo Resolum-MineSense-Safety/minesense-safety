@@ -1,9 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Automated acceptance tests (section 3.6): the Gherkin scenarios of the acceptance repository
-    run with Reqnroll against the real HTTP APIs of Fatigue Detection and Alerts, hosted in memory
-    with WebApplicationFactory (no containers, no external services).
+    Automated acceptance tests (section 3.6): the Gherkin scenarios of the user stories and of the
+    non-functional requirements run with Reqnroll against the real HTTP APIs of the microservices.
+    By default every API is hosted in memory with WebApplicationFactory (no containers, no external
+    services). When ACCEPTANCE_BASE_URL is set the same scenarios run against a deployed environment
+    through its API gateway; those tagged @solo-en-memoria are skipped there.
   -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -30,6 +32,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\FatigueDetectionService\FatigueDetectionService.csproj" Aliases="fatigue" />
     <ProjectReference Include="..\..\AlertService\AlertService.csproj" Aliases="alerts" />
+    <ProjectReference Include="..\..\IdentityAccessService\IdentityAccessService.csproj" Aliases="identity" />
+    <ProjectReference Include="..\..\OperationsService\OperationsService.csproj" Aliases="operations" />
+    <ProjectReference Include="..\..\DeviceManagementService\DeviceManagementService.csproj" Aliases="devices" />
+    <ProjectReference Include="..\..\MonitoringService\MonitoringService.csproj" Aliases="monitoring" />
+    <ProjectReference Include="..\..\FleetMonitoringService\FleetMonitoringService.csproj" Aliases="fleet" />
+    <ProjectReference Include="..\..\IncidentManagementService\IncidentManagementService.csproj" Aliases="incidents" />
+    <ProjectReference Include="..\..\AnalyticsService\AnalyticsService.csproj" Aliases="analytics" />
+    <ProjectReference Include="..\..\FeedbackReliabilityService\FeedbackReliabilityService.csproj" Aliases="feedback" />
+    <ProjectReference Include="..\..\PrivacyAuditService\PrivacyAuditService.csproj" Aliases="privacy" />
+    <ProjectReference Include="..\..\ReportingService\ReportingService.csproj" Aliases="reporting" />
+    <ProjectReference Include="..\..\EdgeSynchronizationService\EdgeSynchronizationService.csproj" Aliases="edgesync" />
   </ItemGroup>
 
 </Project>

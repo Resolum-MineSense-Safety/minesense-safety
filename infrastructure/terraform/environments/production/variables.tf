@@ -92,3 +92,9 @@ variable "access_groups" {
   type        = map(string)
   default     = {}
 }
+
+variable "alarm_email" {
+  description = "Address that receives the report-flow alarms (Lambda and SQS). Empty: alarms only show in CloudWatch."
+  type        = string
+  default     = ""
+}

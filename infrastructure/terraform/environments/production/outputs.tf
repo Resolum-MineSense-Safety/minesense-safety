@@ -70,3 +70,11 @@ output "github_deploy_role_arn" {
 output "load_balancer_controller_role_arn" {
   value = module.delivery.load_balancer_controller_role_arn
 }
+
+output "report_alarms_topic_arn" {
+  value = module.reporting.alarms_topic_arn
+}
+
+output "report_dashboard_name" {
+  value = module.reporting.dashboard_name
+}

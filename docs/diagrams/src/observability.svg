@@ -72,7 +72,7 @@
   <text x="850" y="330" class="h">SLO (docs/operations/slo.md)</text>
   <text x="850" y="356" class="s">SLO-1 Disponibilidad ≥ 99.5 % sin 5xx (30 días) · SLO-2 P95 detección y alertas ≤ 500 ms (QAS 02)</text>
   <text x="850" y="376" class="s">SLO-3 P95 resto de la API ≤ 2 s (QAS 06) · SLO-4 100 % de accesos sin token rechazados (QAS 04)</text>
-  <text x="850" y="396" class="s">Los mismos umbrales son los thresholds de k6 (4.4.3) y las aserciones de NFR01-NFR03 (4.8).</text>
+  <text x="850" y="396" class="s">Los mismos umbrales son los thresholds de k6 (4.4.3) y las aserciones de RNF01-RNF03 (4.8).</text>
 
   <rect x="830" y="460" width="730" height="120" rx="12" fill="#fafafa" stroke="#90a4ae" stroke-width="2"/>
   <text x="850" y="490" class="h">Entorno local (docker-compose.observability.yml)</text>
