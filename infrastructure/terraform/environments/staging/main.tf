@@ -104,6 +104,8 @@ module "reporting" {
   oidc_provider        = module.eks.oidc_provider
   kubernetes_namespace = var.environment
   force_destroy_bucket = !var.deletion_protection
+  alarm_email          = var.alarm_email
+  tags                 = local.tags
 }
 
 module "delivery" {

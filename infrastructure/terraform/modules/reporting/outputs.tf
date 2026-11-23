@@ -14,3 +14,13 @@ output "reporting_service_role_arn" {
   description = "Annotate the reporting-service ServiceAccount with this role."
   value       = aws_iam_role.reporting_service.arn
 }
+
+output "alarms_topic_arn" {
+  description = "SNS topic of the report-flow alarms."
+  value       = aws_sns_topic.alarms.arn
+}
+
+output "dashboard_name" {
+  description = "CloudWatch dashboard of the report flow."
+  value       = aws_cloudwatch_dashboard.reports.dashboard_name
+}
