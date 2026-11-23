@@ -9,7 +9,10 @@ Sección 4.4.4 del informe. El workflow
    prueba inyección, XSS, *path traversal* y errores que revelan información en cada endpoint.
 
 `rules.tsv` decide qué hace cada regla: `FAIL` rompe el pipeline, `WARN` solo avisa e `IGNORE` se
-descarta, siempre con su justificación. Los reportes HTML, JSON y Markdown se publican como artefacto
+descarta, siempre con su justificación. Los scripts de ZAP terminan con código 2 ante cualquier
+advertencia, así que el workflow les pasa `-I`: las `WARN` (y las reglas pasivas sin entrada en
+`rules.tsv`, que ZAP trata como advertencia) quedan en el reporte y en el resumen del job, y solo una
+regla en `FAIL` hace fallar el check. El paso *Summarize the alerts* publica el conteo por nivel de riesgo. Los reportes HTML, JSON y Markdown se publican como artefacto
 `zap-reports`.
 
 ## Cómo correrlo en local
