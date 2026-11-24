@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OperationsService.Domain.Model.Commands;
 using OperationsService.Domain.Model.Queries;
@@ -22,7 +21,6 @@ public class OperatorAssignmentsController(
     TimeProvider timeProvider) : ControllerBase
 {
     [HttpPost]
-    [Authorize(Roles = "ADMIN,SUPERVISOR")]
     public async Task<IActionResult> CreateAssignment(
         [FromBody] CreateAssignmentResource resource)
     {
@@ -41,7 +39,6 @@ public class OperatorAssignmentsController(
     }
 
     [HttpGet("{assignmentId:guid}")]
-    [Authorize]
     public async Task<IActionResult> GetAssignmentById(Guid assignmentId)
     {
         var assignment = await assignmentQueryService.Handle(
@@ -59,7 +56,6 @@ public class OperatorAssignmentsController(
     /// Today is used when the date is omitted.
     /// </summary>
     [HttpGet("active")]
-    [Authorize]
     public async Task<IActionResult> GetActiveAssignmentByOperator(
         [FromQuery] Guid operatorId,
         [FromQuery] DateOnly? date)
@@ -81,7 +77,6 @@ public class OperatorAssignmentsController(
     /// Full assignment history of the operator.
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "ADMIN,SUPERVISOR")]
     public async Task<IActionResult> GetAssignmentHistoryByOperator(
         [FromQuery] Guid operatorId)
     {
@@ -94,7 +89,6 @@ public class OperatorAssignmentsController(
     }
 
     [HttpPost("{assignmentId:guid}/vehicle-change")]
-    [Authorize(Roles = "ADMIN,SUPERVISOR")]
     public async Task<IActionResult> ChangeAssignedVehicle(
         Guid assignmentId,
         [FromBody] ChangeAssignedVehicleResource resource)
@@ -119,7 +113,6 @@ public class OperatorAssignmentsController(
     }
 
     [HttpPost("{assignmentId:guid}/end")]
-    [Authorize(Roles = "ADMIN,SUPERVISOR")]
     public async Task<IActionResult> EndAssignment(
         Guid assignmentId,
         [FromBody] EndAssignmentResource resource)
@@ -139,7 +132,6 @@ public class OperatorAssignmentsController(
     /// with a specific vehicle on a given date.
     /// </summary>
     [HttpGet("context")]
-    [Authorize]
     public async Task<IActionResult> ValidateOperationalContext(
         [FromQuery] Guid operatorId,
         [FromQuery] string? vehicleCode,
