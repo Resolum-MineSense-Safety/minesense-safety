@@ -131,6 +131,6 @@ Closes: USxx / TSxx
 - [ ] Branch follows GitFlow and commits follow Conventional Commits with scope
 - [ ] Business rules live in the domain layer and throw `DomainException` when broken
 - [ ] xUnit tests added or updated (AAA pattern) and passing locally
-- [ ] CI is green (build, tests, SonarQube)
+- [ ] CI is green (build and tests)
 - [ ] Acceptance criteria of the story are met
 - [ ] Documentation updated (README, context map, `.http` files) when needed

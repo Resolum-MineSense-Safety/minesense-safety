@@ -9,7 +9,7 @@ temprano posible y bloquea el avance si encuentra un problema.
 
 | Control | Herramienta | Dónde corre | Qué bloquea |
 | --- | --- | --- | --- |
-| Calidad y seguridad del código (SAST) | SonarCloud | `sonarqube-analysis.yml`, check obligatorio | Bugs, vulnerabilidades y *security hotspots* |
+| Calidad y seguridad del código (SAST) | CodeQL | `security-scan.yml` | Bugs, vulnerabilidades y *security hotspots* |
 | SAST de seguridad | CodeQL (`security-extended`) | `security-scan.yml`, en cada PR, push y cada lunes | Inyecciones, deserialización insegura, *path traversal* y otros patrones en C# y JavaScript |
 | Secretos | gitleaks v8.21.2 | `security-scan.yml` | Claves, tokens o contraseñas en los commits del PR. El historial completo se revisa en push y cada lunes |
 | Dependencias nuevas | Dependency Review | `security-scan.yml`, en PR | Paquetes con vulnerabilidad alta o crítica |
