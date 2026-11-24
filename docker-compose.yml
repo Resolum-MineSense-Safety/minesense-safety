@@ -72,6 +72,11 @@ services:
       dockerfile: OperationsService/Dockerfile
     image: minesense/operations-service:local
     container_name: minesense_operations
+    environment:
+      <<: *dotnet-environment
+      # Validates the tokens of Identity & Access with its published public key (ADR-007).
+      Authentication__Authority: ${OPERATIONS_AUTHORITY:-http://identity-access-service:8080}
+      Authentication__RequireHttpsMetadata: "false"
     ports:
       - "5203:8080"
 
