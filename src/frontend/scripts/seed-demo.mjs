@@ -49,7 +49,7 @@ const uuid = () => crypto.randomUUID()
 async function raiseAlert(operatorId, assessment) {
   const body = { operatorId, assessmentId: assessment.id, severity: assessment.riskLevel }
   const created = await post('/api/v1/alerts', body, { allow: [409] })
-  if (created) return created
+  if (created?.id) return created
   const existing = await get(`/api/v1/alerts?operatorId=${operatorId}`)
   const alert = existing.find((item) => item.assessmentId === assessment.id)
   if (!alert) throw new Error(`POST /api/v1/alerts -> 409 and no alert found for assessment ${assessment.id}`)
