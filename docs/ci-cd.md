@@ -13,7 +13,6 @@ merge. La entrega continua lleva la misma imagen de `release/*` a Staging y lueg
 | Workflow (archivo) | Job | Disparador | Qué valida |
 | --- | --- | --- | --- |
 | Backend CI (`dotnet-build-and-xunit.yml`) | Build and Test | PR a develop/main, push a develop | Restore con caché de NuGet, build Release y pruebas xUnit de todos los servicios. |
-| SonarQube Analysis (`sonarqube-analysis.yml`) | Static Code Analysis | PR a develop/main, push a develop | SonarCloud: bugs, vulnerabilidades, code smells, duplicación y cobertura (OpenCover). |
 | Frontend CI (`react-vite-build.yml`) | Build and Lint | PR a develop/main, push a develop | `npm ci` con caché, ESLint y `vite build` del Dashboard. |
 | Containers CI (`containers-ci.yml`) | Compose and Gateway Config, Image × 14 | Cambios en código, Dockerfiles o compose | Build de las imágenes, arranque endurecido, probe de salud, usuario no root, Trivy y compose/gateway sincronizados. |
 | Infrastructure CI (`terraform-validate.yml`) | Terraform Validate × 3 | Cambios en `infrastructure/terraform` | `terraform fmt -check` y `validate` de bootstrap, staging y production. |
@@ -40,7 +39,6 @@ Datos de 361 ejecuciones obtenidos con `gh run list`:
 
 | Workflow | Ejecuciones | Éxito | Fallos | Mediana |
 | --- | --- | --- | --- | --- |
-| SonarQube Analysis | 114 | 94,7 % | 6 | 1,7 min |
 | Backend CI | 114 | 96,5 % | 4 | 0,8 min |
 | Frontend CI | 114 | 96,5 % | 4 | 0,3 min |
 | Feedback MongoDB Integration | 7 | 100 % | 0 | 1,4 min |
@@ -57,9 +55,9 @@ propia rama; por ejemplo, el hallazgo S6964 de SonarCloud en los PRs #25–#27.
 - `concurrency` por rama: un nuevo push cancela la ejecución anterior de la misma rama. El
   despliegue nunca se cancela a mitad.
 - Permisos mínimos del `GITHUB_TOKEN` (`contents: read`). Solo se agregan
-  `pull-requests: read` para SonarCloud, `packages: write` para publicar en GHCR e
+  `packages: write` para publicar en GHCR e
   `id-token: write` para OIDC.
-- Secretos únicamente en GitHub Secrets (`SONAR_TOKEN`, `SONAR_HOST_URL`). AWS se usa por OIDC,
+- Secretos únicamente en GitHub Secrets. AWS se usa por OIDC,
   sin claves de larga duración.
 - Versiones fijadas: .NET 8.0.x, Node 20, Terraform 1.9.8, Helm 3.16.2, kubeconform 0.6.7 y
   `aquasecurity/trivy-action` v0.36.0.
