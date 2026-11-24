@@ -321,4 +321,15 @@ public class IdentityApiTests(IdentityApiFactory factory) : IClassFixture<Identi
         Assert.Equal("RS256", key.GetProperty("alg").GetString());
         Assert.False(key.TryGetProperty("d", out _));
     }
+
+    [Fact]
+    public async Task Discovery_PublishesTheIssuerAndWhereToFindTheKey()
+    {
+        // Act
+        var discovery = await _client.GetFromJsonAsync<JsonElement>("/.well-known/openid-configuration");
+
+        // Assert
+        Assert.False(string.IsNullOrWhiteSpace(discovery.GetProperty("issuer").GetString()));
+        Assert.EndsWith("/.well-known/jwks.json", discovery.GetProperty("jwks_uri").GetString());
+    }
 }

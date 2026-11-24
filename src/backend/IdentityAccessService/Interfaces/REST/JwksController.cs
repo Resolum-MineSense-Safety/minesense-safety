@@ -1,6 +1,7 @@
 using IdentityAccessService.Infrastructure.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityAccessService.Interfaces.REST;
@@ -10,8 +11,17 @@ namespace IdentityAccessService.Interfaces.REST;
 /// </summary>
 [ApiController]
 [AllowAnonymous]
-public class JwksController(RsaSigningKeyProvider keyProvider) : ControllerBase
+public class JwksController(RsaSigningKeyProvider keyProvider, IOptions<JwtOptions> jwtOptions) : ControllerBase
 {
+    /// <summary>Discovery document: the issuer and where the other services fetch the public key.</summary>
+    [HttpGet("/.well-known/openid-configuration")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult GetConfiguration() => Ok(new
+    {
+        issuer = jwtOptions.Value.Issuer,
+        jwks_uri = $"{Request.Scheme}://{Request.Host}/.well-known/jwks.json"
+    });
+
     [HttpGet("/.well-known/jwks.json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult GetKeys()
