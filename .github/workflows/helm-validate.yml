@@ -1,0 +1,65 @@
+name: Deployment CI (Helm)
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths: [ "infrastructure/helm/**", "infrastructure/k8s/**", ".github/workflows/helm-validate.yml" ]
+  push:
+    branches: [ "develop" ]
+    paths: [ "infrastructure/helm/**", "infrastructure/k8s/**", ".github/workflows/helm-validate.yml" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Helm Lint and Schema
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/helm
+    env:
+      KUBECONFORM_VERSION: v0.6.7
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSLO "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          curl -fsSLO "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/CHECKSUMS"
+          grep " kubeconform-linux-amd64.tar.gz$" CHECKSUMS | sha256sum -c -
+          tar -xzf kubeconform-linux-amd64.tar.gz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Lint charts
+        run: |
+          for env in staging production; do
+            for values in values/services/*.yaml; do
+              helm lint minesense-service --strict -f "values/environments/$env.yaml" -f "$values"
+            done
+          done
+          helm lint minesense-gateway --strict
+
+      - name: Render and validate manifests (Kubernetes 1.30)
+        run: |
+          mkdir -p rendered
+          for env in staging production; do
+            for values in values/services/*.yaml; do
+              service="$(basename "$values" .yaml)"
+              helm template "$service" minesense-service --namespace "$env" \
+                -f "values/environments/$env.yaml" -f "$values" --set-string image.tag=sha-ci \
+                > "rendered/$env-$service.yaml"
+            done
+            helm template minesense-gateway minesense-gateway --namespace "$env" > "rendered/$env-gateway.yaml"
+          done
+          kubeconform -strict -summary -kubernetes-version 1.30.0 rendered/*.yaml ../k8s/*.yaml

@@ -1,0 +1,4 @@
+# Analytics (EP11): fatigue trends and preventive measures.
+name: analytics-service
+image:
+  repository: analytics-service

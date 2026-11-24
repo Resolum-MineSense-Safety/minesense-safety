@@ -1,6 +1,50 @@
 @IncidentManagementService_HostAddress = http://localhost:5070
+@incidentId = 00000000-0000-0000-0000-000000000000
 
-GET {{IncidentManagementService_HostAddress}}/weatherforecast/
+### Receive an incident from a critical alert (US09)
+POST {{IncidentManagementService_HostAddress}}/api/v1/incidents
+Content-Type: application/json
+
+{
+  "operatorId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "alertId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "severity": "Critical"
+}
+
+### Incident tray (pending)
+GET {{IncidentManagementService_HostAddress}}/api/v1/incidents?status=Pending
 Accept: application/json
 
-###
+### Assign a supervisor (TS-16)
+PATCH {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/assignment
+Content-Type: application/json
+
+{
+  "assigneeId": "a1b2c3d4-0000-4000-8000-000000000001"
+}
+
+### Record a preventive pause (TS-17)
+POST {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/actions
+Content-Type: application/json
+
+{
+  "actionType": "PreventivePause",
+  "description": "Operator ordered to stop the haul truck at the next safe bay.",
+  "result": "Operator stopped and rested for 15 minutes.",
+  "performedBy": "a1b2c3d4-0000-4000-8000-000000000001",
+  "performedAt": "2026-10-15T10:05:00Z"
+}
+
+### Close the incident (TS-18)
+PATCH {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/closure
+Content-Type: application/json
+
+{
+  "resolution": "Operator recovered after the pause; shift resumed."
+}
+
+### Escalation status (TS-19)
+GET {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/escalation
+
+### History (TS-27)
+GET {{IncidentManagementService_HostAddress}}/api/v1/incidents/{{incidentId}}/history

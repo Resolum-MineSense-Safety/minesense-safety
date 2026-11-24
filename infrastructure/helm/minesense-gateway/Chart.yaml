@@ -1,0 +1,6 @@
+apiVersion: v2
+name: minesense-gateway
+description: Single HTTPS entry point (/api/v1) of MineSense Safety on Amazon EKS through an AWS Application Load Balancer.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,36 @@
+@AnalyticsService_HostAddress = http://localhost:5090
+@measureId = 00000000-0000-0000-0000-000000000000
+
+### Record a fatigue alert observation
+POST {{AnalyticsService_HostAddress}}/api/v1/analytics/fatigue-events
+Content-Type: application/json
+
+{
+  "operatorId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "alertId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "severity": "Critical",
+  "occurredAt": "2026-10-15T03:20:00Z",
+  "shift": "Night",
+  "mineSite": "Antamina",
+  "location": "Pit 2 haul road",
+  "fleet": "CAT 797F"
+}
+
+### Fatigue trends by shift (TS-22)
+GET {{AnalyticsService_HostAddress}}/api/v1/analytics/fatigue-trends?groupBy=Shift&from=2026-09-15T00:00:00Z&to=2026-10-16T00:00:00Z
+
+### Register a preventive measure (US25)
+POST {{AnalyticsService_HostAddress}}/api/v1/analytics/preventive-measures
+Content-Type: application/json
+
+{
+  "name": "Pausa activa a las 03:00",
+  "measureType": "PreventivePause",
+  "description": "Mandatory 15-minute pause in the night shift.",
+  "appliedAt": "2026-10-01T00:00:00Z",
+  "registeredBy": "a1b2c3d4-0000-4000-8000-000000000001",
+  "shift": "Night"
+}
+
+### Evaluate the measure before/after
+GET {{AnalyticsService_HostAddress}}/api/v1/analytics/preventive-measures/{{measureId}}/evaluation?windowDays=14

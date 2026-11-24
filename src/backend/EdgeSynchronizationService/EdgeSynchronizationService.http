@@ -1,0 +1,28 @@
+@EdgeSynchronizationService_HostAddress = http://localhost:5280
+@batchId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@edgeNodeId = 2f1c3f15-b56d-44c0-b749-d1e6f6d35011
+@deviceId = d50319e2-e1d4-48af-9c28-c2a64a47d010
+
+POST {{EdgeSynchronizationService_HostAddress}}/api/v1/synchronization-batches
+Content-Type: application/json
+
+{
+  "batchId": "{{batchId}}",
+  "edgeNodeId": "{{edgeNodeId}}",
+  "deviceId": "{{deviceId}}",
+  "sequenceNumber": 1,
+  "capturedAt": "2026-10-16T19:00:00Z",
+  "events": [
+    {
+      "eventId": "0f8fad5b-d9cb-469f-a165-70867728950e",
+      "occurredAt": "2026-10-16T18:59:58Z",
+      "eventType": "fatigue-assessment",
+      "payload": { "riskLevel": "Warning", "confidence": 0.91 }
+    }
+  ]
+}
+
+###
+
+GET {{EdgeSynchronizationService_HostAddress}}/api/v1/synchronization-batches/{{batchId}}
+Accept: application/json

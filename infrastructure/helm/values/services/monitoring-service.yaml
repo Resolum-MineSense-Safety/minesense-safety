@@ -1,0 +1,6 @@
+# Monitoring (EP01): monitoring sessions of the operators.
+name: monitoring-service
+image:
+  repository: monitoring-service
+env:
+  Services__DeviceManagementServiceUrl: http://device-management-service/

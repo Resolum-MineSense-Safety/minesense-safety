@@ -1,0 +1,10 @@
+# Feedback & Reliability (EP12): operator feedback and alert reliability.
+name: feedback-reliability-service
+image:
+  repository: feedback-reliability-service
+env:
+  Services__AlertServiceUrl: http://alert-service/
+  MongoDb__Database: minesense_feedback
+# ConnectionStrings__MongoDb (Amazon DocumentDB) comes from AWS Secrets Manager.
+envFromSecrets:
+  - feedback-reliability-secrets

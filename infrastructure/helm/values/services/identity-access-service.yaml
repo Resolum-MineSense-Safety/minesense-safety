@@ -1,0 +1,8 @@
+# Identity & Access (EP08): users, JWT sessions and mining unit scopes.
+name: identity-access-service
+image:
+  repository: identity-access-service
+# Signing key and bootstrap administrator come from AWS Secrets Manager (ADR-007).
+# All replicas must share the same key, otherwise a token issued by one pod fails in another.
+envFromSecrets:
+  - identity-access-secrets

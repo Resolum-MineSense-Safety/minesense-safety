@@ -1,0 +1,61 @@
+name: Acceptance Tests (BDD)
+
+# Section 3.6: the Gherkin scenarios of the user stories run with Reqnroll against the real APIs,
+# hosted in memory. The job summary lists every scenario with its result.
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - "src/backend/**"
+      - ".github/workflows/acceptance-tests.yml"
+  push:
+    branches: [ "develop" ]
+    paths:
+      - "src/backend/**"
+      - ".github/workflows/acceptance-tests.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    name: Acceptance Scenarios
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend/tests/AcceptanceTests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Run acceptance scenarios
+        run: >
+          dotnet test MineSenseSafety.AcceptanceTests.csproj --configuration Release
+          --logger "trx;LogFileName=acceptance.trx" --results-directory TestResults
+
+      - name: Scenario report
+        if: always()
+        run: python3 ../../../../.github/scripts/trx-summary.py TestResults/acceptance.trx >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acceptance-results
+          path: src/backend/tests/AcceptanceTests/TestResults/acceptance.trx

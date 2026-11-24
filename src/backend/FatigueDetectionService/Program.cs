@@ -1,9 +1,20 @@
+using FatigueDetectionService.Application.Internal.CommandServices;
+using FatigueDetectionService.Application.Internal.QueryServices;
+using FatigueDetectionService.Domain.Repositories;
+using FatigueDetectionService.Domain.Services;
+using FatigueDetectionService.Infrastructure.Persistence.InMemory;
+using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Controllers, kebab-case routes, domain error handling (HTTP 422) and Swagger
+builder.Services.AddMineSenseWebApi();
+builder.Services.AddSingleton(TimeProvider.System);
+
+// Fatigue Detection bounded context (EP02)
+builder.Services.AddSingleton<IFatigueAssessmentRepository, InMemoryFatigueAssessmentRepository>();
+builder.Services.AddScoped<IFatigueAssessmentCommandService, FatigueAssessmentCommandService>();
+builder.Services.AddScoped<IFatigueAssessmentQueryService, FatigueAssessmentQueryService>();
 
 var app = builder.Build();
 
@@ -16,29 +27,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapControllers();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+await app.RunAsync();
 
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public partial class Program;

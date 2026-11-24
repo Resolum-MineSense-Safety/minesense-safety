@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #1b2631; }
+      .h { font-size: 16px; font-weight: 700; fill: #1b2631; }
+      .t { font-size: 13.5px; fill: #263238; }
+      .s { font-size: 12.5px; fill: #455a64; }
+      .lane { font-size: 15px; font-weight: 700; fill: #37474f; }
+      .lbl { font-size: 12.5px; fill: #37474f; font-style: italic; }
+      .flow { stroke: #37474f; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .back { stroke: #c62828; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1600" height="760" fill="#ffffff"/>
+  <text x="40" y="46" class="title">Pipeline de entrega continua: de develop a Production (cd-deploy.yml)</text>
+  <text x="40" y="72" class="s">GitFlow: cada rama promueve el mismo artefacto al siguiente entorno ("build once, deploy many", sección 2.2.4).</text>
+
+  <!-- lanes -->
+  <rect x="40" y="96" width="1520" height="150" rx="10" fill="#f5f5f5"/>
+  <text x="56" y="120" class="lane">develop · Test</text>
+  <rect x="40" y="262" width="1520" height="250" rx="10" fill="#e8f5e9"/>
+  <text x="56" y="286" class="lane">release/x.y.z · Staging</text>
+  <rect x="40" y="528" width="1520" height="200" rx="10" fill="#e3f2fd"/>
+  <text x="56" y="552" class="lane">main · Production</text>
+
+  <!-- develop lane -->
+  <rect x="70" y="138" width="190" height="88" rx="8" fill="#ffffff" stroke="#757575"/>
+  <text x="165" y="168" text-anchor="middle" class="h">feature/*</text>
+  <text x="165" y="190" text-anchor="middle" class="s">Pull Request con plantilla</text>
+  <text x="165" y="208" text-anchor="middle" class="s">revisión obligatoria</text>
+  <rect x="310" y="138" width="520" height="88" rx="8" fill="#ffffff" stroke="#757575"/>
+  <text x="570" y="166" text-anchor="middle" class="h">Integración continua (CI)</text>
+  <text x="570" y="188" text-anchor="middle" class="s">dotnet build + xUnit · SonarCloud · ESLint/Vite · terraform fmt/validate</text>
+  <text x="570" y="208" text-anchor="middle" class="s">helm lint del chart · merge a develop solo con checks en verde</text>
+  <rect x="880" y="138" width="250" height="88" rx="8" fill="#ffffff" stroke="#757575"/>
+  <text x="1005" y="168" text-anchor="middle" class="h">Corte de release</text>
+  <text x="1005" y="190" text-anchor="middle" class="s">git flow release start x.y.z</text>
+  <text x="1005" y="208" text-anchor="middle" class="s">push de release/x.y.z</text>
+  <path d="M260,182 L308,182" class="flow"/>
+  <path d="M830,182 L878,182" class="flow"/>
+  <path d="M1005,226 L1005,252 L250,252 L250,300" class="flow"/>
+
+  <!-- staging lane -->
+  <rect x="70" y="302" width="230" height="190" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <text x="185" y="330" text-anchor="middle" class="h">1. Build (matriz × 13)</text>
+  <text x="185" y="354" text-anchor="middle" class="s">docker buildx por servicio</text>
+  <text x="185" y="374" text-anchor="middle" class="s">contexto src/backend</text>
+  <text x="185" y="394" text-anchor="middle" class="s">caché de capas en GitHub</text>
+  <text x="185" y="424" text-anchor="middle" class="t">tag: sha-&lt;commit&gt;</text>
+  <rect x="340" y="302" width="230" height="190" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <text x="455" y="330" text-anchor="middle" class="h">2. Escaneo Trivy</text>
+  <text x="455" y="354" text-anchor="middle" class="s">vulnerabilidades CRITICAL</text>
+  <text x="455" y="374" text-anchor="middle" class="s">y HIGH con parche</text>
+  <text x="455" y="394" text-anchor="middle" class="s">corta el pipeline si hay</text>
+  <text x="455" y="424" text-anchor="middle" class="t">nada vulnerable llega a GHCR</text>
+  <rect x="610" y="302" width="230" height="190" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <text x="725" y="330" text-anchor="middle" class="h">3. Push a GHCR</text>
+  <text x="725" y="354" text-anchor="middle" class="s">ghcr.io/resolum-minesense-</text>
+  <text x="725" y="374" text-anchor="middle" class="s">safety/&lt;servicio&gt;</text>
+  <text x="725" y="394" text-anchor="middle" class="s">GITHUB_TOKEN (packages:write)</text>
+  <text x="725" y="424" text-anchor="middle" class="t">imagen inmutable</text>
+  <rect x="880" y="302" width="320" height="190" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <text x="1040" y="330" text-anchor="middle" class="h">4. Deploy a Staging</text>
+  <text x="1040" y="354" text-anchor="middle" class="s">OIDC → rol IAM del entorno (sin claves)</text>
+  <text x="1040" y="374" text-anchor="middle" class="s">aws eks update-kubeconfig</text>
+  <text x="1040" y="394" text-anchor="middle" class="s">deploy.sh: namespace, LB Controller,</text>
+  <text x="1040" y="414" text-anchor="middle" class="s">13 releases helm --atomic, gateway</text>
+  <text x="1040" y="444" text-anchor="middle" class="t">smoke test: GET /.well-known/jwks.json</text>
+  <rect x="1240" y="302" width="290" height="190" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <text x="1385" y="330" text-anchor="middle" class="h">5. PR release → main</text>
+  <text x="1385" y="354" text-anchor="middle" class="s">se abre automáticamente</text>
+  <text x="1385" y="374" text-anchor="middle" class="s">con el tag desplegado</text>
+  <text x="1385" y="394" text-anchor="middle" class="s">validación funcional</text>
+  <text x="1385" y="414" text-anchor="middle" class="s">sobre Staging</text>
+  <text x="1385" y="444" text-anchor="middle" class="t">revisión del equipo</text>
+  <path d="M300,397 L338,397" class="flow"/>
+  <path d="M570,397 L608,397" class="flow"/>
+  <path d="M840,397 L878,397" class="flow"/>
+  <path d="M1200,397 L1238,397" class="flow"/>
+  <path d="M1385,492 L1385,560" class="flow"/>
+  <text x="1395" y="530" class="lbl">merge</text>
+
+  <!-- production lane -->
+  <rect x="1180" y="562" width="350" height="146" rx="8" fill="#ffffff" stroke="#1565c0" stroke-width="2"/>
+  <text x="1355" y="590" text-anchor="middle" class="h">6. Resolver la imagen</text>
+  <text x="1355" y="614" text-anchor="middle" class="s">segundo padre del merge commit</text>
+  <text x="1355" y="634" text-anchor="middle" class="s">= último commit de release/x.y.z</text>
+  <text x="1355" y="664" text-anchor="middle" class="t">no se reconstruye nada:</text>
+  <text x="1355" y="684" text-anchor="middle" class="t">mismo sha-&lt;commit&gt; de Staging</text>
+  <rect x="820" y="562" width="310" height="146" rx="8" fill="#ffffff" stroke="#1565c0" stroke-width="2"/>
+  <text x="975" y="590" text-anchor="middle" class="h">7. Aprobación manual</text>
+  <text x="975" y="614" text-anchor="middle" class="s">GitHub environment "production"</text>
+  <text x="975" y="634" text-anchor="middle" class="s">revisores requeridos</text>
+  <text x="975" y="664" text-anchor="middle" class="t">solo este job puede asumir</text>
+  <text x="975" y="684" text-anchor="middle" class="t">el rol de despliegue de Production</text>
+  <rect x="420" y="562" width="350" height="146" rx="8" fill="#ffffff" stroke="#1565c0" stroke-width="2"/>
+  <text x="595" y="590" text-anchor="middle" class="h">8. Deploy a Production</text>
+  <text x="595" y="614" text-anchor="middle" class="s">mismo deploy.sh con values de producción:</text>
+  <text x="595" y="634" text-anchor="middle" class="s">HPA 2–6 réplicas, PDB, reparto por AZ</text>
+  <text x="595" y="664" text-anchor="middle" class="t">rolling update maxUnavailable 0</text>
+  <text x="595" y="684" text-anchor="middle" class="t">smoke test por HTTPS</text>
+  <rect x="70" y="562" width="300" height="146" rx="8" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+  <text x="220" y="590" text-anchor="middle" class="h">Rollback</text>
+  <text x="220" y="614" text-anchor="middle" class="s">automático: --atomic revierte si un</text>
+  <text x="220" y="634" text-anchor="middle" class="s">pod no pasa /health/ready</text>
+  <text x="220" y="664" text-anchor="middle" class="t">manual: helm rollback &lt;servicio&gt;</text>
+  <text x="220" y="684" text-anchor="middle" class="t">o redeploy de un tag anterior</text>
+  <path d="M1180,635 L1132,635" class="flow"/>
+  <path d="M820,635 L772,635" class="flow"/>
+  <path d="M420,635 L372,635" class="back"/>
+  <text x="378" y="626" class="lbl" fill="#c62828">si falla</text>
+</svg>

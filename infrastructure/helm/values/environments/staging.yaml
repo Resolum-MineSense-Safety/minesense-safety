@@ -1,0 +1,20 @@
+# Staging: same chart and same images as Production, smaller footprint (section 2.2.4).
+environment: Staging
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 384Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+topologySpread:
+  enabled: false

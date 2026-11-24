@@ -1,0 +1,8 @@
+# Operations (EP08): mining units, fleets, vehicles, operators and assignments.
+name: operations-service
+image:
+  repository: operations-service
+env:
+  # Validates the tokens of Identity & Access with its published public key (ADR-007).
+  Authentication__Authority: http://identity-access-service/
+  Authentication__RequireHttpsMetadata: "false"

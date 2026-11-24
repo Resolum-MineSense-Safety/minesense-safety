@@ -1,0 +1,48 @@
+{{- /*
+One Ingress for the whole API. The AWS Load Balancer Controller turns it into an internet-facing
+Application Load Balancer that routes each path straight to the pods (target-type ip).
+A path without "*" matches the prefix and everything under it; a path with "*" is an ALB
+wildcard. Rules are kept in the order of .Values.routes.
+*/ -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minesense-api
+  labels:
+    app.kubernetes.io/name: minesense-gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: minesense-safety
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    alb.ingress.kubernetes.io/scheme: {{ .Values.loadBalancer.scheme }}
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.loadBalancer.healthCheckPath }}
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds={{ .Values.loadBalancer.idleTimeoutSeconds }}
+    {{- if .Values.certificateArn }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.certificateArn }}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    {{- else }}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    {{- end }}
+    {{- with .Values.wafAclArn }}
+    alb.ingress.kubernetes.io/wafv2-acl-arn: {{ . }}
+    {{- end }}
+spec:
+  ingressClassName: alb
+  rules:
+    - {{- with .Values.host }}
+      host: {{ . }}
+      {{- end }}
+      http:
+        paths:
+          {{- range .Values.routes }}
+          - path: {{ .path }}
+            pathType: {{ if contains "*" .path }}ImplementationSpecific{{ else }}Prefix{{ end }}
+            backend:
+              service:
+                name: {{ .service }}
+                port:
+                  name: http
+          {{- end }}

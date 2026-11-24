@@ -1,0 +1,90 @@
+name: Security Scanning (DevSecOps)
+
+# Section 3.7: security checks that run next to the functional CI.
+#   - CodeQL: static application security testing (SAST) of the C# backend and the React dashboard.
+#   - gitleaks: secrets committed by mistake (API keys, passwords, private keys).
+#   - Dependency review: new dependencies with known vulnerabilities in a pull request.
+# Results of CodeQL appear in the repository Security tab (code scanning alerts).
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+  push:
+    branches: [ "develop", "main" ]
+  schedule:
+    # Every Monday 06:00 UTC: new CVEs and CodeQL queries also reach code that did not change.
+    - cron: "0 6 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ csharp, javascript-typescript ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # No build needed: CodeQL extracts C# and JavaScript directly from the sources.
+          build-mode: none
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+
+  secrets:
+    name: Secret Scan (gitleaks)
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: v8.21.2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan commits for secrets
+        run: |
+          # Pull requests: only the commits of the PR. Push and schedule: the whole history.
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            range="--log-opts=${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            range=""
+          fi
+          docker run --rm -v "$PWD:/repo" "zricethezav/gitleaks:${GITLEAKS_VERSION}" \
+            detect --source /repo --redact --no-banner --verbose $range
+
+  dependencies:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Review new dependencies
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure

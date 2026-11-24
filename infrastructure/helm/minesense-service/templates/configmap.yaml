@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "minesense-service.name" . }}
+  labels:
+    {{- include "minesense-service.labels" . | nindent 4 }}
+data:
+  ASPNETCORE_ENVIRONMENT: {{ .Values.environment | quote }}
+  ASPNETCORE_URLS: {{ printf "http://+:%v" .Values.containerPort | quote }}
+  DOTNET_RUNNING_IN_CONTAINER: "true"
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
