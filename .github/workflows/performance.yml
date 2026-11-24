@@ -50,7 +50,7 @@ jobs:
       BASE_URL: ${{ inputs.base_url || 'http://localhost:8080' }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Start the stack
         if: inputs.base_url == ''
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-${{ matrix.scenario }}
           path: tests/performance/results
