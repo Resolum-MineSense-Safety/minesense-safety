@@ -3,7 +3,7 @@
 # Build context: src/backend
 #   docker build -f src/backend/MonitoringService/Dockerfile -t minesense/monitoring-service src/backend
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 # Restore first to cache NuGet packages between builds.

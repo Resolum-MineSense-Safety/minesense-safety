@@ -2,7 +2,7 @@
 # identity-access-service image (section 3.1). The build context is src/backend so the Shared kernel can be copied:
 #   docker build -f src/backend/IdentityAccessService/Dockerfile -t minesense/identity-access-service src/backend
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 # Restore first: the NuGet layer stays cached while only the source code changes.

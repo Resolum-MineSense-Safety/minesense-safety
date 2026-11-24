@@ -2,7 +2,7 @@
 # edge-synchronization-service image (section 3.1). The build context is src/backend so the Shared kernel can be copied:
 #   docker build -f src/backend/EdgeSynchronizationService/Dockerfile -t minesense/edge-synchronization-service src/backend
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 # Restore first: the NuGet layer stays cached while only the source code changes.

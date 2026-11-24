@@ -2,7 +2,7 @@
 # Supervision Dashboard image (section 3.1): the Vite build is served as static files by nginx.
 #   docker build -t minesense/supervision-dashboard src/frontend
 
-FROM node:20-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 # Install dependencies first so the npm layer stays cached while only the code changes.
