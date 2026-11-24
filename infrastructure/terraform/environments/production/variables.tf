@@ -28,6 +28,18 @@ variable "single_nat_gateway" {
   default = false
 }
 
+variable "kubernetes_version" {
+  description = "EKS version in standard support; versions in extended support cost 0.60 USD/h instead of 0.10."
+  type        = string
+  default     = "1.35"
+}
+
+variable "enable_kafka" {
+  description = "MSK Serverless (ADR-004). It is the most expensive piece per hour; without it the services only log their events."
+  type        = bool
+  default     = true
+}
+
 variable "node_instance_types" {
   type    = list(string)
   default = ["m6i.large"]
@@ -35,12 +47,12 @@ variable "node_instance_types" {
 
 variable "node_min_size" {
   type    = number
-  default = 3
+  default = 4
 }
 
 variable "node_desired_size" {
   type    = number
-  default = 3
+  default = 4
 }
 
 variable "node_max_size" {

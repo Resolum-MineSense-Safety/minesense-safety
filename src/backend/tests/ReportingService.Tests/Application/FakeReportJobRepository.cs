@@ -1,4 +1,5 @@
 using ReportingService.Domain.Model.Aggregates;
+using ReportingService.Domain.Model.ValueObjects;
 using ReportingService.Domain.Repositories;
 
 namespace ReportingService.Tests.Application;
@@ -20,4 +21,7 @@ public class FakeReportJobRepository : IReportJobRepository
         Task.FromResult<IEnumerable<ReportJob>>(store.ToList());
 
     public Task UpdateAsync(ReportJob aggregate) => Task.CompletedTask;
+
+    public Task<IEnumerable<ReportJob>> FindByStatusAsync(ReportJobStatus status) =>
+        Task.FromResult<IEnumerable<ReportJob>>(store.Where(j => j.Status == status).ToList());
 }

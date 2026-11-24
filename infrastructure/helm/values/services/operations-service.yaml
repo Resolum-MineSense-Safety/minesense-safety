@@ -2,3 +2,7 @@
 name: operations-service
 image:
   repository: operations-service
+# ConnectionStrings__PostgreSql (Amazon RDS, database minesense_operations) comes from AWS Secrets Manager;
+# without the secret the service runs in memory.
+optionalSecrets:
+  - operations-secrets

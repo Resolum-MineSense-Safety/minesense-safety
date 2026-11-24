@@ -1,20 +1,23 @@
 using FatigueDetectionService.Application.Internal.CommandServices;
+using FatigueDetectionService.Application.Internal.IntegrationEvents;
 using FatigueDetectionService.Application.Internal.QueryServices;
 using FatigueDetectionService.Domain.Model.Aggregates;
 using FatigueDetectionService.Domain.Model.Commands;
 using FatigueDetectionService.Domain.Model.Queries;
+using MineSenseSafety.Shared.Application.IntegrationEvents;
 
 namespace FatigueDetectionService.Tests.Application;
 
 public class FatigueAssessmentServicesTests
 {
     private readonly FakeFatigueAssessmentRepository _repository = new();
+    private readonly FakeIntegrationEventPublisher _publisher = new();
     private readonly FatigueAssessmentCommandService _commandService;
     private readonly FatigueAssessmentQueryService _queryService;
 
     public FatigueAssessmentServicesTests()
     {
-        _commandService = new FatigueAssessmentCommandService(_repository, TimeProvider.System);
+        _commandService = new FatigueAssessmentCommandService(_repository, TimeProvider.System, _publisher);
         _queryService = new FatigueAssessmentQueryService(_repository);
     }
 
@@ -73,5 +76,26 @@ public class FatigueAssessmentServicesTests
         // Assert
         Assert.Empty(assessments);
         Assert.Equal(0, _repository.SessionQueries);
+    }
+
+    [Fact]
+    public async Task Handle_AssessFatigueCommand_PublishesFatigueAssessedKeyedByOperator()
+    {
+        // Arrange
+        var operatorId = Guid.NewGuid();
+
+        // Act
+        var assessment = await _commandService.Handle(new AssessFatigueCommand(operatorId, Guid.NewGuid(), 0.46, 29, 17));
+
+        // Assert
+        var (topic, published, key) = Assert.Single(_publisher.Published);
+        Assert.Equal(IntegrationEventTopics.FatigueAssessed, topic);
+        Assert.Equal(operatorId.ToString(), key);
+        Assert.Equal(assessment.Id, published.CorrelationId);
+        var payload = published.GetPayload<FatigueAssessedEvent>();
+        Assert.Equal(assessment.Id, payload.AssessmentId);
+        Assert.Equal("Critical", payload.RiskLevel);
+        Assert.True(payload.RequiresAlert);
+        Assert.Equal(0.46, payload.Perclos);
     }
 }

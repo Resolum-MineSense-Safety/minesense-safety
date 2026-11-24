@@ -28,6 +28,23 @@ public class ReportDocumentBuilderTests
     }
 
     [Fact]
+    public void Build_WithoutConsolidatedFigures_ShowsNoDataInsteadOfZero()
+    {
+        // Arrange
+        var request = ReportRequests.Valid() with
+        {
+            Summary = new ReportSummary(null, null, null, null, null)
+        };
+
+        // Act
+        var pdf = Render(request);
+
+        // Assert
+        Assert.Contains("(Sin datos) Tj", pdf);
+        Assert.DoesNotContain("(132) Tj", pdf);
+    }
+
+    [Fact]
     public void Build_WithoutAttentionTimeAndEmptyTable_ShowsPlaceholders()
     {
         // Arrange

@@ -25,7 +25,7 @@ public class ScaffoldTests : IClassFixture<WebApplicationFactory<Program>>
     [Theory]
     [InlineData("/api/v1/consents")]
     [InlineData("/api/v1/access-log/entries")]
-    [InlineData("/api/v1/reports/safety")]
+    [InlineData("/api/v1/audit/compliance-reports")]
     public async Task ScaffoldPostRoutes_WithoutBody_ReturnBadRequest(string url)
     {
         // Arrange & Act: empty body fails [ApiController] validation before reaching the 501 stub

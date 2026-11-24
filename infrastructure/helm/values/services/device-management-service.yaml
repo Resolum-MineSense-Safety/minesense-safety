@@ -2,3 +2,7 @@
 name: device-management-service
 image:
   repository: device-management-service
+# ConnectionStrings__PostgreSql (Amazon RDS, database minesense_devices) comes from AWS Secrets Manager;
+# without the secret the service runs in memory.
+optionalSecrets:
+  - device-management-secrets

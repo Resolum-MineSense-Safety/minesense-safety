@@ -5,7 +5,7 @@ using MineSenseSafety.Shared.Infrastructure.Persistence.InMemory;
 
 namespace MonitoringService.Infrastructure.Persistence.InMemory;
 
-// Sprint 1 · T06 (Joseph Huamani): registers the monitoring session (operator, vehicle, assignment / shift context, start time). Remaining: PostgreSQL adapter replacing this in-memory store.
+// Sprint 1 · T06 (Joseph Huamani): registers the monitoring session (operator, vehicle, assignment / shift context, start time). PostgreSQL adapter: PostgresMonitoringSessionRepository (used when ConnectionStrings:PostgreSql is set).
 public class InMemoryMonitoringSessionRepository : InMemoryRepository<MonitoringSession>, IMonitoringSessionRepository
 {
     public Task<MonitoringSession?> FindOpenByOperatorIdAsync(Guid operatorId) =>

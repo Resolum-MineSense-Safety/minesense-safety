@@ -14,10 +14,11 @@ infrastructure/
 ├── helm/
 │   ├── minesense-service/        # Chart genérico de un microservicio .NET 8
 │   │   └── templates/            # Deployment, Service, ConfigMap, ServiceAccount, HPA, PDB
-│   ├── minesense-gateway/        # Ingress único /api/v1 (AWS Application Load Balancer)
+│   ├── minesense-gateway/        # Ingress único: dashboard en / y API en /api/v1 (AWS Application Load Balancer)
+│   ├── minesense-edge-simulator/ # Agente Edge como simulador de cabina (Staging)
 │   └── values/
 │       ├── environments/         # staging.yaml, production.yaml
-│       └── services/             # un archivo por microservicio (13)
+│       └── services/             # un archivo por microservicio (13) y el dashboard
 ├── k8s/namespaces.yaml           # namespaces staging y production con Pod Security "restricted"
 └── scripts/deploy.sh             # despliega todo un entorno (pipeline o manual)
 ```
@@ -30,7 +31,7 @@ orden: `minesense-service/values.yaml` (base), `values/environments/<entorno>.ya
 
 | Objeto | Detalle |
 | --- | --- |
-| Deployment | Rolling update con `maxUnavailable: 0`; probes `/health/live` y `/health/ready`; usuario no root (UID 1654), sin escalamiento de privilegios, capabilities eliminadas y sistema de archivos de solo lectura (solo `/tmp` es escribible). |
+| Deployment | Rolling update con `maxUnavailable: 0`; startup/liveness `/health/live` y readiness `/health/ready`; usuario no root (UID 1654), sin escalamiento de privilegios, capabilities eliminadas y sistema de archivos de solo lectura (solo `/tmp` es escribible). |
 | Service | `ClusterIP` en el puerto 80 hacia el 8080 del contenedor. |
 | ConfigMap | `ASPNETCORE_ENVIRONMENT` y la configuración no sensible (`Section__Key`). |
 | ServiceAccount | Con la anotación `eks.amazonaws.com/role-arn` cuando el servicio necesita AWS (IRSA). |
@@ -52,6 +53,7 @@ dentro del prefijo de otro servicio van primero:
 
 | Ruta | Servicio |
 | --- | --- |
+| `/` (última regla, lo demás) | supervision-dashboard (mismo origen que la API; el ALB lo revisa en `/healthz`) |
 | `/api/v1/operators/*/status` | fleet-monitoring-service (antes que `/api/v1/operators` de Operations) |
 | `/api/v1/alerts/*/feedback`, `/api/v1/analytics/alert-reliability` | feedback-reliability-service |
 | `/api/v1/auth`, `/authentication`, `/users`, `/.well-known/jwks.json` | identity-access-service |
@@ -62,15 +64,16 @@ dentro del prefijo de otro servicio van primero:
 | `/api/v1/alerts` | alert-service |
 | `/api/v1/fleet-operators`, `/fleet`, `/fleet-monitoring` | fleet-monitoring-service |
 | `/api/v1/incidents` | incident-management-service |
-| `/api/v1/consents`, `/access-log`, `/processing-purposes` | privacy-audit-service |
+| `/api/v1/consents`, `/access-log`, `/processing-purposes`, `/audit` | privacy-audit-service |
 | `/api/v1/report-definitions`, `/reports` | reporting-service |
 | `/api/v1/analytics` | analytics-service |
 | `/api/v1/synchronization-batches` | edge-synchronization-service |
 
-> Rutas duplicadas entre servicios: `POST /api/v1/reports/safety` existe en Reporting y en
-> Privacy & Audit, y `GET /api/v1/incidents/{id}/history` en Incident Management y en Privacy &
-> Audit. El gateway las envía a Reporting e Incident Management, que son los dueños de esos
-> recursos; las de Privacy & Audit solo son accesibles dentro del clúster hasta que se renombren.
+> Cada prefijo tiene un solo dueño. Privacy & Audit publica su reporte de cumplimiento y la
+> traza de accesos de un incidente bajo `/api/v1/audit/compliance-reports` y
+> `/api/v1/audit/incidents/{id}/history`, así no choca con `/api/v1/reports` (Reporting) ni con
+> `/api/v1/incidents` (Incident Management). Las pruebas `GatewayRoutingTests` de cada servicio
+> verifican que todas sus rutas lleguen a él por el gateway.
 
 ## Prerrequisitos (una vez por entorno)
 
@@ -86,12 +89,17 @@ dentro del prefijo de otro servicio van primero:
    | `VPC_ID` | VPC del entorno |
    | `AWS_DEPLOY_ROLE_ARN` | `github_deploy_role_arn` |
    | `AWS_LB_CONTROLLER_ROLE_ARN` | `load_balancer_controller_role_arn` |
+   | `KAFKA_CLIENT_ROLE_ARN` | `kafka_client_role_arn` (IRSA de los 7 servicios con eventos; MSK Serverless solo acepta SASL/IAM) |
    | `REPORTING_SERVICE_ROLE_ARN` | `reporting_service_role_arn` |
+   | `REPORT_REQUESTS_QUEUE_URL` | `report_requests_queue_url` (PDF serverless, ADR-008; va junto con `REPORTS_BUCKET`, vacías = PDF en proceso) |
+   | `REPORTS_BUCKET` | `reports_bucket` |
+   | `KAFKA_BOOTSTRAP_SERVERS` | `kafka_bootstrap_brokers` (eventos de dominio, ADR-004; vacío = solo se registran en el log) |
    | `API_HOST`, `ACM_CERTIFICATE_ARN` | dominio y certificado del entorno (opcionales) |
 
    Y la variable de repositorio `EKS_DEPLOY_ENABLED=true` para activar los despliegues.
-3. Crear los secretos de los servicios que los necesitan (en Secrets Manager y sincronizados al
-   namespace, por ejemplo con External Secrets Operator, o a mano):
+3. Crear los secretos de los servicios que los necesitan. `infrastructure/scripts/create-k8s-secrets.sh`
+   lo hace de forma idempotente desde las salidas de Terraform y Secrets Manager (también lo llama
+   `deploy-all.sh`). Equivalente a mano:
 
    ```bash
    kubectl -n staging create secret generic identity-access-secrets \
@@ -100,7 +108,49 @@ dentro del prefijo de otro servicio van primero:
      --from-literal=IdentityAccess__BootstrapAdministrator__Password='<contraseña>'
    kubectl -n staging create secret generic feedback-reliability-secrets \
      --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   # Contextos documentales (ADR-005): la misma cadena de DocumentDB; cada servicio usa su
+   # propia base (MongoDb__Database en sus values: minesense_alerts, minesense_incidents...).
+   for secret in alert incident-management fatigue-detection fleet-monitoring analytics \
+       reporting privacy-audit edge-synchronization; do
+     kubectl -n staging create secret generic "$secret-secrets" \
+       --from-literal=ConnectionStrings__MongoDb='<cadena de DocumentDB>'
+   done
    ```
+
+   Los contextos relacionales (ADR-005) usan la instancia de Amazon RDS for PostgreSQL 16 que crea
+   Terraform (`postgres_endpoint`; la contraseña del usuario maestro está en el secreto
+   `postgres_secret_arn` que administra RDS). Cada servicio tiene su propia base, indicada en su
+   cadena de conexión (`ConnectionStrings__PostgreSql`); si no existe, el servicio la crea al
+   arrancar (el usuario necesita el privilegio `CREATEDB`) junto con sus tablas e índices:
+
+   ```bash
+   PG='Host=<postgres_endpoint sin puerto>;Port=5432;Username=minesense_admin;Password=<contraseña>;SSL Mode=Require'
+   # Identity & Access: la clave va en su secreto obligatorio (se vuelve a aplicar con la clave nueva).
+   kubectl -n staging create secret generic identity-access-secrets \
+     --from-file=IdentityAccess__Jwt__PrivateKeyPem=jwt-private.pem \
+     --from-literal=IdentityAccess__BootstrapAdministrator__Username=admin \
+     --from-literal=IdentityAccess__BootstrapAdministrator__Password='<contraseña>' \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_identity" \
+     --dry-run=client -o yaml | kubectl apply -f -
+   kubectl -n staging create secret generic operations-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_operations"
+   kubectl -n staging create secret generic device-management-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_devices"
+   kubectl -n staging create secret generic monitoring-secrets \
+     --from-literal=ConnectionStrings__PostgreSql="$PG;Database=minesense_monitoring"
+   ```
+
+   | Servicio | Base | Tablas (índices únicos) |
+   | --- | --- | --- |
+   | identity-access-service | `minesense_identity` | `users` (`username`), `sessions` (`refresh_token_hash`) |
+   | operations-service | `minesense_operations` | `mining_units` (`business_code`), `fleets` (`mining_unit_id` + nombre), `vehicles` (`code`), `operators` (`employee_code`), `operator_assignments` |
+   | device-management-service | `minesense_devices` | `devices` (`device_code`) |
+   | monitoring-service | `minesense_monitoring` | `monitoring_sessions` (una sesión abierta por operador) |
+
+   Los secretos de los contextos documentales y de Operations, Device Management y Monitoring son
+   opcionales (`optionalSecrets`): mientras no existan, esos pods arrancan y guardan los datos en
+   memoria. Los de Identity & Access y Feedback son obligatorios (en Identity & Access la clave
+   `ConnectionStrings__PostgreSql` sí es opcional: sin ella usuarios y sesiones quedan en memoria).
 
    Todas las réplicas de Identity & Access deben compartir la misma clave privada; si no, un
    token emitido por un pod no es válido en otro.
@@ -111,13 +161,13 @@ dentro del prefijo de otro servicio van primero:
 
 | Disparador | Qué hace |
 | --- | --- |
-| push a `release/*` | Construye las 13 imágenes una sola vez (`sha-<commit>`), las escanea con Trivy (CRITICAL/HIGH), las publica en GHCR, despliega en Staging y abre el PR `release/* → main`. |
+| push a `release/*` | Construye las 15 imágenes (13 servicios, dashboard y agente Edge) una sola vez (`sha-<commit>`), las escanea con Trivy (CRITICAL/HIGH), las publica en GHCR, despliega en Staging y abre el PR `release/* → main`. |
 | push a `main` | Toma el último commit de la rama release integrada (segundo padre del merge) y, tras la aprobación del environment `production`, despliega **las mismas imágenes** en Production. |
 | `workflow_dispatch` | Despliega a mano un tag existente en Staging o Production (también sirve para volver a un tag anterior). |
 
 Cada pull request que toca `infrastructure/helm` o `infrastructure/k8s` ejecuta
-`helm-validate.yml`: `helm lint --strict` de los 13 servicios en ambos entornos y validación
-de los manifiestos generados con kubeconform contra Kubernetes 1.30.
+`helm-validate.yml`: `helm lint --strict` de los servicios en ambos entornos y validación
+de los manifiestos generados con kubeconform.
 
 ## Despliegue y rollback manual
 
@@ -133,8 +183,13 @@ helm history operations-service -n staging
 helm rollback operations-service <revisión> -n staging
 ```
 
-`helm upgrade --atomic` revierte automáticamente un release si sus pods no pasan
-`/health/ready` en 5 minutos, de modo que un despliegue fallido no deja el entorno a medias.
+Si los pods de un servicio no pasan `/health/ready` en `SERVICE_TIMEOUT` (6 minutos por defecto),
+`deploy.sh` imprime sus eventos y logs, vuelve a la revisión anterior si existía, sigue con los demás
+y termina con error indicando cuáles fallaron. No usa `--atomic` porque borraría los pods antes de poder
+leer sus logs.
+
+El despliegue completo de Staging en un solo comando, con costos y pasos, está en
+[docs/deploy/aws-staging.md](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/deploy/aws-staging.md).
 
 ## Verificación local de las imágenes
 

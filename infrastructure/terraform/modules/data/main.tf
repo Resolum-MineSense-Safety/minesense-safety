@@ -18,7 +18,7 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "postgres" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   security_group_id            = aws_security_group.postgres.id
   referenced_security_group_id = each.value
@@ -68,7 +68,7 @@ resource "aws_security_group" "documents" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "documents" {
-  for_each = toset(var.allowed_security_group_ids)
+  for_each = { for index, id in var.allowed_security_group_ids : tostring(index) => id }
 
   security_group_id            = aws_security_group.documents.id
   referenced_security_group_id = each.value
@@ -99,8 +99,10 @@ resource "aws_secretsmanager_secret_version" "documents" {
 }
 
 resource "aws_docdb_cluster" "documents" {
-  cluster_identifier      = "${var.name}-documents"
-  engine                  = "docdb"
+  cluster_identifier = "${var.name}-documents"
+  engine             = "docdb"
+  # The .NET driver 3.x does not talk to the 3.6 wire protocol; pinned so a new default cannot surprise.
+  engine_version          = var.documentdb_engine_version
   master_username         = "minesense_admin"
   master_password         = random_password.documents.result
   db_subnet_group_name    = aws_docdb_subnet_group.documents.name

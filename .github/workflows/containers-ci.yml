@@ -89,6 +89,8 @@ jobs:
           file: ${{ matrix.image.dockerfile }}
           tags: ${{ env.IMAGE }}
           load: true
+          # Invalidates only the layers that apply OS security patches (see src/frontend/Dockerfile).
+          build-args: PATCH_STAMP=${{ github.run_id }}
           cache-from: type=gha,scope=ci-${{ matrix.image.name }}
           cache-to: type=gha,mode=max,scope=ci-${{ matrix.image.name }}
 

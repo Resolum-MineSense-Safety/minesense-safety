@@ -5,7 +5,15 @@ namespace DeviceManagementService.Domain.Services;
 
 public static class PreShiftAvailabilityPolicy
 {
-    public const string RequiredDeviceType = "camera";
+    /// <summary>Cabin camera that feeds eye tracking (PERCLOS).</summary>
+    public const string CameraDeviceType = "camera";
+
+    /// <summary>Operator wearable that feeds the heart-rate signal.</summary>
+    public const string WearableDeviceType = "wearable";
+
+    /// <summary>Every type needs at least one assigned device for full protection.</summary>
+    public static readonly IReadOnlyList<string> RequiredDeviceTypes =
+        [CameraDeviceType, WearableDeviceType];
 
     public static PreShiftAvailabilityResult Evaluate(
         IEnumerable<Device> devices, BatteryThreshold batteryThreshold)
@@ -13,16 +21,22 @@ public static class PreShiftAvailabilityPolicy
         ArgumentNullException.ThrowIfNull(devices);
 
         var evaluatedDevices = devices
-            .Where(device => string.Equals(device.DeviceType, RequiredDeviceType,
-                StringComparison.OrdinalIgnoreCase))
+            .Where(device => RequiredDeviceTypes.Contains(device.DeviceType,
+                StringComparer.OrdinalIgnoreCase))
             .ToList();
 
-        if (evaluatedDevices.Count == 0)
+        var missingDeviceTypes = RequiredDeviceTypes
+            .Where(type => !evaluatedDevices.Any(device =>
+                string.Equals(device.DeviceType, type, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+        if (missingDeviceTypes.Count > 0)
         {
             return new PreShiftAvailabilityResult(
                 PreShiftAvailabilityStatus.ProtectionIncomplete,
                 PreShiftRecommendation.DoNotStartMonitoring,
-                evaluatedDevices);
+                evaluatedDevices,
+                missingDeviceTypes);
         }
 
         if (evaluatedDevices.Any(device =>
@@ -31,7 +45,8 @@ public static class PreShiftAvailabilityPolicy
             return new PreShiftAvailabilityResult(
                 PreShiftAvailabilityStatus.ProtectionIncomplete,
                 PreShiftRecommendation.DoNotStartMonitoring,
-                evaluatedDevices);
+                evaluatedDevices,
+                missingDeviceTypes);
         }
 
         if (evaluatedDevices.Any(device =>
@@ -40,12 +55,14 @@ public static class PreShiftAvailabilityPolicy
             return new PreShiftAvailabilityResult(
                 PreShiftAvailabilityStatus.Warning,
                 PreShiftRecommendation.ReviewBatteryBeforeStarting,
-                evaluatedDevices);
+                evaluatedDevices,
+                missingDeviceTypes);
         }
 
         return new PreShiftAvailabilityResult(
             PreShiftAvailabilityStatus.Available,
             PreShiftRecommendation.StartMonitoring,
-            evaluatedDevices);
+            evaluatedDevices,
+            missingDeviceTypes);
     }
 }

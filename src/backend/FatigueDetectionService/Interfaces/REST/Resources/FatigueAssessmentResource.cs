@@ -9,4 +9,6 @@ public record FatigueAssessmentResource(
     double HeartRateVariabilityMs,
     string RiskLevel,
     bool RequiresAlert,
-    DateTimeOffset AssessedAt);
+    DateTimeOffset AssessedAt,
+    string Origin = "Live",
+    DateTimeOffset? SyncedAt = null);

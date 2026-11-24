@@ -1,0 +1,2 @@
+# Shell scripts run in bash, also on Windows clones with core.autocrlf=true (Git Bash breaks on CRLF).
+*.sh text eol=lf

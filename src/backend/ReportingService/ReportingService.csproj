@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.405.4" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.400.40" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.400.40" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>

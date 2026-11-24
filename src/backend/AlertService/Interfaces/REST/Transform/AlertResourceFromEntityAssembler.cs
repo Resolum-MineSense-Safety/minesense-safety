@@ -7,5 +7,5 @@ public static class AlertResourceFromEntityAssembler
 {
     public static AlertResource ToResourceFromEntity(Alert alert) =>
         new(alert.Id, alert.OperatorId, alert.AssessmentId, alert.Severity.ToString(),
-            alert.Status.ToString(), alert.IssuedAt, alert.AcknowledgedAt);
+            alert.Status.ToString(), alert.IssuedAt, alert.AcknowledgedAt, alert.Origin.ToString(), alert.SyncedAt);
 }

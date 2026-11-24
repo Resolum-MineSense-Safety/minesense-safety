@@ -2,8 +2,8 @@ namespace PrivacyAuditService.Domain.Model.ReadModels;
 
 /// <summary>
 /// Single step of an incident traceability timeline (US23).
-/// Fase 1 slice: steps come from the access audit log; detection/alert/assignment/action
-/// lifecycle events arrive with Fase 3 (Kafka) once producer contexts emit them.
+/// Steps come from the access audit log and from the IncidentOpened / IncidentClosed events of
+/// Incident Management (ADR-004). Assignment and action steps stay in Incident Management's own history.
 /// </summary>
 public record IncidentHistoryEntry(
     DateTimeOffset OccurredAt,

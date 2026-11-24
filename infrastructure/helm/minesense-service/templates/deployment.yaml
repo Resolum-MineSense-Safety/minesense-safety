@@ -58,6 +58,19 @@ spec:
             - secretRef:
                 name: {{ . }}
             {{- end }}
+            {{- range .Values.optionalSecrets }}
+            - secretRef:
+                name: {{ . }}
+                optional: true
+            {{- end }}
+          # The services create their databases and indexes before they listen: on a first start
+          # this can take minutes, and the liveness probe must not kill them meanwhile.
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
@@ -80,9 +93,20 @@ spec:
             # The root filesystem is read-only; .NET only needs a writable /tmp.
             - name: tmp
               mountPath: /tmp
+            {{- with .Values.trustBundle.configMap }}
+            - name: trust-bundle
+              mountPath: {{ $.Values.trustBundle.mountPath }}
+              readOnly: true
+            {{- end }}
       volumes:
         - name: tmp
           emptyDir: {}
+        {{- with .Values.trustBundle.configMap }}
+        - name: trust-bundle
+          configMap:
+            name: {{ . }}
+            optional: true
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

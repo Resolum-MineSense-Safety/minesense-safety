@@ -1,0 +1,87 @@
+name: PostgreSQL Integration
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/backend/Shared/**'
+      - 'src/backend/IdentityAccessService/**'
+      - 'src/backend/OperationsService/**'
+      - 'src/backend/DeviceManagementService/**'
+      - 'src/backend/MonitoringService/**'
+      - 'src/backend/tests/TestSupport/**'
+      - 'src/backend/tests/MineSenseSafety.Shared.Tests/**'
+      - 'src/backend/tests/IdentityAccessService.Tests/**'
+      - 'src/backend/tests/OperationsService.Tests/**'
+      - 'src/backend/tests/DeviceManagementService.Tests/**'
+      - 'src/backend/tests/MonitoringService.Tests/**'
+      - 'src/backend/.dockerignore'
+      - '.github/workflows/postgresql-ci.yml'
+  push:
+    branches: [develop]
+    paths:
+      - 'src/backend/Shared/**'
+      - 'src/backend/IdentityAccessService/**'
+      - 'src/backend/OperationsService/**'
+      - 'src/backend/DeviceManagementService/**'
+      - 'src/backend/MonitoringService/**'
+      - 'src/backend/tests/TestSupport/**'
+      - 'src/backend/tests/MineSenseSafety.Shared.Tests/**'
+      - 'src/backend/tests/IdentityAccessService.Tests/**'
+      - 'src/backend/tests/OperationsService.Tests/**'
+      - 'src/backend/tests/DeviceManagementService.Tests/**'
+      - 'src/backend/tests/MonitoringService.Tests/**'
+      - 'src/backend/.dockerignore'
+      - '.github/workflows/postgresql-ci.yml'
+permissions:
+  contents: read
+jobs:
+  postgresql:
+    name: Relational services with PostgreSQL
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Throw-away CI server: local trust authentication, no credentials to manage.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test relational services with real persistence (ADR-005)
+        env:
+          MINESENSE_TEST_POSTGRES: Host=localhost;Port=5432;Username=postgres
+        run: |
+          for project in MineSenseSafety.Shared IdentityAccessService OperationsService DeviceManagementService MonitoringService; do
+            dotnet test "src/backend/tests/$project.Tests/$project.Tests.csproj" --configuration Release \
+              --logger "console;verbosity=normal"
+          done
+      - name: Build service container
+        run: docker build -f src/backend/OperationsService/Dockerfile -t minesense-operations:ci src/backend
+      - name: Check data survives a service restart
+        run: |
+          start() {
+            docker run -d --name operations-ci --network host \
+              -e ASPNETCORE_ENVIRONMENT=Development \
+              -e ASPNETCORE_HTTP_PORTS=5203 \
+              -e "ConnectionStrings__PostgreSql=Host=localhost;Port=5432;Username=postgres;Database=minesense_operations" \
+              minesense-operations:ci
+            curl --fail --retry 20 --retry-delay 2 --retry-connrefused http://localhost:5203/health/ready
+          }
+          start
+          curl --fail -X POST http://localhost:5203/api/v1/mining-units -H 'Content-Type: application/json' \
+            -d '{"businessCode":"CI-01","name":"CI mine","region":"Ancash"}'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST http://localhost:5203/api/v1/mining-units \
+            -H 'Content-Type: application/json' -d '{"businessCode":"ci-01","name":"Duplicate","region":"Lima"}')" = "409"
+          docker rm -f operations-ci
+          start
+          curl --fail http://localhost:5203/api/v1/mining-units | grep -q '"businessCode":"CI-01"'
+          psql -h localhost -U postgres -d minesense_operations -c '\d mining_units'
+      - name: Container diagnostics
+        if: always()
+        run: docker logs operations-ci || true

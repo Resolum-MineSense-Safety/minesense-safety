@@ -4,18 +4,34 @@ using OperationsService.Application.Internal.QueryServices;
 using OperationsService.Domain.Repositories;
 using OperationsService.Domain.Services;
 using OperationsService.Infrastructure.Persistence.InMemory;
+using OperationsService.Infrastructure.Persistence.PostgreSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMineSenseWebApi();
+
+// Identity & Access tokens (ADR-007), enforced when Authentication:IdentityUrl is set
+builder.Services.AddMineSenseAuthentication(builder.Configuration);
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Operations bounded context (EP08): operational structure and operator assignments
-builder.Services.AddSingleton<IMiningUnitRepository, InMemoryMiningUnitRepository>();
-builder.Services.AddSingleton<IFleetRepository, InMemoryFleetRepository>();
-builder.Services.AddSingleton<IVehicleRepository, InMemoryVehicleRepository>();
-builder.Services.AddSingleton<IOperatorRepository, InMemoryOperatorRepository>();
-builder.Services.AddSingleton<IOperatorAssignmentRepository, InMemoryOperatorAssignmentRepository>();
+// Persistence (ADR-005): PostgreSQL when ConnectionStrings:PostgreSql is set, in memory otherwise
+if (builder.Services.AddMineSensePostgres(builder.Configuration))
+{
+    builder.Services.AddPostgresRepository<IMiningUnitRepository, PostgresMiningUnitRepository>();
+    builder.Services.AddPostgresRepository<IFleetRepository, PostgresFleetRepository>();
+    builder.Services.AddPostgresRepository<IVehicleRepository, PostgresVehicleRepository>();
+    builder.Services.AddPostgresRepository<IOperatorRepository, PostgresOperatorRepository>();
+    builder.Services.AddPostgresRepository<IOperatorAssignmentRepository, PostgresOperatorAssignmentRepository>();
+}
+else
+{
+    builder.Services.AddSingleton<IMiningUnitRepository, InMemoryMiningUnitRepository>();
+    builder.Services.AddSingleton<IFleetRepository, InMemoryFleetRepository>();
+    builder.Services.AddSingleton<IVehicleRepository, InMemoryVehicleRepository>();
+    builder.Services.AddSingleton<IOperatorRepository, InMemoryOperatorRepository>();
+    builder.Services.AddSingleton<IOperatorAssignmentRepository, InMemoryOperatorAssignmentRepository>();
+}
 builder.Services.AddScoped<OperationalStructureValidator>();
 builder.Services.AddScoped<IMiningUnitCommandService, MiningUnitCommandService>();
 builder.Services.AddScoped<IMiningUnitQueryService, MiningUnitQueryService>();
@@ -29,6 +45,7 @@ builder.Services.AddScoped<IOperatorAssignmentCommandService, OperatorAssignment
 builder.Services.AddScoped<IOperatorAssignmentQueryService, OperatorAssignmentQueryService>();
 
 var app = builder.Build();
+await app.Services.InitializePostgresTablesAsync(app.Lifetime.ApplicationStopping);
 
 if (app.Environment.IsDevelopment())
 {
@@ -39,6 +56,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;

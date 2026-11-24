@@ -49,7 +49,7 @@ Accept: application/json
 
 ###
 
-POST {{PrivacyAuditService_HostAddress}}/api/v1/reports/safety
+POST {{PrivacyAuditService_HostAddress}}/api/v1/audit/compliance-reports
 Content-Type: application/json
 
 {
@@ -61,7 +61,12 @@ Content-Type: application/json
 
 ###
 
-GET {{PrivacyAuditService_HostAddress}}/api/v1/incidents/7c9e6679-7425-40de-944b-e07fc1f90ae7/history
+GET {{PrivacyAuditService_HostAddress}}/api/v1/audit/compliance-reports/7c9e6679-7425-40de-944b-e07fc1f90ae7
+Accept: application/json
+
+###
+
+GET {{PrivacyAuditService_HostAddress}}/api/v1/audit/incidents/7c9e6679-7425-40de-944b-e07fc1f90ae7/history
 Accept: application/json
 
 ###
