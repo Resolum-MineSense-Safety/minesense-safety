@@ -11,7 +11,7 @@ workflow las ejecuta y cómo correrlas. Los resultados con cifras salen en cada 
 | 4.4.3 | Rendimiento | k6 | `tests/performance/k6` | `.github/workflows/performance.yml` |
 | 4.4.4 | Seguridad dinámica (DAST) | OWASP ZAP | `tests/security/zap` | `.github/workflows/dast-zap.yml` |
 | 4.4.5 | Accesibilidad | axe-core (WCAG 2.1 AA) y Lighthouse | `tests/e2e/tests/accessibility.spec.js`, `tests/e2e/scripts/lighthouse.mjs` | `.github/workflows/e2e-tests.yml` |
-| 4.8 | Aceptación (Gherkin) | Reqnroll/SpecFlow y Cucumber (Playwright BDD) | `src/backend/tests/AcceptanceTests`, `tests/e2e/features` | `.github/workflows/acceptance-tests.yml`, `e2e-tests.yml` |
+| 4.8 | Aceptación (Gherkin) | Reqnroll (backend) y playwright-bdd (dashboard) | `src/backend/tests/AcceptanceTests`, `tests/e2e/features` | `.github/workflows/acceptance-tests.yml`, `e2e-tests.yml` |
 
 ## 4.4.1 End-to-end y de navegador
 
