@@ -22,5 +22,5 @@ vulnerabilidades se reportan y corrigen con prioridad sobre el resto del backlog
 
 Cada Pull Request ejecuta los controles descritos en
 [docs/devsecops.md](https://github.com/Resolum-MineSense-Safety/minesense-safety/blob/develop/docs/devsecops.md):
-análisis estático (SonarCloud y CodeQL), detección de secretos (gitleaks), revisión de
+análisis estático (CodeQL), detección de secretos (gitleaks), revisión de
 dependencias, escaneo de imágenes (Trivy) y validación de la infraestructura (Terraform y Helm).

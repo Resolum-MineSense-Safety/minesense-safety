@@ -7,7 +7,7 @@
 | Etapa | Segundo entregable | Tercer entregable |
 | --- | --- | --- |
 | Code | GitFlow, Conventional Commits, plantilla de PR, rulesets | Además: Dependabot y política de seguridad (`SECURITY.md`) |
-| Build y Test | Backend CI, SonarCloud, Frontend CI | Además: Containers CI, CodeQL, gitleaks, Dependency Review, Terraform CI y Helm CI |
+| Build y Test | Backend CI, Frontend CI | Además: Containers CI, CodeQL, gitleaks, Dependency Review, Terraform CI y Helm CI |
 | Release | Sin imágenes publicadas | Imágenes chiseled de 13 servicios y del Dashboard, escaneadas con Trivy y publicadas en GHCR con tag inmutable |
 | Deploy | Docker Compose parcial | Compose completo y endurecido; Terraform (3.3), Helm sobre EKS y `cd-deploy.yml` (3.4) |
 | Operate | Sin probes | `/health/live` y `/health/ready` en todos los servicios; escaneo semanal de seguridad |
@@ -17,7 +17,6 @@
 | Archivo | Propósito |
 | --- | --- |
 | `dotnet-build-and-xunit.yml` | Build y pruebas del backend (obligatorio) |
-| `sonarqube-analysis.yml` | Calidad y cobertura en SonarCloud (obligatorio) |
 | `react-vite-build.yml` | Lint y build del Dashboard (obligatorio en main) |
 | `containers-ci.yml` | Imágenes, compose y gateway |
 | `security-scan.yml` | CodeQL, gitleaks y Dependency Review |
