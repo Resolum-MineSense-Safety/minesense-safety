@@ -46,3 +46,21 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "alarm_email" {
+  description = "Address subscribed to the report-flow alarms; empty keeps the SNS topic without subscribers."
+  type        = string
+  default     = ""
+}
+
+variable "queue_age_alarm_seconds" {
+  description = "Alarm when the oldest report request waits longer than this."
+  type        = number
+  default     = 600
+}
+
+variable "duration_alarm_ratio" {
+  description = "Alarm when the p95 render time goes above this fraction of the Lambda timeout."
+  type        = number
+  default     = 0.8
+}

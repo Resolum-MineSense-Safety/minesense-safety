@@ -1,0 +1,52 @@
+name: Third-party Integration Tests
+
+# Section 4.4.2: the Reporting Service against Amazon SQS and Amazon S3, emulated by LocalStack
+# in a container (Testcontainers), with the real AWS SDK requests.
+on:
+  pull_request:
+    branches: [ "develop", "main" ]
+    paths:
+      - "src/backend/ReportingService/**"
+      - "src/backend/tests/ThirdPartyIntegrationTests/**"
+      - ".github/workflows/third-party-integration.yml"
+  push:
+    branches: [ "develop" ]
+    paths:
+      - "src/backend/ReportingService/**"
+      - "src/backend/tests/ThirdPartyIntegrationTests/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  localstack:
+    name: Reporting ↔ SQS/S3 (LocalStack)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend/tests/ThirdPartyIntegrationTests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run integration tests
+        run: >
+          dotnet test MineSenseSafety.ThirdPartyIntegrationTests.csproj --configuration Release
+          --logger "trx;LogFileName=third-party.trx" --results-directory TestResults
+
+      - name: Test report
+        if: always()
+        run: python3 ../../../../.github/scripts/trx-summary.py TestResults/third-party.trx >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: third-party-results
+          path: src/backend/tests/ThirdPartyIntegrationTests/TestResults

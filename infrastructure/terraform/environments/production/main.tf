@@ -60,6 +60,7 @@ module "eks" {
   node_min_size       = var.node_min_size
   node_desired_size   = var.node_desired_size
   node_max_size       = var.node_max_size
+  access_groups       = var.access_groups
 }
 
 module "data" {
@@ -104,6 +105,8 @@ module "reporting" {
   oidc_provider        = module.eks.oidc_provider
   kubernetes_namespace = var.environment
   force_destroy_bucket = !var.deletion_protection
+  alarm_email          = var.alarm_email
+  tags                 = local.tags
 }
 
 module "delivery" {

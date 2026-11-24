@@ -52,8 +52,21 @@ function gatewayProxy() {
   return proxy
 }
 
+// Same security headers as nginx.conf, so `vite preview` (used by the E2E and Lighthouse runs)
+// proves that the production bundle works under the Content-Security-Policy.
+const SECURITY_HEADERS = {
+  'Content-Security-Policy':
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; " +
+    "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+}
+
 export default defineConfig({
   plugins: [react()],
   server: { port: 5173, proxy: gatewayProxy() },
-  preview: { port: 4173, proxy: gatewayProxy() },
+  preview: { port: 4173, proxy: gatewayProxy(), headers: SECURITY_HEADERS },
 })

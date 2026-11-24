@@ -157,10 +157,13 @@ jobs:
   deploy:
     name: Deploy to ${{ needs.resolve.outputs.environment }}
     needs: [ resolve, build ]
-    # Runs after a successful build, or directly when promoting existing images.
-    # The repository variable EKS_DEPLOY_ENABLED turns deployments on once the AWS account exists.
+    # Runs after a successful build, or directly when promoting existing images. It is automatic:
+    # every push to release/** deploys to Staging and every merge to main to Production, as long as the
+    # deploy role is configured (AWS_DEPLOY_ROLE_ARN). EKS_DEPLOY_ENABLED=false is an off switch.
+    # With GITOPS_ENABLED=true Argo CD deploys from Git instead (gitops-promote.yml, section 4.2).
     if: >-
-      always() && vars.EKS_DEPLOY_ENABLED == 'true' &&
+      always() && vars.AWS_DEPLOY_ROLE_ARN != '' && vars.EKS_DEPLOY_ENABLED != 'false' &&
+      vars.GITOPS_ENABLED != 'true' &&
       needs.resolve.result == 'success' &&
       (needs.build.result == 'success' || needs.build.result == 'skipped')
     runs-on: ubuntu-latest
@@ -180,8 +183,30 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      - name: Setup Terraform (read outputs)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+          terraform_wrapper: false
+
+      # The values of the environment come from its Terraform state, so they are always the ones of
+      # the environment that exists now (it is recreated by infrastructure-cd.yml).
+      - name: Read environment outputs
+        id: tf
+        shell: bash
+        env:
+          ENVIRONMENT: ${{ needs.resolve.outputs.environment }}
+        run: |
+          source infrastructure/scripts/lib/common.sh
+          stack="$(stack_dir "$ENVIRONMENT")"
+          terraform_init "$stack" "$(state_bucket_name)"
+          for name in cluster_name vpc_id load_balancer_controller_role_arn reporting_service_role_arn                       report_requests_queue_url reports_bucket kafka_bootstrap_brokers kafka_client_role_arn; do
+            echo "$name=$(tf_output "$stack" "$name")" >> "$GITHUB_OUTPUT"
+          done
+          [[ -n "$(tf_output "$stack" cluster_name)" ]] || { echo "::error::$ENVIRONMENT has no cluster: create it with infrastructure-cd.yml (action=apply)."; exit 1; }
+
       - name: Connect to the EKS cluster
-        run: aws eks update-kubeconfig --name "${{ vars.EKS_CLUSTER_NAME }}" --region "${{ vars.AWS_REGION }}"
+        run: aws eks update-kubeconfig --name "${{ steps.tf.outputs.cluster_name }}" --region "${{ vars.AWS_REGION }}"
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -193,15 +218,15 @@ jobs:
         # bash with pipefail: otherwise "tee" hides a failed deploy.
         shell: bash
         env:
-          EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+          EKS_CLUSTER_NAME: ${{ steps.tf.outputs.cluster_name }}
           AWS_REGION: ${{ vars.AWS_REGION }}
-          VPC_ID: ${{ vars.VPC_ID }}
-          LB_CONTROLLER_ROLE_ARN: ${{ vars.AWS_LB_CONTROLLER_ROLE_ARN }}
-          REPORTING_SERVICE_ROLE_ARN: ${{ vars.REPORTING_SERVICE_ROLE_ARN }}
-          KAFKA_CLIENT_ROLE_ARN: ${{ vars.KAFKA_CLIENT_ROLE_ARN }}
-          REPORT_REQUESTS_QUEUE_URL: ${{ vars.REPORT_REQUESTS_QUEUE_URL }}
-          REPORTS_BUCKET: ${{ vars.REPORTS_BUCKET }}
-          KAFKA_BOOTSTRAP_SERVERS: ${{ vars.KAFKA_BOOTSTRAP_SERVERS }}
+          VPC_ID: ${{ steps.tf.outputs.vpc_id }}
+          LB_CONTROLLER_ROLE_ARN: ${{ steps.tf.outputs.load_balancer_controller_role_arn }}
+          REPORTING_SERVICE_ROLE_ARN: ${{ steps.tf.outputs.reporting_service_role_arn }}
+          KAFKA_CLIENT_ROLE_ARN: ${{ steps.tf.outputs.kafka_client_role_arn }}
+          REPORT_REQUESTS_QUEUE_URL: ${{ steps.tf.outputs.report_requests_queue_url }}
+          REPORTS_BUCKET: ${{ steps.tf.outputs.reports_bucket }}
+          KAFKA_BOOTSTRAP_SERVERS: ${{ steps.tf.outputs.kafka_bootstrap_brokers }}
           API_HOST: ${{ vars.API_HOST }}
           ACM_CERTIFICATE_ARN: ${{ vars.ACM_CERTIFICATE_ARN }}
         run: |

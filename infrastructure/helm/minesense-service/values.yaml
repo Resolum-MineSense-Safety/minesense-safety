@@ -96,6 +96,22 @@ nodeSelector:
 
 tolerations: []
 
+# NetworkPolicy of the service (section 4.5): who may talk to the pod and where it may go.
+networkPolicy:
+  enabled: true
+  # The ALB sends traffic from the VPC to the pod IPs (target-type ip). Staging VPC: 10.20.0.0/16.
+  ingressCidrs:
+    - 10.20.0.0/16
+  # DocumentDB, RDS and MSK live in the VPC; AWS APIs (S3, SQS, Secrets Manager, STS) are public.
+  egressCidrs:
+    - 0.0.0.0/0
+  egressPorts: [ 443, 5432, 27017, 9098 ]
+
+# Prometheus scraping of /metrics (section 4.3), picked up by the ServiceMonitor.
+metrics:
+  enabled: true
+  path: /metrics
+
 # Spread the replicas of a service across availability zones.
 topologySpread:
   enabled: false

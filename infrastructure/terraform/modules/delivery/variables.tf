@@ -31,3 +31,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "state_bucket_prefix" {
+  description = "Prefix of the Terraform state bucket (minesense-safety-tfstate-<account id>)."
+  type        = string
+  default     = "minesense-safety-tfstate-"
+}

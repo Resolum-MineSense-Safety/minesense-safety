@@ -1,0 +1,101 @@
+name: GitOps Promotion (Argo CD)
+
+# Section 4.2, pull-based delivery. Images are built and scanned once by cd-deploy.yml; this
+# workflow only changes the desired state in Git, through pull requests:
+#   1. cd-deploy finished on release/*  -> PR to develop with environments/staging/release.yaml
+#      = that image tag. Merging it makes Argo CD sync Staging (automated, self-heal).
+#   2. Manual "promote to production"   -> PR to main copying the tag already running in Staging
+#      into environments/production/release.yaml. Branch protection asks for the approval;
+#      the on-call engineer syncs Production in Argo CD inside the sync window.
+# Rollback in both environments = revert the release.yaml commit (or `argocd app rollback`).
+# Enabled with the repository variable GITOPS_ENABLED=true (then cd-deploy skips its Helm job).
+on:
+  workflow_run:
+    workflows: [ "Continuous Delivery (Amazon EKS)" ]
+    types: [ completed ]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Environment to promote to
+        type: choice
+        options: [ production, staging ]
+        default: production
+      image_tag:
+        description: Image tag for staging (sha-<commit>); production always copies the Staging tag
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  staging:
+    name: Desired state of Staging
+    if: >-
+      vars.GITOPS_ENABLED == 'true' && (
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+         startsWith(github.event.workflow_run.head_branch, 'release/')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.target == 'staging'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Update release.yaml
+        id: tag
+        run: |
+          tag="${{ inputs.image_tag }}"
+          [[ -z "$tag" ]] && tag="sha-${{ github.event.workflow_run.head_sha }}"
+          sed -i -E "s/^  tag: .*/  tag: ${tag}/" infrastructure/gitops/environments/staging/release.yaml
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          branch="deploy/staging-${TAG#sha-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "chore(gitops): deploy ${TAG} to staging"
+          git push -u origin "$branch"
+          gh pr create --base develop --head "$branch" \
+            --title "chore(gitops): deploy ${TAG} to staging" \
+            --body "Images built and scanned by cd-deploy. Merging this PR makes Argo CD sync Staging."
+
+  production:
+    name: Desired state of Production
+    if: vars.GITOPS_ENABLED == 'true' && github.event_name == 'workflow_dispatch' && inputs.target == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Copy the Staging tag
+        id: tag
+        run: |
+          git fetch origin develop --depth=1
+          tag="$(git show origin/develop:infrastructure/gitops/environments/staging/release.yaml | sed -nE 's/^  tag: (.*)/\1/p')"
+          sed -i -E "s/^  tag: .*/  tag: ${tag}/" infrastructure/gitops/environments/production/release.yaml
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          branch="deploy/production-${TAG#sha-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "chore(gitops): promote ${TAG} to production"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "chore(gitops): promote ${TAG} to production" \
+            --body "Same images already running in Staging. After the approval and the merge, sync the *-production applications in Argo CD."

@@ -38,3 +38,8 @@ podDisruptionBudget:
 
 topologySpread:
   enabled: true
+
+# Production VPC (terraform/environments/production, vpc_cidr).
+networkPolicy:
+  ingressCidrs:
+    - 10.30.0.0/16

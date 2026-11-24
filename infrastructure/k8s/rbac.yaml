@@ -1,0 +1,118 @@
+# Role-based access control of the environments (section 4.5), least privilege per role.
+# The Kubernetes groups are mapped to IAM roles with EKS access entries
+# (terraform/modules/eks, variable access_groups):
+#   minesense:deployers  -> GitHub Actions OIDC role of cd-deploy.yml (and Argo CD)
+#   minesense:oncall     -> on-call engineer of the week (runbook, docs/operations/runbook.md)
+#   minesense:developers -> every team member: read-only, logs and port-forward in Staging
+# Nobody but the cluster creator keeps cluster-admin; Production grants developers nothing.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: minesense-deployer
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+rules:
+  # What the Helm charts create (Deployment, Service, ConfigMap, HPA, PDB, Ingress, NetworkPolicy...)
+  - apiGroups: [ "" ]
+    resources: [ configmaps, services, serviceaccounts, secrets, pods, pods/log, events ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+  - apiGroups: [ apps ]
+    resources: [ deployments, replicasets ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+  - apiGroups: [ autoscaling ]
+    resources: [ horizontalpodautoscalers ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+  - apiGroups: [ policy ]
+    resources: [ poddisruptionbudgets ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+  - apiGroups: [ networking.k8s.io ]
+    resources: [ ingresses, networkpolicies ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+  - apiGroups: [ monitoring.coreos.com ]
+    resources: [ servicemonitors, prometheusrules ]
+    verbs: [ get, list, watch, create, update, patch, delete ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: minesense-oncall
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+rules:
+  # Read everything of the namespace except Secrets...
+  - apiGroups: [ "", apps, autoscaling, policy, networking.k8s.io ]
+    resources: [ pods, pods/log, services, endpoints, configmaps, events, deployments, replicasets,
+                 horizontalpodautoscalers, poddisruptionbudgets, ingresses, networkpolicies ]
+    verbs: [ get, list, watch ]
+  # ...and run the runbook actions: restart or scale a Deployment, delete a stuck pod.
+  - apiGroups: [ apps ]
+    resources: [ deployments, deployments/scale ]
+    verbs: [ patch, update ]
+  - apiGroups: [ "" ]
+    resources: [ pods ]
+    verbs: [ delete ]
+  - apiGroups: [ "" ]
+    resources: [ pods/portforward ]
+    verbs: [ create ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: minesense-developer
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+rules:
+  - apiGroups: [ "", apps, autoscaling, networking.k8s.io ]
+    resources: [ pods, pods/log, services, endpoints, configmaps, events, deployments, replicasets,
+                 horizontalpodautoscalers, ingresses ]
+    verbs: [ get, list, watch ]
+  - apiGroups: [ "" ]
+    resources: [ pods/portforward ]
+    verbs: [ create ]
+---
+# Staging bindings
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minesense-deployers
+  namespace: staging
+subjects:
+  - { kind: Group, name: "minesense:deployers", apiGroup: rbac.authorization.k8s.io }
+roleRef: { kind: ClusterRole, name: minesense-deployer, apiGroup: rbac.authorization.k8s.io }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minesense-oncall
+  namespace: staging
+subjects:
+  - { kind: Group, name: "minesense:oncall", apiGroup: rbac.authorization.k8s.io }
+roleRef: { kind: ClusterRole, name: minesense-oncall, apiGroup: rbac.authorization.k8s.io }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minesense-developers
+  namespace: staging
+subjects:
+  - { kind: Group, name: "minesense:developers", apiGroup: rbac.authorization.k8s.io }
+roleRef: { kind: ClusterRole, name: minesense-developer, apiGroup: rbac.authorization.k8s.io }
+---
+# Production bindings: no developer access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minesense-deployers
+  namespace: production
+subjects:
+  - { kind: Group, name: "minesense:deployers", apiGroup: rbac.authorization.k8s.io }
+roleRef: { kind: ClusterRole, name: minesense-deployer, apiGroup: rbac.authorization.k8s.io }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: minesense-oncall
+  namespace: production
+subjects:
+  - { kind: Group, name: "minesense:oncall", apiGroup: rbac.authorization.k8s.io }
+roleRef: { kind: ClusterRole, name: minesense-oncall, apiGroup: rbac.authorization.k8s.io }

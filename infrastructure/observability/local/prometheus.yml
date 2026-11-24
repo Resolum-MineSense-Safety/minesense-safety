@@ -1,0 +1,47 @@
+# Local Prometheus of docker-compose.observability.yml: same metrics, rules and job names
+# (job = service name) as the ServiceMonitors of EKS, so the dashboard works in both places.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+rule_files:
+  - /etc/prometheus/rules/minesense-slo.rules.yml
+scrape_configs:
+  - job_name: identity-access-service
+    static_configs:
+      - targets: ["identity-access-service:8080"]
+  - job_name: operations-service
+    static_configs:
+      - targets: ["operations-service:8080"]
+  - job_name: device-management-service
+    static_configs:
+      - targets: ["device-management-service:8080"]
+  - job_name: monitoring-service
+    static_configs:
+      - targets: ["monitoring-service:8080"]
+  - job_name: fatigue-detection-service
+    static_configs:
+      - targets: ["fatigue-detection-service:8080"]
+  - job_name: alert-service
+    static_configs:
+      - targets: ["alert-service:8080"]
+  - job_name: fleet-monitoring-service
+    static_configs:
+      - targets: ["fleet-monitoring-service:8080"]
+  - job_name: incident-management-service
+    static_configs:
+      - targets: ["incident-management-service:8080"]
+  - job_name: edge-synchronization-service
+    static_configs:
+      - targets: ["edge-synchronization-service:8080"]
+  - job_name: privacy-audit-service
+    static_configs:
+      - targets: ["privacy-audit-service:8080"]
+  - job_name: reporting-service
+    static_configs:
+      - targets: ["reporting-service:8080"]
+  - job_name: analytics-service
+    static_configs:
+      - targets: ["analytics-service:8080"]
+  - job_name: feedback-reliability-service
+    static_configs:
+      - targets: ["feedback-reliability-service:8080"]

@@ -41,7 +41,7 @@ integrante puede recalcularlos al cierre de cada sprint.
 
 ## Próximos pasos
 
-- Activar los despliegues cuando esté la cuenta de AWS del curso (`EKS_DEPLOY_ENABLED`).
+- Despliegue automático: `cd-deploy.yml` despliega en cada push a `release/*` cuando existe el entorno; el entorno se crea y se destruye con `infrastructure-cd.yml`.
 - Ejecutar automáticamente los escenarios Gherkin del repositorio de pruebas de aceptación
   (sección 3.6).
 - Monitoreo en el clúster con Prometheus, Grafana y EFK (sección 1.4.7).

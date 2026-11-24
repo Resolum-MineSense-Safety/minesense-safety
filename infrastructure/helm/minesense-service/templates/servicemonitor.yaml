@@ -1,0 +1,22 @@
+{{- /*
+Prometheus Operator (kube-prometheus-stack, infrastructure/observability) scrapes /metrics of
+every microservice through this ServiceMonitor (section 4.3). The CRD only exists once the
+stack is installed, so the object is skipped on a cluster without it.
+*/ -}}
+{{- if and .Values.metrics.enabled (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "minesense-service.name" . }}
+  labels:
+    {{- include "minesense-service.labels" . | nindent 4 }}
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      {{- include "minesense-service.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: {{ .Values.metrics.path }}
+      interval: 30s
+{{- end }}

@@ -27,8 +27,13 @@ resources:
   limits:
     memory: 384Mi
 
+# HPA on in Staging too (section 4.1): one replica at rest, up to three under load, so the k6
+# load test (tests/performance) can show the scale-out without paying for idle replicas.
 autoscaling:
-  enabled: false
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
 
 podDisruptionBudget:
   enabled: false

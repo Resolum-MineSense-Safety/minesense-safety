@@ -1,23 +1,27 @@
+import { lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import Shell from './components/Shell'
 import { ToastProvider } from './components/Toasts'
 import { DirectoryProvider } from './lib/directory'
-import Alerts from './pages/Alerts'
-import Analytics from './pages/Analytics'
-import Cabin from './pages/Cabin'
 import ControlCenter from './pages/ControlCenter'
-import Devices from './pages/Devices'
-import Edge from './pages/Edge'
-import Fleet from './pages/Fleet'
-import Incidents from './pages/Incidents'
 import Login from './pages/Login'
-import Operations from './pages/Operations'
-import Privacy from './pages/Privacy'
-import Reliability from './pages/Reliability'
-import Reports from './pages/Reports'
-import Services from './pages/Services'
-import Users from './pages/Users'
+
+// Each module loads on first visit (code splitting): the login and the control center only
+// download what they show (Lighthouse, section 4.4.5).
+const Alerts = lazy(() => import('./pages/Alerts'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const Cabin = lazy(() => import('./pages/Cabin'))
+const Devices = lazy(() => import('./pages/Devices'))
+const Edge = lazy(() => import('./pages/Edge'))
+const Fleet = lazy(() => import('./pages/Fleet'))
+const Incidents = lazy(() => import('./pages/Incidents'))
+const Operations = lazy(() => import('./pages/Operations'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Reliability = lazy(() => import('./pages/Reliability'))
+const Reports = lazy(() => import('./pages/Reports'))
+const Services = lazy(() => import('./pages/Services'))
+const Users = lazy(() => import('./pages/Users'))
 
 function Routed() {
   const { user } = useAuth()

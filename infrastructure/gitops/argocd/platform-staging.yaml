@@ -1,0 +1,53 @@
+# Staging: the single entry point (ALB Ingress: dashboard + API) and the Edge cabin simulator.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minesense-gateway-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: minesense-safety
+  source:
+    repoURL: https://github.com/Resolum-MineSense-Safety/minesense-safety.git
+    targetRevision: develop
+    path: infrastructure/helm/minesense-gateway
+    helm:
+      releaseName: minesense-gateway
+      valueFiles:
+        - ../../gitops/environments/staging/platform/minesense-gateway.yaml
+      ignoreMissingValueFiles: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [ ServerSideApply=true ]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: edge-agent-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: minesense-safety
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: minesense-safety
+  source:
+    repoURL: https://github.com/Resolum-MineSense-Safety/minesense-safety.git
+    targetRevision: develop
+    path: infrastructure/helm/minesense-edge-simulator
+    helm:
+      releaseName: edge-agent
+      valueFiles:
+        - ../../gitops/environments/staging/release.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [ ServerSideApply=true ]

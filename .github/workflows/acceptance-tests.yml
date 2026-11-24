@@ -1,21 +1,51 @@
 name: Acceptance Tests (BDD)
 
-# Section 3.6: the Gherkin scenarios of the user stories run with Reqnroll against the real APIs,
-# hosted in memory. The job summary lists every scenario with its result.
+# Section 3.6: the Gherkin scenarios of the user stories and of the non-functional requirements
+# run with Reqnroll against the real APIs. The "acceptance" job hosts every API in memory on each push
+# and pull request. The "deployed" job runs the same scenarios against a deployed environment
+# through its API gateway (ALB), skipping those tagged @solo-en-memoria:
+#   - by hand: Actions > Acceptance Tests (BDD) > Run workflow, with base_url or the repository
+#     variable STAGING_BASE_URL;
+#   - from another workflow after a deployment:
+#       uses: ./.github/workflows/acceptance-tests.yml
+#       with: { base_url: "https://<alb-host>" }
+#       secrets: inherit
+# Credentials (optional): secret ACCEPTANCE_TOKEN, or variable ACCEPTANCE_USER with secret
+# ACCEPTANCE_PASSWORD (the job signs in through Identity & Access).
 on:
   pull_request:
     branches: [ "main", "develop" ]
     paths:
       - "src/backend/**"
       - ".github/workflows/acceptance-tests.yml"
+      - ".github/scripts/trx-summary.py"
   push:
     branches: [ "develop" ]
     paths:
       - "src/backend/**"
       - ".github/workflows/acceptance-tests.yml"
+      - ".github/scripts/trx-summary.py"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Gateway URL of the deployed environment (empty = repository variable STAGING_BASE_URL)"
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      base_url:
+        description: "Gateway URL of the environment that was just deployed"
+        required: true
+        type: string
+    secrets:
+      ACCEPTANCE_TOKEN:
+        required: false
+      ACCEPTANCE_PASSWORD:
+        required: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Not github.workflow: in a reusable workflow it is the caller's name and would clash with it.
+  group: acceptance-tests-${{ github.ref }}-${{ inputs.base_url || 'memory' }}
   cancel-in-progress: true
 
 permissions:
@@ -51,7 +81,7 @@ jobs:
 
       - name: Scenario report
         if: always()
-        run: python3 ../../../../.github/scripts/trx-summary.py TestResults/acceptance.trx >> "$GITHUB_STEP_SUMMARY"
+        run: python3 ../../../../.github/scripts/trx-summary.py TestResults/acceptance.trx "Acceptance scenarios (in memory)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload results
         if: always()
@@ -59,3 +89,60 @@ jobs:
         with:
           name: acceptance-results
           path: src/backend/tests/AcceptanceTests/TestResults/acceptance.trx
+
+  deployed:
+    name: Acceptance Scenarios (deployed environment)
+    # Only when a URL is given (dispatch or call) or, for a manual run, the staging variable exists.
+    if: inputs.base_url != '' || (github.event_name == 'workflow_dispatch' && vars.STAGING_BASE_URL != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: src/backend/tests/AcceptanceTests
+    env:
+      ACCEPTANCE_BASE_URL: ${{ inputs.base_url || vars.STAGING_BASE_URL }}
+      ACCEPTANCE_TOKEN: ${{ secrets.ACCEPTANCE_TOKEN }}
+      ACCEPTANCE_USER: ${{ vars.ACCEPTANCE_USER }}
+      ACCEPTANCE_PASSWORD: ${{ secrets.ACCEPTANCE_PASSWORD }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Check that the gateway answers
+        run: |
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 20 \
+            "${ACCEPTANCE_BASE_URL%/}/.well-known/jwks.json" || true)
+          echo "GET /.well-known/jwks.json -> HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::error::The gateway at $ACCEPTANCE_BASE_URL is not answering (HTTP $status)."
+            exit 1
+          fi
+
+      - name: Run acceptance scenarios against the deployed environment
+        run: >
+          dotnet test MineSenseSafety.AcceptanceTests.csproj --configuration Release
+          --filter "Category!=solo-en-memoria"
+          --logger "trx;LogFileName=acceptance-deployed.trx" --results-directory TestResults
+
+      - name: Scenario report
+        if: always()
+        run: python3 ../../../../.github/scripts/trx-summary.py TestResults/acceptance-deployed.trx "Acceptance scenarios (deployed environment)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acceptance-results-deployed
+          path: src/backend/tests/AcceptanceTests/TestResults/acceptance-deployed.trx

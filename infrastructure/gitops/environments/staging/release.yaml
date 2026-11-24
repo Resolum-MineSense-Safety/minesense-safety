@@ -1,0 +1,6 @@
+# Desired release of Staging (GitOps, section 4.2). Argo CD deploys exactly this tag to every
+# microservice; gitops-promote.yml updates it through a pull request after cd-deploy builds and
+# scans the images. Rolling back = reverting the commit that changed it.
+# Last release deployed to AWS (01/11/2026): commit 2371239 of feature/staging-integration.
+image:
+  tag: sha-2371239c9bbec0917c54f90dfcadbd683717280e

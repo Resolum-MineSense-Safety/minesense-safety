@@ -1,0 +1,35 @@
+{{- /*
+The cabin simulator only talks to Identity & Access (sign in) and Edge Synchronization
+(batches), plus DNS; nothing may connect to it (section 4.5).
+*/ -}}
+{{- $name := required "name is required" .Values.name -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/part-of: minesense-safety
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: [ Ingress, Egress ]
+  ingress: []
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    - to:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [ identity-access-service, edge-synchronization-service ]
+      ports:
+        - { port: 8080, protocol: TCP }

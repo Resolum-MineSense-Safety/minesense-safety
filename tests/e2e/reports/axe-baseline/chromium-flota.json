@@ -1,0 +1,17 @@
+{
+  "page": "Flota",
+  "passes": 24,
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": 32,
+      "targets": [
+        "div:nth-child(1) > .pb-1.text-white\\/40.text-xs",
+        "div:nth-child(2) > .pb-1.text-white\\/40.text-xs",
+        "div:nth-child(3) > .pb-1.text-white\\/40.text-xs"
+      ]
+    }
+  ]
+}

@@ -86,3 +86,15 @@ variable "report_lambda_package_path" {
   type        = string
   default     = "../../../../src/serverless/ReportPdfGenerator/artifacts/ReportPdfGenerator.zip"
 }
+
+variable "access_groups" {
+  description = "IAM role ARN per RBAC group (oncall, developers, deployers) of infrastructure/k8s/rbac.yaml."
+  type        = map(string)
+  default     = {}
+}
+
+variable "alarm_email" {
+  description = "Address that receives the report-flow alarms (Lambda and SQS). Empty: alarms only show in CloudWatch."
+  type        = string
+  default     = ""
+}

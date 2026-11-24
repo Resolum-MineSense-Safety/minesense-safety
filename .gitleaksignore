@@ -5,3 +5,9 @@ ab72aed2eb940adf8881ffbd5ae6750a1ffd87b0:src/backend/tests/IdentityAccessService
 # Demo-only passwords of the local seed accounts, removed in a later commit (now read from DEMO_PASSWORD).
 88459f7f9b74c7bc455dbd088ae91eecdf7baaa1:src/frontend/scripts/seed-demo.mjs:generic-api-key:80
 88459f7f9b74c7bc455dbd088ae91eecdf7baaa1:src/frontend/src/pages/Login.jsx:generic-api-key:10
+# Acceptance tests: password of the users the scenarios create, and JWTs with an invented signature
+# used to check that every service rejects forged tokens. None grants access to anything real.
+a003ac4a5bd44421c66255e28937848168844e99:src/backend/tests/AcceptanceTests/StepDefinitions/IdentityAccessSteps.cs:generic-api-key:15
+385b219fde4a23eb3bab264dd0c9f78d63396637:src/backend/tests/AcceptanceTests/StepDefinitions/NonFunctionalSteps.cs:generic-api-key:33
+385b219fde4a23eb3bab264dd0c9f78d63396637:src/backend/tests/AcceptanceTests/StepDefinitions/NonFunctionalSteps.cs:jwt:22
+4a93a479df58ae2c3d44d7553ed1bece6eb0f630:src/backend/tests/AcceptanceTests/StepDefinitions/NonFunctionalSteps.cs:jwt:93

@@ -1,0 +1,17 @@
+{
+  "page": "Reportes",
+  "passes": 26,
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": 22,
+      "targets": [
+        "div:nth-child(1) > .pb-1.text-white\\/40.text-xs",
+        "div:nth-child(2) > .pb-1.text-white\\/40.text-xs",
+        "div:nth-child(3) > .pb-1.text-white\\/40.text-xs"
+      ]
+    }
+  ]
+}

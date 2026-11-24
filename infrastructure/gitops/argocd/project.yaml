@@ -1,0 +1,43 @@
+# Argo CD project of MineSense Safety (section 4.2): which repository it may read and where it may
+# deploy. Cluster-scoped objects (namespaces, RBAC, quotas) stay with infrastructure/k8s, applied
+# by deploy.sh; Argo CD only manages the namespaced objects of the Helm charts.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: minesense-safety
+  namespace: argocd
+spec:
+  description: Microservicios, dashboard y simulador Edge de MineSense Safety
+  sourceRepos:
+    - https://github.com/Resolum-MineSense-Safety/minesense-safety.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: staging
+    - server: https://kubernetes.default.svc
+      namespace: production
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - { group: "", kind: ConfigMap }
+    - { group: "", kind: Service }
+    - { group: "", kind: ServiceAccount }
+    - { group: apps, kind: Deployment }
+    - { group: autoscaling, kind: HorizontalPodAutoscaler }
+    - { group: policy, kind: PodDisruptionBudget }
+    - { group: networking.k8s.io, kind: Ingress }
+    - { group: networking.k8s.io, kind: NetworkPolicy }
+    - { group: monitoring.coreos.com, kind: ServiceMonitor }
+  # Production only syncs inside the weekday window, never during the night shift change.
+  syncWindows:
+    - kind: allow
+      schedule: "0 13 * * 1-5" # 08:00 Lima (UTC-5)
+      duration: 9h
+      applications: [ "*-production" ]
+      manualSync: true
+  roles:
+    - name: oncall
+      description: Sincronizar y hacer rollback (runbook)
+      policies:
+        - p, proj:minesense-safety:oncall, applications, sync, minesense-safety/*, allow
+        - p, proj:minesense-safety:oncall, applications, get, minesense-safety/*, allow
+        - p, proj:minesense-safety:oncall, applications, action/apps/Deployment/restart, minesense-safety/*, allow
+      groups: [ "minesense:oncall" ]

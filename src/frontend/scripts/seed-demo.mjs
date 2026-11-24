@@ -45,6 +45,17 @@ const daysAgo = (days, hour = 10) => {
 }
 const uuid = () => crypto.randomUUID()
 
+// Issues the alert of an assessment, or returns the one the event chain already created (409).
+async function raiseAlert(operatorId, assessment) {
+  const body = { operatorId, assessmentId: assessment.id, severity: assessment.riskLevel }
+  const created = await post('/api/v1/alerts', body, { allow: [409] })
+  if (created?.id) return created
+  const existing = await get(`/api/v1/alerts?operatorId=${operatorId}`)
+  const alert = existing.find((item) => item.assessmentId === assessment.id)
+  if (!alert) throw new Error(`POST /api/v1/alerts -> 409 and no alert found for assessment ${assessment.id}`)
+  return alert
+}
+
 async function signIn(username, password) {
   const auth = await post('/api/v1/authentication/sign-in', { username, password }, { as: '' })
   return auth
@@ -157,7 +168,8 @@ async function main() {
       const assessment = await post('/api/v1/fatigue-assessments', { operatorId: cabin.operatorId, monitoringSessionId: session.id, ...readings[step] })
       await put(`/api/v1/fleet-operators/${cabin.operatorId}/risk-level`, { riskLevel: assessment.riskLevel })
       if (!assessment.requiresAlert) continue
-      const alert = await post('/api/v1/alerts', { operatorId: cabin.operatorId, assessmentId: assessment.id, severity: assessment.riskLevel })
+      // With the Kafka chain on, Alert Service may raise the alert from the assessment event first: reuse it.
+      const alert = await raiseAlert(cabin.operatorId, assessment)
       await post('/api/v1/analytics/fatigue-events', {
         operatorId: cabin.operatorId, alertId: alert.id, severity: alert.severity, occurredAt: alert.issuedAt,
         shift: cabin.shift, mineSite: unit.name, location: cabin.location, fleet: cabin.fleet,
@@ -265,7 +277,7 @@ async function main() {
   await post('/api/v1/synchronization-batches', batch) // retry: idempotent 200
   log(`Edge: lote ${batchId.slice(0, 8)} sincronizado (y reintentado)`)
 
-  console.log('\nListo. Inicia sesión como supervisor / Supervisor-2026 o admin / Admin-Local-2026.')
+  console.log(`\nListo. Inicia sesión como supervisor, jefe.seguridad u operador.rosa con DEMO_PASSWORD, o como ${ADMIN.username} con ADMIN_PASSWORD.`)
 }
 
 main().catch((error) => {

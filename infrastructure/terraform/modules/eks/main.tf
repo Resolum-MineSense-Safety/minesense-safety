@@ -18,10 +18,29 @@ module "eks" {
   enable_irsa                              = true
 
   cluster_addons = {
-    coredns                = {}
-    kube-proxy             = {}
-    vpc-cni                = { before_compute = true }
+    coredns    = {}
+    kube-proxy = {}
+    # The VPC CNI network policy agent enforces the NetworkPolicies of infrastructure/k8s and the charts (section 4.5).
+    vpc-cni = {
+      before_compute = true
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+      })
+    }
     eks-pod-identity-agent = {}
+    # Resource metrics for the HorizontalPodAutoscalers (section 4.1).
+    metrics-server = {}
+    # Centralized logging (section 4.3): Fluent Bit ships every container log to CloudWatch Logs
+    # (/aws/containerinsights/<cluster>/application) and Container Insights adds node and pod metrics.
+    amazon-cloudwatch-observability = {}
+  }
+
+  # RBAC groups of infrastructure/k8s/rbac.yaml bound to IAM roles (section 4.5).
+  access_entries = {
+    for group, role_arn in var.access_groups : group => {
+      principal_arn     = role_arn
+      kubernetes_groups = ["minesense:${group}"]
+    }
   }
 
   eks_managed_node_groups = {
@@ -34,6 +53,10 @@ module "eks" {
       max_size       = var.node_max_size
       labels = {
         workload = "microservices"
+      }
+      # Lets the CloudWatch agent and Fluent Bit of the observability add-on write logs and metrics.
+      iam_role_additional_policies = {
+        cloudwatch = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
       }
     }
   }

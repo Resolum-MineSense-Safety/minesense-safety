@@ -39,3 +39,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "access_groups" {
+  description = "IAM role ARN per RBAC group of infrastructure/k8s/rbac.yaml (deployers, oncall, developers). Empty = only the cluster creator."
+  type        = map(string)
+  default     = {}
+}

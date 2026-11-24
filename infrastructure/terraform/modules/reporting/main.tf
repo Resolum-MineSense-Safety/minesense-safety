@@ -97,6 +97,11 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_tracing" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+}
+
 data "aws_iam_policy_document" "lambda_access" {
   statement {
     sid       = "ConsumeRequests"
@@ -140,6 +145,11 @@ resource "aws_lambda_function" "report_pdf_generator" {
     variables = {
       REPORTS_BUCKET = aws_s3_bucket.reports.bucket
     }
+  }
+
+  # X-Ray traces of every render, to see where the time of a slow report goes (monitoring.tf).
+  tracing_config {
+    mode = "Active"
   }
 
   depends_on = [aws_cloudwatch_log_group.lambda]

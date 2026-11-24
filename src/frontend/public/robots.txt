@@ -1,0 +1,3 @@
+# MineSense Safety is an internal control center: nothing to index.
+User-agent: *
+Disallow: /
