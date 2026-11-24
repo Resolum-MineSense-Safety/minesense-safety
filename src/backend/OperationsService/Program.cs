@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MineSenseSafety.Shared.Interfaces.ASP.Configuration;
 using OperationsService.Application.Internal.CommandServices;
 using OperationsService.Application.Internal.QueryServices;
@@ -9,6 +11,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMineSenseWebApi();
 builder.Services.AddSingleton(TimeProvider.System);
+
+// Tokens are signed by Identity & Access and validated here with its public key (JWKS, ADR-007).
+// Authentication:Authority is the base URL of Identity & Access, which publishes the discovery document.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.MapInboundClaims = false;
+    options.Authority = builder.Configuration["Authentication:Authority"];
+    options.Audience = builder.Configuration["Authentication:Audience"] ?? "minesense-services";
+    options.RequireHttpsMetadata = builder.Configuration.GetValue("Authentication:RequireHttpsMetadata", true);
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        NameClaimType = "unique_name", RoleClaimType = "role", ValidateIssuer = true, ValidateAudience = true,
+        ValidateLifetime = true, ValidateIssuerSigningKey = true, ClockSkew = TimeSpan.FromSeconds(30)
+    };
+});
+builder.Services.AddAuthorization();
 
 // Operations bounded context (EP08): operational structure and operator assignments
 builder.Services.AddSingleton<IMiningUnitRepository, InMemoryMiningUnitRepository>();
@@ -37,6 +55,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();

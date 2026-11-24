@@ -5,7 +5,7 @@ using OperationsService.Interfaces.REST.Resources;
 
 namespace OperationsService.Tests.Interfaces;
 
-public class OperatorsApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class OperatorsApiTests(OperationsApiFactory factory) : IClassFixture<OperationsApiFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 

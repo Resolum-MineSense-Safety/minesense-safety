@@ -5,7 +5,7 @@ using OperationsService.Interfaces.REST.Resources;
 
 namespace OperationsService.Tests.Interfaces;
 
-public class OperatorAssignmentsApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class OperatorAssignmentsApiTests(OperationsApiFactory factory) : IClassFixture<OperationsApiFactory>
 {
     private static readonly DateOnly October1 = new(2026, 10, 1);
     private readonly HttpClient _client = factory.CreateClient();

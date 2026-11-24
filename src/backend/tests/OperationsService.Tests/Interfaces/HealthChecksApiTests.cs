@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace OperationsService.Tests.Interfaces;
 
-public class HealthChecksApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class HealthChecksApiTests(OperationsApiFactory factory) : IClassFixture<OperationsApiFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 
