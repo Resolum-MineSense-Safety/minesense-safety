@@ -1,39 +1,22 @@
-import { Activity, BellRing, CloudUpload, History, Layers, RefreshCw, Repeat, Send, Trash2, Wifi, WifiOff } from 'lucide-react'
+import { Activity, BellRing, CloudUpload, History, Layers, Repeat, ShieldCheck, Wifi, WifiOff } from 'lucide-react'
 import { useState } from 'react'
-import { devices, edge } from '../api/services'
-import { useToast } from '../components/Toasts'
-import { Button, Drawer, Empty, Field, IconButton, Input, PageHeader, Panel, Pill, Select, Spinner, Stat } from '../components/ui'
+import { devices, edge, telemetry } from '../api/services'
+import { LiveBadge } from '../components/live'
+import { Drawer, Empty, PageHeader, Panel, Pill, Spinner, Stat } from '../components/ui'
+import { useTelemetry } from '../lib/telemetry'
 import { dateTime, shortId, time } from '../lib/format'
-import { useAction, useAsync } from '../lib/hooks'
+import { useAsync } from '../lib/hooks'
 
-const HISTORY_KEY = 'minesense.edge.batches'
-const MAX_EVENTS = 500
-
-// Event types are free text in the backend; these are the ones a cabin gateway emits in the demo.
+// Event types are free text in the backend; these are the ones the cabin gateways emit.
 const EVENT_TYPES = [
-  { type: 'FatigueReading', label: 'Lectura de fatiga', icon: Activity, tone: 'bg-ore', payload: () => ({ perclos: Number((0.1 + Math.random() * 0.4).toFixed(2)), blinkRate: 10 + Math.round(Math.random() * 12) }) },
-  { type: 'SignalLost', label: 'Señal perdida', icon: WifiOff, tone: 'bg-risk-critical', payload: () => ({ signal: 'EyeTracking' }) },
-  { type: 'SignalRestored', label: 'Señal restaurada', icon: Wifi, tone: 'bg-risk-normal', payload: () => ({ signal: 'EyeTracking' }) },
-  { type: 'AlertRaised', label: 'Alerta emitida', icon: BellRing, tone: 'bg-risk-warning', payload: () => ({ severity: Math.random() > 0.5 ? 'Critical' : 'Warning' }) },
+  { type: 'FatigueReadingClassified', label: 'Lectura clasificada en cabina', icon: Activity, tone: 'bg-ore' },
+  { type: 'CabinWarningIssued', label: 'Advertencia dada en cabina', icon: BellRing, tone: 'bg-risk-warning' },
+  { type: 'FatigueReading', label: 'Lectura de fatiga', icon: Activity, tone: 'bg-ore' },
+  { type: 'SignalLost', label: 'Señal perdida', icon: WifiOff, tone: 'bg-risk-critical' },
+  { type: 'SignalRestored', label: 'Señal restaurada', icon: Wifi, tone: 'bg-risk-normal' },
+  { type: 'AlertRaised', label: 'Alerta emitida', icon: BellRing, tone: 'bg-risk-warning' },
 ]
 const META = Object.fromEntries(EVENT_TYPES.map((item) => [item.type, item]))
-
-function readHistory() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY))
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
-
-function writeHistory(list) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list))
-  } catch {
-    // Private mode: the history lives only in memory.
-  }
-}
 
 const preview = (payload) => JSON.stringify(payload)
 
@@ -100,188 +83,89 @@ function BatchDrawer({ batchId, deviceCode, onClose }) {
 }
 
 export default function Edge() {
-  const toast = useToast()
-  const { busy, run } = useAction(toast)
-  const { data: deviceList, loading: loadingDevices } = useAsync(() => devices.list(), [])
-  const [deviceId, setDeviceId] = useState('')
-  const [edgeNodeId, setEdgeNodeId] = useState(() => crypto.randomUUID())
-  const [batchId, setBatchId] = useState(() => crypto.randomUUID())
-  const [sequence, setSequence] = useState(1)
-  const [events, setEvents] = useState([])
-  const [sent, setSent] = useState(null)
-  const [result, setResult] = useState(null)
-  const [history, setHistory] = useState(readHistory)
+  const live = useTelemetry({ interval: 3000 })
+  const batches = useAsync(() => telemetry.edgeBatches(), [], { interval: 5000 })
+  const { data: deviceList } = useAsync(() => devices.list(), [])
   const [openBatch, setOpenBatch] = useState(null)
 
   const list = deviceList ?? []
   const deviceCode = (id) => list.find((d) => d.id === id)?.deviceCode ?? shortId(id)
+  const received = batches.data ?? []
+  const offline = (live.data?.cabins ?? []).filter((c) => c.state === 'offline')
+  const events = received.reduce((sum, b) => sum + b.events, 0)
+  const warnings = received.reduce((sum, b) => sum + b.warnings, 0)
 
-  const addEvent = (type) => {
-    if (events.length >= MAX_EVENTS) return
-    setEvents((current) => [
-      ...current,
-      { eventId: crypto.randomUUID(), occurredAt: new Date().toISOString(), eventType: type, payload: META[type].payload() },
-    ])
-  }
-
-  const submit = async (body) => {
-    const isNew = !history.some((item) => item.batchId === body.batchId)
-    const response = await run('submit', () => edge.submit(body))
-    if (response === undefined) return
-    setSent(body)
-    setResult({ batch: response, isNew })
-    if (isNew) {
-      const next = [{ batchId: body.batchId, deviceId: body.deviceId, events: body.events.length, submittedAt: new Date().toISOString() }, ...history].slice(0, 30)
-      setHistory(next)
-      writeHistory(next)
-      toast.ok('Lote aceptado.')
-    } else {
-      toast.ok('Lote repetido: el servidor devolvió el original.')
-    }
-  }
-
-  const sendNew = () =>
-    submit({ batchId, edgeNodeId, deviceId, sequenceNumber: Number(sequence), capturedAt: new Date().toISOString(), events })
-
-  const startNext = () => {
-    setBatchId(crypto.randomUUID())
-    setSequence((value) => Number(value) + 1)
-    setEvents([])
-    setSent(null)
-    setResult(null)
-  }
-
-  const clearHistory = () => {
-    setHistory([])
-    writeHistory([])
-  }
-
-  const counts = EVENT_TYPES.map((item) => ({ ...item, count: events.filter((e) => e.eventType === item.type).length }))
-  const alreadySent = sent?.batchId === batchId
-  const canSend = deviceId && events.length > 0 && Number(sequence) >= 0 && !alreadySent
+  if (batches.loading && !batches.data) return <Spinner />
 
   return (
     <>
-      <PageHeader icon={CloudUpload} title="Sincronización edge" />
+      <PageHeader icon={CloudUpload} title="Sincronización edge">
+        <LiveBadge receivedAt={live.receivedAt} paused={live.paused} error={live.error} onToggle={() => live.setPaused((p) => !p)} />
+      </PageHeader>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat value={history.length} caption="Lotes enviados" tone="info" icon={History} />
-        <Stat value={events.length} caption="Eventos en el lote" tone="accent" icon={Layers} />
-        <Stat value={sequence} caption="Secuencia" tone="neutral" icon={Repeat} />
-        <Stat value={list.length} caption="Dispositivos" tone="neutral" icon={Activity} />
+        <Stat value={received.length} caption="Lotes sincronizados" tone="info" icon={History} />
+        <Stat value={events} caption="Eventos recuperados" tone="accent" icon={Layers} />
+        <Stat value={warnings} caption="Advertencias dadas sin red" tone={warnings ? 'Warning' : 'neutral'} icon={BellRing} />
+        <Stat value={offline.length} caption="Cabinas sin cobertura ahora" tone={offline.length ? 'Warning' : 'Normal'} icon={WifiOff} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_360px]">
-        <div className="space-y-5">
-          <Panel title="Gateway de cabina" icon={Wifi}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Dispositivo">
-                <Select value={deviceId} onChange={(event) => setDeviceId(event.target.value)} disabled={loadingDevices && !deviceList}
-                  placeholder={list.length ? 'Elige un dispositivo' : 'Sin dispositivos'}
-                  options={list.map((d) => ({ value: d.id, label: `${d.deviceCode} · ${d.deviceType}` }))} />
-              </Field>
-              <Field label="Secuencia">
-                <Input type="number" min={0} value={sequence} onChange={(event) => setSequence(event.target.value)} />
-              </Field>
-              <div className="space-y-1 md:col-span-2">
-                <span className="text-sm font-medium text-basalt-soft">Nodo edge</span>
-                <div className="flex items-center gap-2">
-                  <span className="flex-1 truncate rounded-lg border border-line bg-mineral px-3 py-2 text-[15px]">{edgeNodeId}</span>
-                  <IconButton icon={RefreshCw} label="Generar otro nodo" onClick={() => setEdgeNodeId(crypto.randomUUID())} />
-                </div>
-              </div>
-            </div>
-          </Panel>
-
-          <Panel title="Eventos" icon={Layers} actions={events.length > 0 && <Button size="sm" variant="ghost" icon={Trash2} onClick={() => setEvents([])} disabled={alreadySent}>Vaciar</Button>}>
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-              {counts.map((item) => {
-                const Icon = item.icon
-                return (
-                  <button
-                    key={item.type}
-                    type="button"
-                    onClick={() => addEvent(item.type)}
-                    disabled={alreadySent}
-                    className="relative flex flex-col items-center gap-2 rounded-xl border border-line bg-white px-2 py-3 text-center transition-colors hover:border-basalt-mute disabled:opacity-50"
-                  >
-                    <span className={`grid h-10 w-10 place-items-center rounded-full text-white ${item.tone}`}><Icon className="h-5 w-5" /></span>
-                    <span className="text-sm font-semibold">{item.label}</span>
-                    {item.count > 0 && <span className="numeral absolute right-2 top-2 rounded-full bg-basalt px-1.5 text-xs text-white">{item.count}</span>}
-                  </button>
-                )
-              })}
-            </div>
-            {events.length ? (
-              <ul className="mt-4 space-y-1">
-                {events.map((event) => (
-                  <li key={event.eventId} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-mineral">
-                    <EventIcon type={event.eventType} />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold">{META[event.eventType].label}</div>
-                      <div className="truncate text-[13px] text-basalt-mute">{preview(event.payload)}</div>
-                    </div>
-                    <span className="numeral text-sm text-basalt-mute">{time(event.occurredAt)}</span>
-                    <IconButton icon={Trash2} label="Quitar evento" disabled={alreadySent}
-                      onClick={() => setEvents((current) => current.filter((e) => e.eventId !== event.eventId))} />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Empty icon={Layers} title="Agrega eventos con los botones." />
-            )}
-          </Panel>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="lg" variant="accent" icon={Send} busy={busy === 'submit' && !alreadySent} disabled={!canSend} onClick={sendNew}>Enviar lote</Button>
-            {alreadySent && (
-              <>
-                <Button size="lg" variant="outline" icon={Repeat} busy={busy === 'submit'} onClick={() => submit(sent)}>Reenviar mismo lote</Button>
-                <Button size="lg" variant="ghost" onClick={startNext}>Nuevo lote</Button>
-              </>
-            )}
-          </div>
-
-          {result && (
-            <div className={`flex flex-wrap items-center gap-4 rounded-tile border p-4 ${result.isNew ? 'border-risk-normal bg-risk-normalWash' : 'border-ore bg-ore-wash'}`}>
-              <span className={`numeral grid h-14 w-14 place-items-center rounded-full text-lg text-white ${result.isNew ? 'bg-risk-normal' : 'bg-ore'}`}>
-                {result.isNew ? 202 : 200}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="font-cond text-2xl font-semibold">{result.isNew ? 'Lote nuevo' : 'Lote repetido'}</div>
-                <div className="text-sm text-basalt-soft">
-                  {result.batch.events?.length ?? 0} eventos · recibido {dateTime(result.batch.receivedAt)}
-                </div>
-              </div>
-              <Pill value={result.batch.status} />
-            </div>
-          )}
-        </div>
-
-        <Panel title="Historial" icon={History} bodyClass="p-2"
-          actions={history.length > 0 && <Button size="sm" variant="ghost" onClick={clearHistory}>Limpiar</Button>}>
-          {history.length ? (
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_380px]">
+        <Panel title="Lotes recibidos de los gateways" icon={CloudUpload} bodyClass="p-2">
+          {received.length ? (
             <ul className="space-y-1">
-              {history.map((item) => (
+              {received.map((item) => (
                 <li key={item.batchId}>
-                  <button type="button" onClick={() => setOpenBatch(item.batchId)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-mineral">
-                    <span className="h-9 w-1.5 rounded-full bg-ore" />
+                  <button type="button" onClick={() => setOpenBatch(item)} className="flex w-full flex-wrap items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-mineral">
+                    <span className="rounded-md bg-basalt px-1.5 py-0.5 font-cond text-sm font-semibold text-haul">{item.vehicleCode}</span>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[15px] font-semibold">Lote {shortId(item.batchId)}</div>
-                      <div className="text-[13px] text-basalt-mute">{deviceCode(item.deviceId)} · {dateTime(item.submittedAt)}</div>
+                      <div className="truncate text-[15px] font-semibold">Lote {shortId(item.batchId)} · secuencia {item.sequenceNumber}</div>
+                      <div className="text-[13px] text-basalt-mute">{item.events} eventos · {item.warnings} advertencias · {dateTime(item.sentAt)}</div>
                     </div>
-                    <span className="numeral rounded-full bg-basalt/5 px-2 text-sm">{item.events}</span>
+                    <span className="flex items-center gap-1.5 text-[13px]">
+                      <Pill tone="Normal" dot={false}>{item.firstStatus} nuevo</Pill>
+                      <Pill tone="info" dot={false}><Repeat className="h-3 w-3" aria-hidden="true" />{item.retryStatus} reintento</Pill>
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
-            <Empty icon={History} title="Aún no envías lotes." />
+            <Empty icon={CloudUpload} title="Todavía ninguna cabina perdió cobertura. Cuando una vuelve a tener red, su lote aparece aquí." />
           )}
         </Panel>
+
+        <div className="space-y-5">
+          <Panel title="Cabinas sin cobertura" icon={WifiOff}>
+            {offline.length ? (
+              <ul className="space-y-2">
+                {offline.map((cabin) => (
+                  <li key={cabin.operatorId} className="flex items-center gap-3 rounded-xl bg-risk-warningWash p-3">
+                    <span className="rounded-md bg-basalt px-1.5 py-0.5 font-cond text-sm font-semibold text-haul">{cabin.vehicleCode}</span>
+                    <div className="min-w-0 flex-1 text-[14px]">
+                      <div className="font-semibold">{cabin.location}</div>
+                      <div className="text-[#8A5200]">Detecta y advierte sin red · {cabin.edgeBuffered} eventos en el buffer</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex items-center gap-3 text-[15px] text-basalt-soft"><Wifi className="h-5 w-5 text-risk-normal" aria-hidden="true" />Todas las cabinas tienen cobertura.</div>
+            )}
+          </Panel>
+          <Panel title="Cómo protege el edge" icon={ShieldCheck}>
+            <ol className="list-decimal space-y-2 pl-5 text-[14px] text-basalt-soft">
+              <li>En el tajo o el botadero la cabina pierde la red; el gateway sigue clasificando cada ventana con los umbrales de Fatigue Detection y advierte en la cabina (US13).</li>
+              <li>Cada lectura y advertencia queda en el buffer en orden.</li>
+              <li>Al volver la red, el gateway sella un lote (BatchId fijo) y lo envía a Edge Synchronization (US14).</li>
+              <li>El enlace parpadea y el mismo lote llega dos veces: el servicio responde 200 y no duplica nada.</li>
+              <li>Kafka publica el contenido: el historial de fatiga y las alertas dadas en cabina llegan al centro de control con su hora original.</li>
+            </ol>
+          </Panel>
+        </div>
       </div>
 
-      {openBatch && <BatchDrawer batchId={openBatch} deviceCode={deviceCode} onClose={() => setOpenBatch(null)} />}
+      {openBatch && <BatchDrawer batchId={openBatch.batchId} deviceCode={deviceCode} onClose={() => setOpenBatch(null)} />}
     </>
   )
 }

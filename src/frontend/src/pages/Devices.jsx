@@ -1,4 +1,4 @@
-import { BatteryLow, BatteryWarning, Camera, CheckCircle2, ClipboardCheck, Clock, Cpu, Link2, Plus, RefreshCw, Truck, UserRound, Watch } from 'lucide-react'
+import { Radio, BatteryLow, BatteryWarning, Camera, CheckCircle2, ClipboardCheck, Clock, Cpu, Link2, Plus, RefreshCw, Truck, UserRound, Watch } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { devices } from '../api/services'
 import { useToast } from '../components/Toasts'
@@ -14,18 +14,6 @@ const GROUPS = [
   { key: 'other', title: 'Otros', icon: Cpu },
 ]
 const TYPE_ICON = { camera: Camera, wearable: Watch }
-// DeviceStatus enum of DeviceManagementService.
-const STATUSES = [
-  { value: 'Available', label: 'Disponible', dot: 'bg-risk-normal' },
-  { value: 'Limited', label: 'Limitado', dot: 'bg-risk-warning' },
-  { value: 'Interrupted', label: 'Interrumpido', dot: 'bg-risk-critical' },
-]
-// Components are free text in the backend; these are suggestions per device type.
-const COMPONENTS = {
-  camera: ['lente', 'infrarrojo', 'procesador', 'batería'],
-  wearable: ['pulso', 'bluetooth', 'correa', 'batería'],
-  other: ['sensor', 'batería', 'conectividad'],
-}
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const typeKey = (type) => {
@@ -110,31 +98,11 @@ function DeviceDrawer({ device, onClose, onSaved }) {
   const { operators, vehicles, operatorName, vehicle } = useDirectory()
   const [operatorId, setOperatorId] = useState(device.assignedOperatorId ?? '')
   const [vehicleId, setVehicleId] = useState(device.assignedVehicleId ?? '')
-  const [status, setStatus] = useState(device.status ?? 'Available')
-  const [battery, setBattery] = useState(Math.round(device.batteryLevel ?? 100))
-  const [components, setComponents] = useState(device.availableComponents ?? [])
-  const [extra, setExtra] = useState('')
-  const suggestions = [...new Set([...COMPONENTS[typeKey(device.deviceType)], ...(device.availableComponents ?? []), ...components])]
   const Icon = TYPE_ICON[typeKey(device.deviceType)] ?? Cpu
-
-  const toggle = (component) =>
-    setComponents((current) => (current.includes(component) ? current.filter((c) => c !== component) : [...current, component]))
 
   const assign = async () => {
     const result = await run('assign', () => devices.assign(device.id, { operatorId: operatorId || null, vehicleId: vehicleId || null }), 'Asignación guardada.')
     if (result !== undefined) onSaved(result)
-  }
-
-  const report = async () => {
-    const body = { status, batteryLevel: battery, reportedAt: new Date().toISOString(), availableComponents: components }
-    const result = await run('report', () => devices.reportStatus(device.id, body), 'Estado reportado.')
-    if (result !== undefined) onSaved(result)
-  }
-
-  const addExtra = () => {
-    const value = extra.trim()
-    if (value && !components.includes(value)) setComponents([...components, value])
-    setExtra('')
   }
 
   return (
@@ -168,44 +136,15 @@ function DeviceDrawer({ device, onClose, onSaved }) {
         </div>
       </section>
 
-      <section className="space-y-4 rounded-xl border border-line p-4">
-        <h3 className="flex items-center gap-2 font-semibold"><RefreshCw className="h-4 w-4 text-basalt-mute" />Reportar estado</h3>
-        <Choice title="Estado" value={status} onChange={setStatus} options={STATUSES} />
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <label htmlFor="battery" className="text-sm font-medium text-basalt-soft">Batería</label>
-            <span className="numeral text-lg">{battery}%</span>
-          </div>
-          <input id="battery" type="range" min={0} max={100} value={battery} onChange={(event) => setBattery(Number(event.target.value))} className="w-full accent-basalt" />
-        </div>
-        <div className="space-y-2">
-          <span className="text-sm font-medium text-basalt-soft">Componentes</span>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((component) => {
-              const on = components.includes(component)
-              return (
-                <button
-                  key={component}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggle(component)}
-                  className={`inline-flex h-8 items-center gap-1 rounded-full border px-3 text-sm font-semibold ${
-                    on ? 'border-risk-normal bg-risk-normalWash text-risk-normal' : 'border-line bg-white text-basalt-mute hover:border-basalt-mute'
-                  }`}
-                >
-                  {on && <CheckCircle2 className="h-3.5 w-3.5" />}
-                  {component}
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex gap-2">
-            <Input value={extra} onChange={(event) => setExtra(event.target.value)} placeholder="Otro componente" aria-label="Otro componente"
-              onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addExtra() } }} />
-            <Button variant="outline" icon={Plus} onClick={addExtra} disabled={!extra.trim()}>Añadir</Button>
-          </div>
-        </div>
-        <Button className="w-full" icon={RefreshCw} busy={busy === 'report'} onClick={report}>Reportar ahora</Button>
+      <section className="space-y-3 rounded-xl border border-line p-4">
+        <h3 className="flex items-center gap-2 font-semibold"><Radio className="h-4 w-4 text-basalt-mute" />Último reporte del dispositivo</h3>
+        <dl className="grid grid-cols-2 gap-2 text-sm">
+          <div className="rounded-lg bg-mineral p-2"><dt className="text-[12px] text-basalt-mute">Estado</dt><dd className="mt-0.5">{device.status ? <Pill value={device.status} /> : 'Sin reporte'}</dd></div>
+          <div className="rounded-lg bg-mineral p-2"><dt className="text-[12px] text-basalt-mute">Batería</dt><dd className="mt-0.5"><Meter value={device.batteryLevel} threshold={LOW_BATTERY} /></dd></div>
+          <div className="rounded-lg bg-mineral p-2"><dt className="text-[12px] text-basalt-mute">Reportado</dt><dd className="mt-0.5 font-semibold">hace {ago(device.reportedAt)}</dd></div>
+          <div className="rounded-lg bg-mineral p-2"><dt className="text-[12px] text-basalt-mute">Componentes</dt><dd className="mt-0.5 flex flex-wrap gap-1">{(device.availableComponents ?? []).length ? device.availableComponents.map((c) => <Chip key={c}>{c}</Chip>) : '—'}</dd></div>
+        </dl>
+        <p className="text-[13px] text-basalt-mute">El gateway IoT de la cabina reporta el estado y la batería cada 30 s (Device Management). No se ingresan a mano.</p>
       </section>
     </Drawer>
   )

@@ -7,7 +7,8 @@ microservicios a través del gateway (`/api/v1`) con el token de Identity & Acce
 |---|---|---|
 | Centro de control | `/` | Fleet Monitoring, Alerts, Incident Management, Device Management, Monitoring, Fatigue Detection |
 | Flota | `/flota` | Fleet Monitoring, Fatigue Detection |
-| Cabina | `/cabina` | Device Management, Monitoring, Fatigue Detection, Alerts, Fleet Monitoring, Analytics, Feedback & Reliability, Incident Management, Privacy & Audit |
+| Cabina | `/cabina` | Device Management, Monitoring, Fatigue Detection, Alerts, Fleet Monitoring, Feedback & Reliability, Incident Management, Privacy & Audit, gateway IoT |
+| Telemetría IoT | `/telemetria` | Gateway IoT de cabina (`src/iot-simulator`): señales en vivo, MQTT, eventos y recorrido de una muestra |
 | Alertas | `/alertas` | Alerts, Feedback & Reliability |
 | Incidentes | `/incidentes` | Incident Management, Privacy & Audit |
 | Operaciones | `/operaciones` | Operations |
@@ -46,26 +47,22 @@ microservicios a través del gateway (`/api/v1`) con el token de Identity & Acce
    del perfil Development) y `supervisor`, `jefe.seguridad` y `operador.rosa` con la contraseña de
    `DEMO_PASSWORD`, que nunca se guarda en el repositorio.
 
-## Cadena de detección con eventos (`VITE_EVENT_DRIVEN`)
+## Datos en vivo: los sensores no se escriben desde la vista
 
-La pantalla Cabina envía una lectura y muestra la cadena evaluación → riesgo en flota → alerta →
-feedback → incidente (`src/lib/flow.js`). Hay dos modos, elegidos al compilar:
+Las lecturas de fatiga, la batería de los dispositivos, las señales y los lotes edge los produce el
+[simulador IoT de flota](../iot-simulator/README.md) (un gateway por camión) y llegan por el mismo
+gateway `/api/v1`. El dashboard solo los lee:
 
-| `VITE_EVENT_DRIVEN` | Quién encadena | Qué hace el dashboard |
+| Pantalla | Antes | Ahora |
 |---|---|---|
-| `false` (por defecto) | El dashboard | Llama a cada servicio (Fleet, Alerts, Analytics, Feedback, Incidents). Sirve para la demo local sin Kafka. |
-| `true` | El backend, con los eventos Kafka del ADR-004 | Solo publica la evaluación y consulta durante unos segundos la alerta, el riesgo, el feedback y el incidente que crearon los servicios. |
+| Cabina | Deslizadores de PERCLOS, parpadeo y HRV y botón "Enviar lectura" | Telemetría en vivo de solo lectura (1 muestra/s), gráficos de 3 minutos con umbrales, pausa/reanudar y la cadena de la última evaluación que mandó el gateway |
+| Dispositivos | Formulario "Reportar estado" con batería | Último reporte del dispositivo (cada 30 s, del gateway) |
+| Edge | Constructor manual de lotes | Lotes que mandan las cabinas al recuperar cobertura, con el reintento idempotente |
+| Centro de control | Lectura cada 10 s | Tablero cada 5 s, mini-gráfico de PERCLOS y pulso por cabina y actividad de los sensores |
 
-```bash
-VITE_EVENT_DRIVEN=true npm run dev     # backend con Kafka__BootstrapServers configurado
-VITE_EVENT_DRIVEN=true npm run build
-```
-
-`docker compose` construye la imagen con `VITE_EVENT_DRIVEN=true` porque levanta Kafka; la imagen
-del pipeline usa `false` mientras los servicios del clúster no tengan `Kafka__BootstrapServers`. En
-modo eventos no se muestra el paso "Tendencia registrada": Analytics registra la observación, pero
-no expone una consulta por alerta. Si el backend tiene Kafka y el dashboard no, nada se duplica:
-alerta, incidente, observación y feedback son idempotentes por evaluación o por alerta.
+La cadena evaluación → riesgo en flota → alerta → feedback → incidente la hace el backend con los
+eventos Kafka del ADR-004 (`src/lib/flow.js` solo la sigue). `VITE_EVENT_DRIVEN` ya no cambia el
+comportamiento del dashboard; se mantiene como argumento de build por compatibilidad del pipeline.
 
 ## Diseño
 

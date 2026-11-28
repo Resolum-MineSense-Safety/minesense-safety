@@ -5,6 +5,7 @@ import { signIn } from '../support/session.js'
 const PAGES = [
   ['Flota', 'Flota'],
   ['Cabina', 'Cabina'],
+  ['Telemetría IoT', 'Telemetría IoT'],
   ['Alertas', 'Alertas'],
   ['Incidentes', 'Incidentes'],
   ['Operaciones', 'Operaciones'],

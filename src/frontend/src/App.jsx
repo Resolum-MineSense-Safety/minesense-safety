@@ -21,6 +21,7 @@ const Privacy = lazy(() => import('./pages/Privacy'))
 const Reliability = lazy(() => import('./pages/Reliability'))
 const Reports = lazy(() => import('./pages/Reports'))
 const Services = lazy(() => import('./pages/Services'))
+const Telemetry = lazy(() => import('./pages/Telemetry'))
 const Users = lazy(() => import('./pages/Users'))
 
 function Routed() {
@@ -33,6 +34,7 @@ function Routed() {
           <Route index element={<ControlCenter />} />
           <Route path="flota" element={<Fleet />} />
           <Route path="cabina" element={<Cabin />} />
+          <Route path="telemetria" element={<Telemetry />} />
           <Route path="alertas" element={<Alerts />} />
           <Route path="incidentes" element={<Incidents />} />
           <Route path="operaciones" element={<Operations />} />

@@ -1,11 +1,13 @@
-import { BatteryWarning, Bell, BellRing, Gauge, RefreshCw, Siren, Truck, Waves } from 'lucide-react'
+import { Activity, BatteryWarning, Bell, BellRing, Gauge, Radio, RefreshCw, Siren, Truck, Waves, WifiOff } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { alerts, devices, fatigue, fleet, incidents, monitoring } from '../api/services'
+import { alerts, devices, fatigue, fleet, incidents, monitoring, telemetry } from '../api/services'
 import FleetTile from '../components/FleetTile'
+import { LiveBadge } from '../components/live'
+import { useTelemetry } from '../lib/telemetry'
 import { Button, Empty, PageHeader, Panel, Pill, Segmented, Spinner, Stat } from '../components/ui'
 import { useDirectory } from '../lib/directory'
-import { ago, RISK_ORDER } from '../lib/format'
+import { ago, RISK_ORDER, time } from '../lib/format'
 import { useAsync } from '../lib/hooks'
 
 async function loadBoard() {
@@ -25,7 +27,11 @@ async function loadBoard() {
 export default function ControlCenter() {
   const navigate = useNavigate()
   const { operatorName } = useDirectory()
-  const { data, loading, reload } = useAsync(loadBoard, [], { interval: 10000 })
+  const { data, loading, reload } = useAsync(loadBoard, [], { interval: 5000 })
+  const iot = useTelemetry({ interval: 2000 })
+  const feed = useAsync(() => telemetry.events(), [], { interval: 4000 })
+  const liveBy = useMemo(() => Object.fromEntries((iot.data?.cabins ?? []).map((c) => [c.operatorId, c])), [iot.data])
+  const gw = iot.data?.gateway
   const [filter, setFilter] = useState('all')
 
   const operators = useMemo(
@@ -46,8 +52,19 @@ export default function ControlCenter() {
   return (
     <>
       <PageHeader icon={Gauge} title="Centro de control">
+        <LiveBadge receivedAt={iot.receivedAt} paused={iot.paused} error={iot.error} onToggle={() => iot.setPaused((p) => !p)} />
         <Button variant="outline" icon={RefreshCw} onClick={reload} busy={loading}>Actualizar</Button>
       </PageHeader>
+
+      <Link to="/telemetria" className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-tile border border-line bg-basalt px-4 py-3 text-white hover:bg-basalt-soft">
+        <span className="flex items-center gap-2 font-semibold"><Radio className="h-4 w-4 text-haul" aria-hidden="true" />Gateways IoT de cabina</span>
+        <span className="text-sm text-white/80"><span className="numeral text-base text-white">{gw?.cabins.streaming ?? '—'}</span> transmitiendo</span>
+        {gw?.cabins.offline > 0 && <span className="flex items-center gap-1 text-sm text-haul"><WifiOff className="h-3.5 w-3.5" aria-hidden="true" />{gw.cabins.offline} sin cobertura</span>}
+        <span className="text-sm text-white/80">1 muestra/s por cabina</span>
+        <span className="text-sm text-white/80">MQTT {gw?.mqtt.connected ? 'conectado' : 'sin broker'} · <span className="numeral">{gw?.mqtt.published?.toLocaleString('es-PE') ?? '—'}</span> mensajes</span>
+        <span className="text-sm text-white/80"><span className="numeral">{gw?.stats.assessments ?? '—'}</span> evaluaciones enviadas</span>
+        <span className="ml-auto text-sm font-semibold text-haul">Ver telemetría</span>
+      </Link>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat value={count('Critical')} caption="Cabinas en riesgo crítico" tone="Critical" icon={Truck} onClick={() => setFilter('Critical')} />
@@ -75,7 +92,7 @@ export default function ControlCenter() {
           {operators.length ? (
             <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
               {operators.map((op) => (
-                <FleetTile key={op.id} operator={op} assessment={data.assessments[op.operatorId]} onClick={() => navigate(`/cabina?operatorId=${op.operatorId}`)} />
+                <FleetTile key={op.id} operator={op} assessment={data.assessments[op.operatorId]} live={liveBy[op.operatorId]} onClick={() => navigate(`/cabina?operatorId=${op.operatorId}`)} />
               ))}
             </div>
           ) : (
@@ -83,6 +100,7 @@ export default function ControlCenter() {
           )}
         </section>
 
+        <div className="space-y-5">
         <Panel title="Cola de alertas" icon={Bell} actions={<Link to="/alertas" className="text-sm font-semibold text-ore hover:underline">Ver todas</Link>} bodyClass="p-2">
           {queue.length ? (
             <ul className="space-y-1">
@@ -103,6 +121,21 @@ export default function ControlCenter() {
             <Empty icon={Bell} title="Sin alertas pendientes." />
           )}
         </Panel>
+        <Panel title="Actividad de los sensores" icon={Activity} bodyClass="p-2">
+          {feed.data?.length ? (
+            <ul className="max-h-72 space-y-0.5 overflow-y-auto" aria-live="off">
+              {feed.data.slice(0, 12).map((event) => (
+                <li key={event.id} className="flex gap-2 rounded-lg px-2 py-1.5 text-[13px] leading-snug">
+                  <span className="numeral shrink-0 text-basalt-mute">{time(event.at)}</span>
+                  <span className={event.severity === 'Critical' ? 'font-semibold text-[#B3261E]' : event.severity === 'Warning' ? 'text-[#8A5200]' : 'text-basalt-soft'}>{event.text}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty icon={Activity} title="Los gateways todavía no reportan eventos." />
+          )}
+        </Panel>
+        </div>
       </div>
     </>
   )

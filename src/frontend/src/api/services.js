@@ -133,6 +133,15 @@ export const edge = {
   get: (batchId) => api.get(`/api/v1/synchronization-batches/${batchId}`),
 }
 
+/** Fleet IoT simulator: the virtual cabin gateways (src/iot-simulator). Read-only for the dashboard. */
+export const telemetry = {
+  cabins: (history) => api.get('/api/v1/telemetry/cabins', { history }),
+  cabin: (operatorId) => api.get(`/api/v1/telemetry/cabins/${operatorId}`),
+  status: () => api.get('/api/v1/telemetry/status'),
+  events: (operatorId) => api.get('/api/v1/telemetry/events', { operatorId }),
+  edgeBatches: () => api.get('/api/v1/telemetry/edge-batches'),
+}
+
 /** One cheap read per microservice, used by the service status page. */
 export const PROBES = [
   { key: 'identity', name: 'Identity & Access', run: () => identity.me() },
@@ -148,4 +157,5 @@ export const PROBES = [
   { key: 'analytics', name: 'Analytics', run: () => analytics.measures() },
   { key: 'feedback', name: 'Feedback & Reliability', run: () => feedback.get('00000000-0000-0000-0000-000000000001').catch((e) => { if (e.status === 404) return null; throw e }) },
   { key: 'edge', name: 'Edge Synchronization', run: () => edge.get('00000000-0000-0000-0000-000000000001').catch((e) => { if (e.status === 404) return null; throw e }) },
+  { key: 'iot', name: 'Gateway IoT (cabinas)', run: () => telemetry.status() },
 ]

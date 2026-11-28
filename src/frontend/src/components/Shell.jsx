@@ -1,6 +1,6 @@
 import {
   BarChart3, Bell, Building2, Cpu, FileText, Gauge, LogOut, Radio, Server, ShieldCheck, Siren,
-  ThumbsUp, Truck, Users, Waves,
+  RadioTower, ThumbsUp, Truck, Users, Waves,
 } from 'lucide-react'
 import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
@@ -16,6 +16,7 @@ const NAV = [
       { to: '/', icon: Gauge, text: 'Centro de control', end: true },
       { to: '/flota', icon: Truck, text: 'Flota' },
       { to: '/cabina', icon: Waves, text: 'Cabina' },
+      { to: '/telemetria', icon: RadioTower, text: 'Telemetría IoT' },
       { to: '/alertas', icon: Bell, text: 'Alertas' },
       { to: '/incidentes', icon: Siren, text: 'Incidentes' },
     ],
