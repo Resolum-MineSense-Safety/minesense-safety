@@ -1,0 +1,7 @@
+# Override of the demo instance on EC2 (infrastructure/demo-ec2/README.md): the gateway also
+# answers on port 80, the only port the security group opens. Every other published port stays
+# closed from the Internet by the security group.
+services:
+  gateway:
+    ports:
+      - "80:8080"
