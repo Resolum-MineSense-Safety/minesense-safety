@@ -2,7 +2,7 @@
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { STROKE } from '../lib/telemetry'
 
-const timeLabel = (t) => new Date(t).toLocaleTimeString('es-PE', { minute: '2-digit', second: '2-digit' })
+const timeLabel = (t) => new Date(t).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
 /** Streaming area chart of one signal over the buffered window (last 3 minutes). */
 export default function StreamChart({ points = [], field, name, unit = '', domain = [0, 'auto'], thresholds = [], tone = 'info', format = (v) => v }) {

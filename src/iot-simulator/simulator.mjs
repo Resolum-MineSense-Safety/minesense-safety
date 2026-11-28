@@ -124,7 +124,8 @@ class Cabin {
     })
     // Two "tired" profiles per fleet make the demo show warnings and the odd critical event.
     this.profile = index % 4 === 0 ? 'cansado' : index % 4 === 3 ? 'somnoliento' : 'descansado'
-    this.fatigue = rand(0.02, 0.12)
+    // Tired operators start the shift already somewhat fatigued, so the demo shows alerts early.
+    this.fatigue = this.profile === 'descansado' ? rand(0.02, 0.12) : rand(0.18, 0.3)
     this.drift = ({ descansado: rand(0.00008, 0.00025), cansado: rand(0.0006, 0.0009), somnoliento: rand(0.0012, 0.0016) })[this.profile] * INTENSITY
     this.heartBase = rand(68, 84)
     this.speed = rand(18, 32)
@@ -303,6 +304,9 @@ async function refreshFleet() {
         EyeTracking: !(open.missingSignals ?? []).includes('EyeTracking'),
         HeartRate: !(open.missingSignals ?? []).includes('HeartRate'),
       }
+      // A signal lost before this gateway started (e.g. by the seed) comes back after a while.
+      for (const signal of ['EyeTracking', 'HeartRate'])
+        if (!cabin.signals[signal] && !cabin.signalBackAt[signal]) cabin.signalBackAt[signal] = Date.now() + rand(20, 60) * 1000
       if (cabin.state === 'idle') emit('session', cabin, `${cabin.vehicleCode}: gateway transmitiendo (sesión ${String(cabin.session.id).slice(0, 8)})`)
       cabin.state = cabin.coverage ? 'streaming' : 'offline'
       cabin.reason = cabin.coverage ? 'Transmitiendo a 1 Hz' : 'Sin cobertura: guardando en el buffer edge'
