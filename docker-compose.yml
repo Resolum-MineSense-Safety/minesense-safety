@@ -85,6 +85,9 @@ services:
   mosquitto:
     image: eclipse-mosquitto:2.0
     container_name: minesense_mqtt
+    restart: unless-stopped
+    volumes:
+      - ./infrastructure/docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
     ports:
       - "1883:1883"
       - "9001:9001"
@@ -99,6 +102,8 @@ services:
     environment:
       <<: *dotnet-environment
       ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=minesense_identity;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD:-minesense-local}
+      # Administrator seeded on first start; set ADMIN_PASSWORD in .env for any shared environment.
+      IdentityAccess__BootstrapAdministrator__Password: ${ADMIN_PASSWORD:-Admin-Local-2026}
     depends_on:
       postgres:
         condition: service_healthy
@@ -276,6 +281,40 @@ services:
     depends_on:
       - edge-synchronization-service
       - mosquitto
+
+  # Fleet IoT simulator (src/iot-simulator): one virtual cabin gateway per truck of the demo mine.
+  # Telemetry at 1 Hz over MQTT, a fatigue reading every ASSESS_SECONDS to Fatigue Detection (the
+  # Kafka chain does the rest), device batteries, signal losses, truck moves and Edge batches when
+  # a cabin loses coverage. On an empty environment it loads the demo mine first (seed-demo.mjs).
+  # The dashboard reads it at /api/v1/telemetry through the gateway, with the Identity tokens.
+  iot-simulator:
+    build:
+      context: ./src/iot-simulator
+      additional_contexts:
+        frontend-scripts: ./src/frontend/scripts
+    image: minesense/iot-simulator:local
+    container_name: minesense_iot_simulator
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      GATEWAY_URL: http://gateway:8080
+      MQTT_HOST: mosquitto
+      SIM_USERNAME: ${SIM_USERNAME:-admin}
+      SIM_PASSWORD: ${ADMIN_PASSWORD:-Admin-Local-2026}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin-Local-2026}
+      # Password of the demo users (supervisor, jefe.seguridad, operador.rosa). Set it in .env.
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
+      ASSESS_SECONDS: ${SIM_ASSESS_SECONDS:-30}
+      SIM_INTENSITY: ${SIM_INTENSITY:-1}
+    depends_on:
+      - mosquitto
+      - gateway
 
   privacy-audit-service:
     <<: *dotnet-service

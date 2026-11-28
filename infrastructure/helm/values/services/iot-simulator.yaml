@@ -1,0 +1,12 @@
+# Fleet IoT simulator: virtual cabin gateways for Staging demos (src/iot-simulator/README.md).
+name: iot-simulator
+image:
+  repository: iot-simulator
+env:
+  # Public entry point of the environment (ALB host): the simulator signs in and calls /api/v1 there.
+  GATEWAY_URL: https://api.staging.minesense.example
+  MQTT_HOST: ""
+  ASSESS_SECONDS: "30"
+# SIM_PASSWORD and DEMO_PASSWORD come from AWS Secrets Manager.
+optionalSecrets:
+  - iot-simulator-secrets

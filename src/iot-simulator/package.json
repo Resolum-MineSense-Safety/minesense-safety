@@ -1,0 +1,12 @@
+{
+  "name": "minesense-iot-simulator",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Virtual cabin gateways of the MineSense demo mine: telemetry over MQTT, readings and edge batches through the gateway.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node simulator.mjs",
+    "test": "node --test"
+  }
+}

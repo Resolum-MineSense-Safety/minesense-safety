@@ -19,6 +19,8 @@ const SERVICE_PORTS = {
   'analytics-service': 5090,
   'edge-synchronization-service': 5280,
   'feedback-reliability-service': 5281,
+  // Fleet IoT simulator: PORT=5290 GATEWAY_URL=http://localhost:8080 node src/iot-simulator/simulator.mjs
+  'iot-simulator': 5290,
 }
 
 /**

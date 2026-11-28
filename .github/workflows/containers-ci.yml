@@ -9,6 +9,7 @@ on:
     paths:
       - "src/backend/**"
       - "src/frontend/**"
+      - "src/iot-simulator/**"
       - "docker-compose.yml"
       - "infrastructure/docker/**"
       - "infrastructure/helm/minesense-gateway/**"
@@ -19,6 +20,7 @@ on:
     paths:
       - "src/backend/**"
       - "src/frontend/**"
+      - "src/iot-simulator/**"
       - "docker-compose.yml"
       - "infrastructure/docker/**"
       - ".github/workflows/containers-ci.yml"
@@ -73,6 +75,7 @@ jobs:
           - { name: feedback-reliability-service, context: src/backend, dockerfile: src/backend/FeedbackReliabilityService/Dockerfile, probe: /health/live }
           - { name: edge-synchronization-service, context: src/backend, dockerfile: src/backend/EdgeSynchronizationService/Dockerfile, probe: /health/ready }
           - { name: supervision-dashboard, context: src/frontend, dockerfile: src/frontend/Dockerfile, probe: /healthz }
+          - { name: iot-simulator, context: src/iot-simulator, dockerfile: src/iot-simulator/Dockerfile, probe: /health/live, contexts: "frontend-scripts=src/frontend/scripts" }
     env:
       IMAGE: minesense/${{ matrix.image.name }}:ci
     steps:
@@ -87,6 +90,7 @@ jobs:
         with:
           context: ${{ matrix.image.context }}
           file: ${{ matrix.image.dockerfile }}
+          build-contexts: ${{ matrix.image.contexts || '' }}
           tags: ${{ env.IMAGE }}
           load: true
           # Invalidates only the layers that apply OS security patches (see src/frontend/Dockerfile).
